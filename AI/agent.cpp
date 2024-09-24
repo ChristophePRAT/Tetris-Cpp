@@ -13,6 +13,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <assert.h>
+// #include "mlx.h"
 
 const int NUM_WEIGHTS = 6;
 

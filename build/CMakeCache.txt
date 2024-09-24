@@ -146,7 +146,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=Sandbox
+CMAKE_PROJECT_NAME:STATIC=tetris-ai
 
 //Value Computed by CMake
 CMAKE_PROJECT_VERSION:STATIC=1.0.0
@@ -236,6 +236,15 @@ Sandbox_IS_TOP_LEVEL:STATIC=ON
 
 //Value Computed by CMake
 Sandbox_SOURCE_DIR:STATIC=/Users/christopheprat/Code/TIPE/Tetris Cpp
+
+//Value Computed by CMake
+tetris-ai_BINARY_DIR:STATIC=/Users/christopheprat/Code/TIPE/Tetris Cpp/build
+
+//Value Computed by CMake
+tetris-ai_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+tetris-ai_SOURCE_DIR:STATIC=/Users/christopheprat/Code/TIPE/Tetris Cpp
 
 
 ########################

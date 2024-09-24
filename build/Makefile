@@ -117,24 +117,24 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named Sandbox
+# Target rules for targets named tetris-ai
 
 # Build rule for target.
-Sandbox: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 Sandbox
-.PHONY : Sandbox
+tetris-ai: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tetris-ai
+.PHONY : tetris-ai
 
 # fast build rule for target.
-Sandbox/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/build
-.PHONY : Sandbox/fast
+tetris-ai/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/build
+.PHONY : tetris-ai/fast
 
 AI/NN.o: AI/NN.cpp.o
 .PHONY : AI/NN.o
 
 # target to build an object file
 AI/NN.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/AI/NN.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/NN.cpp.o
 .PHONY : AI/NN.cpp.o
 
 AI/NN.i: AI/NN.cpp.i
@@ -142,7 +142,7 @@ AI/NN.i: AI/NN.cpp.i
 
 # target to preprocess a source file
 AI/NN.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/AI/NN.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/NN.cpp.i
 .PHONY : AI/NN.cpp.i
 
 AI/NN.s: AI/NN.cpp.s
@@ -150,7 +150,7 @@ AI/NN.s: AI/NN.cpp.s
 
 # target to generate assembly for a file
 AI/NN.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/AI/NN.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/NN.cpp.s
 .PHONY : AI/NN.cpp.s
 
 AI/agent.o: AI/agent.cpp.o
@@ -158,7 +158,7 @@ AI/agent.o: AI/agent.cpp.o
 
 # target to build an object file
 AI/agent.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/AI/agent.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/agent.cpp.o
 .PHONY : AI/agent.cpp.o
 
 AI/agent.i: AI/agent.cpp.i
@@ -166,7 +166,7 @@ AI/agent.i: AI/agent.cpp.i
 
 # target to preprocess a source file
 AI/agent.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/AI/agent.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/agent.cpp.i
 .PHONY : AI/agent.cpp.i
 
 AI/agent.s: AI/agent.cpp.s
@@ -174,7 +174,7 @@ AI/agent.s: AI/agent.cpp.s
 
 # target to generate assembly for a file
 AI/agent.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/AI/agent.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/agent.cpp.s
 .PHONY : AI/agent.cpp.s
 
 Gameplay/game.o: Gameplay/game.cpp.o
@@ -182,7 +182,7 @@ Gameplay/game.o: Gameplay/game.cpp.o
 
 # target to build an object file
 Gameplay/game.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/Gameplay/game.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.o
 .PHONY : Gameplay/game.cpp.o
 
 Gameplay/game.i: Gameplay/game.cpp.i
@@ -190,7 +190,7 @@ Gameplay/game.i: Gameplay/game.cpp.i
 
 # target to preprocess a source file
 Gameplay/game.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/Gameplay/game.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.i
 .PHONY : Gameplay/game.cpp.i
 
 Gameplay/game.s: Gameplay/game.cpp.s
@@ -198,7 +198,7 @@ Gameplay/game.s: Gameplay/game.cpp.s
 
 # target to generate assembly for a file
 Gameplay/game.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/Gameplay/game.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.s
 .PHONY : Gameplay/game.cpp.s
 
 Gameplay/tetris.o: Gameplay/tetris.cpp.o
@@ -206,7 +206,7 @@ Gameplay/tetris.o: Gameplay/tetris.cpp.o
 
 # target to build an object file
 Gameplay/tetris.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/Gameplay/tetris.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o
 .PHONY : Gameplay/tetris.cpp.o
 
 Gameplay/tetris.i: Gameplay/tetris.cpp.i
@@ -214,7 +214,7 @@ Gameplay/tetris.i: Gameplay/tetris.cpp.i
 
 # target to preprocess a source file
 Gameplay/tetris.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/Gameplay/tetris.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.i
 .PHONY : Gameplay/tetris.cpp.i
 
 Gameplay/tetris.s: Gameplay/tetris.cpp.s
@@ -222,7 +222,7 @@ Gameplay/tetris.s: Gameplay/tetris.cpp.s
 
 # target to generate assembly for a file
 Gameplay/tetris.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/Gameplay/tetris.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.s
 .PHONY : Gameplay/tetris.cpp.s
 
 Helpers/FileHelper.o: Helpers/FileHelper.cpp.o
@@ -230,7 +230,7 @@ Helpers/FileHelper.o: Helpers/FileHelper.cpp.o
 
 # target to build an object file
 Helpers/FileHelper.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/Helpers/FileHelper.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Helpers/FileHelper.cpp.o
 .PHONY : Helpers/FileHelper.cpp.o
 
 Helpers/FileHelper.i: Helpers/FileHelper.cpp.i
@@ -238,7 +238,7 @@ Helpers/FileHelper.i: Helpers/FileHelper.cpp.i
 
 # target to preprocess a source file
 Helpers/FileHelper.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/Helpers/FileHelper.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Helpers/FileHelper.cpp.i
 .PHONY : Helpers/FileHelper.cpp.i
 
 Helpers/FileHelper.s: Helpers/FileHelper.cpp.s
@@ -246,7 +246,7 @@ Helpers/FileHelper.s: Helpers/FileHelper.cpp.s
 
 # target to generate assembly for a file
 Helpers/FileHelper.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/Helpers/FileHelper.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Helpers/FileHelper.cpp.s
 .PHONY : Helpers/FileHelper.cpp.s
 
 Helpers/blocksNshapes.o: Helpers/blocksNshapes.cpp.o
@@ -254,7 +254,7 @@ Helpers/blocksNshapes.o: Helpers/blocksNshapes.cpp.o
 
 # target to build an object file
 Helpers/blocksNshapes.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/Helpers/blocksNshapes.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.o
 .PHONY : Helpers/blocksNshapes.cpp.o
 
 Helpers/blocksNshapes.i: Helpers/blocksNshapes.cpp.i
@@ -262,7 +262,7 @@ Helpers/blocksNshapes.i: Helpers/blocksNshapes.cpp.i
 
 # target to preprocess a source file
 Helpers/blocksNshapes.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/Helpers/blocksNshapes.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.i
 .PHONY : Helpers/blocksNshapes.cpp.i
 
 Helpers/blocksNshapes.s: Helpers/blocksNshapes.cpp.s
@@ -270,7 +270,7 @@ Helpers/blocksNshapes.s: Helpers/blocksNshapes.cpp.s
 
 # target to generate assembly for a file
 Helpers/blocksNshapes.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Sandbox.dir/build.make CMakeFiles/Sandbox.dir/Helpers/blocksNshapes.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.s
 .PHONY : Helpers/blocksNshapes.cpp.s
 
 # Help Target
@@ -281,7 +281,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... Sandbox"
+	@echo "... tetris-ai"
 	@echo "... AI/NN.o"
 	@echo "... AI/NN.i"
 	@echo "... AI/NN.s"
