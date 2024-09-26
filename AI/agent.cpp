@@ -9,11 +9,13 @@
 #include "game.h"
 #import <stdlib.h>
 
-#include <stdlib.h>
+// #include <stdlib.h>
 #include <time.h>
 #include <stdlib.h>
 #include <assert.h>
-// #include "mlx.h"
+#include <cassert>
+#include <iostream>
+
 
 const int NUM_WEIGHTS = 6;
 
@@ -98,13 +100,13 @@ void mutatepopulation(population* g, indi bestMan, indi secondBestMan, double sc
     g->id = g->id + 1;
 //    g->learningRate = g->learningRate * 0.8;
     sort(g, scores);
-    
+
     // Ensure that the sort is correct
     assert(scores[0] <= scores[1]);
-    
+
     int upper = g->numIndividuals;
     int lower = g->numIndividuals / 2;
-    
+
     for (int i = 0; i < g->numIndividuals/2; i++) {
 //        assert(g->individuals[i].id != i);
         pregnancy(randomIndiIn(lower, upper, g), randomIndiIn(lower, upper, g), g->individuals[i].weights, 0.2, 0.05);
@@ -122,24 +124,20 @@ block* randomBlock(block** BASIC_BLOCKS) {
 
 bool tickCallback(mat* m, block* s, block* nextBl, evars* e, population* g, unsigned int* score, unsigned int index, bool userMode, block** BASIC_BLOCKS) {
     int down = downShape(*m, s);
-    
+
     *score += 1;
-    
+
     if (down == -1) {
         int numCleared = pushToMat(m, *s);
         *score += numCleared * 200;
-        
+
         updateEvars(*m, e);
-//        freeBlock(s);
-//        copyBlock(s, nextBl);
         changeBlock(s, nextBl);
-//        freeBlock(nextBl);
-//        copyBlock(nextBl, randomBlock(BASIC_BLOCKS));
         changeBlock(nextBl, randomBlock(BASIC_BLOCKS));
         if (userMode) {
             computeDownPos(*m, s);
         }
-        
+
         if (!userMode) {
             bestc compo = theFinestDecision(*m, *s, g->individuals[index].weights, e);
             if (compo.shapeN == -1) { return false; }
@@ -157,15 +155,8 @@ bool tickCallback(mat* m, block* s, block* nextBl, evars* e, population* g, unsi
 void reset(unsigned int* score, mat* m, block* s, block* nextBlock, block** BASIC_BLOCKS, evars* envVars) {
     *score = 0;
     clearMat(m);
-    
-//    freeBlock(s);
-//    copyBlock(s, randomBlock(BASIC_BLOCKS));
     changeBlock(s, randomBlock(BASIC_BLOCKS));
-    
     computeDownPos(*m, s);
-//    freeBlock(nextBlock);
-//    copyBlock(nextBlock, randomBlock(BASIC_BLOCKS));
     changeBlock(nextBlock, randomBlock(BASIC_BLOCKS));
-//    envVars = initVars(*m);
     resetVars(*m, envVars);
 }

@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
+#include "SDL2/SDL_pixels.h"
+#include "SDL2/SDL_video.h"
 #include "game.h"
 #include "../Helpers/blocksNshapes.hpp"
 #include "agent.h"
@@ -23,7 +25,7 @@ void kill(void);
 
 #define userMode false
 
-bool instantMode = true;
+bool instantMode = false;
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 700;
@@ -52,45 +54,39 @@ Uint32 timerID = NULL;
 Uint64 start, end, time_taken;
 
 
-void renderText(SDL_Renderer *renderer, TTF_Font* Sans, int s, char* str, int y) {
-    
-    char message[5] = "";
-    
-    //this opens a font style and sets a size
-
+void renderText(SDL_Renderer *renderer, TTF_Font* Sans, int s, const char* str, int y) {
+    char message[20];
     SDL_Color black = {0, 0, 0};
-    SDL_itoa(s, message, 10);
-    
-    int l = 5 + (int)strlen(str);
-    char *text = (char*)malloc(l * sizeof(char));
-    strcpy(text, str);
-    strcat(text, message);
-    
-    SDL_Surface* surfaceMessage = TTF_RenderText_Shaded(Sans, text, black, {255, 255, 255});
-    
-    
-    // now you can convert it into a texture
-    SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
-    SDL_FreeSurface(surfaceMessage);
-    
-    SDL_Rect Message_rect = { 13 * SQUARE_WIDTH, y * SQUARE_WIDTH, 0, 0 };;
-    
-    
-    TTF_SizeText(Sans, text, &Message_rect.w, &Message_rect.h);
-    
-    SDL_RenderCopy(renderer, Message, NULL, &Message_rect);
-    
-    SDL_DestroyTexture(Message);
+    SDL_snprintf(message, sizeof(message), "%s%d", str, s);
 
-    free(text);
+    SDL_Surface* surfaceMessage = TTF_RenderText_Shaded(Sans, message, black, {255, 255, 255});
+    if (!surfaceMessage) {
+        SDL_Log("Failed to render text: %s", TTF_GetError());
+        return;
+    }
+
+    SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+    if (!Message) {
+        SDL_Log("Failed to create texture from surface: %s", SDL_GetError());
+        SDL_FreeSurface(surfaceMessage);
+        return;
+    }
+
+    SDL_Rect Message_rect = { 13 * SQUARE_WIDTH, y * SQUARE_WIDTH, surfaceMessage->w, surfaceMessage->h };
+
+    SDL_RenderCopy(renderer, Message, NULL, &Message_rect);
+
+    SDL_FreeSurface(surfaceMessage);
+    SDL_DestroyTexture(Message);
 }
+
 
 
 
 void drawSquare(SDL_Rect* squareRect, SDL_Color* color, SDL_Renderer* renderer) {
     // Set renderer color to draw the square
     SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
-    
+
     // Draw filled square
     SDL_RenderFillRect(renderer, squareRect);
 }
@@ -111,7 +107,7 @@ void drawBlock(block s, int x, int y, SDL_Renderer* renderer) {
             if (s.shape[s.currentShape][i][j] != 0) {
                 color = blockColors[s.shape[s.currentShape][i][j]];
                 drawSquare(&squareRect, &color, renderer);
-            } 
+            }
         }
     }
 }
@@ -147,7 +143,7 @@ void drawMat(mat m, block s, SDL_Renderer* renderer) {
 }
 
 int main( int argc, char* args[] ) {
-    
+
     if (!init()) {
         loop();
     } else { kill(); return 1; }
@@ -160,59 +156,59 @@ int main( int argc, char* args[] ) {
 
 void loop() {
 //    srand(time(NULL));
-    
+
     TTF_Font* latexFont = TTF_OpenFont("resources/lmroman17-regular.otf", 24);
-    
-    
+
+
     BASIC_BLOCKS = createBlocks();
     assert(BASIC_BLOCKS != NULL);
     mat* m = createMat(20, 10);
     block* s = emptyShape();
 //    block* sA = BASIC_BLOCKS[rand() % 7];
-    
+
 //    block* sA = BASIC_BLOCKS[(int)floor(randomProba() * 8)];
     block* sA = randomBlock(BASIC_BLOCKS);
     copyBlock(s, sA);
     computeDownPos(*m, s);
-    
+
     block* nextBlock = emptyShape();
 //    sA = BASIC_BLOCKS[(int)floor(randomProba() * 8)];
     sA = randomBlock(BASIC_BLOCKS);
     copyBlock(nextBlock, sA);
-    
+
     evars* envVars = initVars(*m);
-    
+
     Uint32 next_time = SDL_GetTicks() + TIMER_INTERVAL;
 
     bool gameOver = false;
     // Event loop exit flag
     bool quit = false;
-    
+
     // population
     population* g = initializePopulation(20);
     printpopulation(g);
-    
+
     int bestScore = 0;
     int bestIndex = 0;
-    
+
     int secondBestScore = 0;
     int secondBestIndex = 0;
-    
+
     unsigned int index = 0;
     unsigned int score = 0;
-    
+
     int* scores = (int*)malloc(g->numIndividuals * sizeof(int));
-   
-    
+
+
     static int MAX_POP = 10000;
-    
+
     // Event loop
     if (!instantMode) {
         while(!quit)
         {
             SDL_Event e;
             // assert(&e != NULL);
-            
+
             if (&e != NULL && SDL_PollEvent(&e)) {
                 switch (e.type) {
                     case SDL_QUIT:
@@ -257,13 +253,13 @@ void loop() {
                         break;
                 }
             }
-            
+
             // Check if it's time to call the TimerCallback function
             Uint32 current_time = SDL_GetTicks();
             if (current_time >= next_time || instantMode) {
                 gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
                 if (gameOver) {
-                    
+
                     if (userMode) {
                         TTF_CloseFont(latexFont);
                         quit = true;
@@ -271,7 +267,7 @@ void loop() {
                     } else {
                         addEntry((char*)"scores.csv", score, g->individuals[index].weights, g->id);
                     }
-                    
+
                     scores[index] = score;
                     if (score > bestScore) {
                         secondBestIndex = bestIndex;
@@ -295,7 +291,7 @@ void loop() {
                     printf("Population id: #%d \n", g->id);
                     printf(" ----------------------- \n\n\n");
                     if (index >= g->numIndividuals) {
-                        
+
                         mutatepopulation(
                                          g,
                                          g->individuals[bestIndex],
@@ -310,35 +306,35 @@ void loop() {
                         secondBestScore = 0;
                     }
                     reset(&score, m, s, nextBlock, BASIC_BLOCKS, envVars);
-                    
+
                 }
-                
-                
-                
-                
+
+
+
+
                 next_time = current_time + TIMER_INTERVAL;
                 //            score += 1;
             }
-            
-            
-            
-            
+
+
+
+
             // Initialize renderer color white for the background
             SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-            
+
             // Clear screen
             SDL_RenderClear(renderer);
-            
+
             renderText(renderer, latexFont, score, (char*)"Score: ", 5);
             renderText(renderer, latexFont, bestScore, (char*)"Best score: ", 6);
             renderText(renderer, latexFont, TIMER_INTERVAL, (char*)"Interval: ", 7);
             renderText(renderer, latexFont, index, (char*)"Individual: ", 8);
             renderText(renderer, latexFont, g->id, (char*)"Population: ", 9);
-            renderText(renderer, latexFont, TIMER_INTERVAL, (char*)"Interval: ",10);
+            // renderText(renderer, latexFont, TIMER_INTERVAL, (char*)"Interval: ",10);
             if (!instantMode) {
                 // Display next shape by the side of the screen
                 drawBlock(*nextBlock, 12, 1, renderer);
-                
+
                 drawMat(*m, *s, renderer);
             }
             //         Update screen
@@ -347,10 +343,10 @@ void loop() {
     }
     else {
         while (true) {
-            
+
             gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
             if (gameOver) {
-                
+
                 if (userMode) {
                     TTF_CloseFont(latexFont);
                     quit = true;
@@ -358,9 +354,9 @@ void loop() {
                 } else {
                     addEntry((char*)"scores.csv", score, g->individuals[index].weights, g->id);
                 }
-                
+
                 scores[index] = score;
-                
+
                 if (score > bestScore) {
                     secondBestIndex = bestIndex;
                     secondBestScore = bestScore;
@@ -383,7 +379,7 @@ void loop() {
                 printf("Population id: #%d \n", g->id);
                 printf(" ----------------------- \n\n\n");
                 if (index >= g->numIndividuals) {
-                    
+
                     mutatepopulation(
                                      g,
                                      g->individuals[bestIndex],
@@ -398,7 +394,7 @@ void loop() {
                     secondBestScore = 0;
                 }
                 reset(&score, m, s, nextBlock, BASIC_BLOCKS, envVars);
-                
+
             }
         }
         instantMode = false;
@@ -406,7 +402,7 @@ void loop() {
         {
             SDL_Event e;
             assert(&e != NULL);
-            
+
             if (SDL_PollEvent(&e)) {
                 switch (e.type) {
                     case SDL_QUIT:
@@ -444,7 +440,7 @@ void loop() {
                             //                            tickCallback(m, s, nextBlock, envVars);
                             //                        }
                             //                        printf("poaisjdfpoiasjdf");
-                            
+
                             int i = fullDrop(*m, *s, false);
                             s->position[0] = i;
                             tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
@@ -457,13 +453,13 @@ void loop() {
                         break;
                 }
             }
-            
+
             // Check if it's time to call the TimerCallback function
             Uint32 current_time = SDL_GetTicks();
             if (current_time >= next_time || instantMode) {
                 gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
                 if (gameOver) {
-                    
+
                     if (userMode) {
                         TTF_CloseFont(latexFont);
                         quit = true;
@@ -471,7 +467,7 @@ void loop() {
                     } else {
                         addEntry((char*)"scores.csv", score, g->individuals[index].weights, g->id);
                     }
-                    
+
                     scores[index] = score;
                     if (score > bestScore) {
                         secondBestIndex = bestIndex;
@@ -495,7 +491,7 @@ void loop() {
                     printf("Population id: #%d \n", g->id);
                     printf(" ----------------------- \n\n\n");
                     if (index >= g->numIndividuals) {
-                        
+
                         mutatepopulation(
                                          g,
                                          g->individuals[bestIndex],
@@ -510,35 +506,35 @@ void loop() {
                         secondBestScore = 0;
                     }
                     reset(&score, m, s, nextBlock, BASIC_BLOCKS, envVars);
-                    
+
                 }
-                
-                
-                
-                
+
+
+
+
                 next_time = current_time + TIMER_INTERVAL;
                 //            score += 1;
             }
-            
-            
-            
-            
+
+
+
+
             // Initialize renderer color white for the background
             SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-            
+
             // Clear screen
             SDL_RenderClear(renderer);
-            
+
             renderText(renderer, latexFont, score, (char*)"Score: ", 5);
             renderText(renderer, latexFont, bestScore, (char*)"Best score: ", 6);
             renderText(renderer, latexFont, TIMER_INTERVAL, (char*)"Interval: ", 7);
             renderText(renderer, latexFont, index, (char*)"Individual: ", 8);
             renderText(renderer, latexFont, g->id, (char*)"Population: ", 9);
-            
+
             if (!instantMode) {
                 // Display next shape by the side of the screen
                 drawBlock(*nextBlock, 12, 1, renderer);
-                
+
                 drawMat(*m, *s, renderer);
             }
             //         Update screen
@@ -555,26 +551,26 @@ int init() {
     }
     //Create window
     window = SDL_CreateWindow( "Tetris AI", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
-    
+
     if (window == NULL) {
         printf("Error with window: %s\n", SDL_GetError());
         return 1;
     }
-    
+
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-    
+
     if (renderer == NULL) {
         printf("Error with renderer: %s\n", SDL_GetError());
         return 1;
     }
-    
+
     screenSurface = SDL_GetWindowSurface(window);
-    
+
     if (screenSurface == NULL) {
         printf("Error with screen surface: %s\n", SDL_GetError());
         return 1;
     }
-    
+
     return 0;
 }
 
@@ -582,7 +578,7 @@ void kill(void) {
     //Destroy window
     SDL_RemoveTimer(timerID);
     SDL_DestroyRenderer(renderer);
-    
+
     //Quit SDL subsystems
     TTF_Quit();
 //    SDL_Quit();

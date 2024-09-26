@@ -1,6 +1,6 @@
 CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o: \
   /Applications/Xcode-beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/share/asan_ignorelist.txt \
-  /Users/christopheprat/Code/TIPE/Tetris\ Cpp/Gameplay/tetris.cpp \
+  /Users/christopheprat/Code/TIPE/Tetris-Cpp/Gameplay/tetris.cpp \
   /Library/Frameworks/SDL2.framework/Headers/SDL.h \
   /Library/Frameworks/SDL2.framework/Headers/SDL_main.h \
   /Library/Frameworks/SDL2.framework/Headers/SDL_stdinc.h \
@@ -259,12 +259,12 @@ CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o: \
   /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/assert.h \
   /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/_assert.h \
   /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/_static_assert.h \
-  /Users/christopheprat/Code/TIPE/Tetris\ Cpp/Gameplay/game.h \
-  /Users/christopheprat/Code/TIPE/Tetris\ Cpp/Gameplay/../Helpers/blocksNshapes.hpp \
-  /Users/christopheprat/Code/TIPE/Tetris\ Cpp/./Gameplay/game.h \
-  /Users/christopheprat/Code/TIPE/Tetris\ Cpp/./AI/agent.h \
+  /Users/christopheprat/Code/TIPE/Tetris-Cpp/Gameplay/game.h \
+  /Users/christopheprat/Code/TIPE/Tetris-Cpp/Gameplay/../Helpers/blocksNshapes.hpp \
+  /Users/christopheprat/Code/TIPE/Tetris-Cpp/./Gameplay/game.h \
+  /Users/christopheprat/Code/TIPE/Tetris-Cpp/./AI/agent.h \
   /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/cstdlib \
   /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/time.h \
   /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/_time.h \
   /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/sys/_types/_timespec.h \
-  /Users/christopheprat/Code/TIPE/Tetris\ Cpp/./Helpers/FileHelper.hpp
+  /Users/christopheprat/Code/TIPE/Tetris-Cpp/./Helpers/FileHelper.hpp

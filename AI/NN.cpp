@@ -6,3 +6,4 @@
 //
 
 #include "NN.hpp"
+#include "mlx/mlx.h"

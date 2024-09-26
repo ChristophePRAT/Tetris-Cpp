@@ -44,7 +44,7 @@ int* heightOfColumnShape(block s, int col) {
     re[0] = 3;
     re[1] = 4;
 //    int re[2] = {3,4};
-    
+
 //    int start = -1, end = -1;
     for (int i = 0; i < 4; i++) {
         if (s.shape[s.currentShape][i][col] != 0) {
@@ -79,7 +79,7 @@ int fullDrop(mat m, block s, bool preview) {
         if (h == 0) {
             return -1;
         }
-        
+
         int pos = h - index;
         if (pos < posMin && pos > 0) {
             posMin = pos;
@@ -120,7 +120,7 @@ void initBlock(block* b, int shape[4][4][4], int numberOfShapes) {
     assert(shape != NULL);
     b->shape = (int***) malloc(numberOfShapes * sizeof(int**));
     assert(b->shape != NULL);
-    
+
     if (numberOfShapes > 4) {
         // Handle out-of-bounds error
         return;
@@ -128,7 +128,7 @@ void initBlock(block* b, int shape[4][4][4], int numberOfShapes) {
     for (int a = 0; a < numberOfShapes; a++) {
         b->shape[a] = (int**)malloc(4 * sizeof(int*));
         assert(shape[a]);
-        
+
         // Copy the shape data to the block
         for (int i = 0; i < 4; i++) {
             b->shape[a][i] = (int*)malloc(4*sizeof(int));
@@ -198,7 +198,7 @@ void printMat(mat* m, block s) {
 }
 
 bool canMoveDownShape(mat m, block s) {
-    
+
     for (int i = 0; i < 4; i++) {    // for each row
         for (int j = 0; j < 4; j++) {  // for each col
             if (s.shape[s.currentShape][i][j] > 0) {      // if cell is in block
@@ -280,10 +280,10 @@ int pushToMat(mat* m, block s) {
             }
         }
     }
-    
+
     int numCleared = 0;
     int min = s.position[0] + 4 > m->rows ? m->rows : s.position[0] + 4;
-    
+
     for (int row = s.position[0]; row < min; row++) {
 //        printf("Checking position %d, %d \n", row);
         bool shouldPushDown = true;
@@ -331,7 +331,7 @@ void copyBlock(block* dest, block* src) {
     dest->position[0] = src->position[0];
     dest->position[1] = src->position[1];
     dest->shape = (int***)malloc(4 * sizeof(int**));
-    
+
     assert(dest->shape != NULL);
     assert(src->shape != NULL);
     for (int i = 0; i < 4; i++) {
@@ -435,9 +435,9 @@ evars* initVars(mat m) {
             sl[i] = 0;
         }
     }
-    
+
     evars* ev = (evars*)malloc(sizeof (evars));
-    
+
     *ev = {
         ch,
         sl,
@@ -445,9 +445,9 @@ evars* initVars(mat m) {
         0,
         0
     };
-    
+
     return ev;
-    
+
 }
 void resetVars(mat m, evars* ev) {
     for (int i = 0; i < m.cols; i++) {
@@ -551,11 +551,11 @@ mat *deepcopy(mat *m) {
 mat* previewMatIfPushDown(mat* m, block s, int* numCleared) {
     assert(s.position[0] >= 0);
     int row = fullDrop(*m, s, true);
-    
+
     if (row == -1 || !canInsertShape(*m, s)) {
         return NULL;
     }
-    
+
     assert(row >= 0);
     s.position[0] = row;
     // mat* newMat = createMat(m->rows, m->cols);
@@ -591,13 +591,13 @@ double meaned(int* arr, int size) {
 double previewScore(mat m, block s, double* prefs, evars* previousEvars, int col, double mch, double mdch) {
     s.position[1] = col;
     int numCleared = 0;
-    
+
     mat* preview = previewMatIfPushDown(&m, s, &numCleared);;
     if (preview == NULL) {
         return -10000000000;
     }
     evars* ev = retrieveEvars(*preview, previousEvars);
-    double score = 
+    double score =
         prefs[0] * ev->hMax +
         prefs[1] * ev->numHoles +
     // les parametres suivants sont inutilisés par l'IA:
@@ -609,7 +609,7 @@ double previewScore(mat m, block s, double* prefs, evars* previousEvars, int col
     free(ev->colHeights);
     free(ev->deltaColHeights);
     free(ev);
-    
+
     return score;
 }
 
@@ -620,7 +620,7 @@ double* getColFromBotDecision(mat m, block s, double* preferences, evars* previo
     double meanedDeltaColHeights = meaned(previousEvars->deltaColHeights, m.cols);
 
     int bestCol = 0;
-    
+
     double bestScore = previewScore(m, s, preferences, previousEvars, 0, meanedColHeights, meanedDeltaColHeights);
     double* cs = (double*) malloc(2 * sizeof(double));
     for (int i = 1; i < m.cols; i++) {

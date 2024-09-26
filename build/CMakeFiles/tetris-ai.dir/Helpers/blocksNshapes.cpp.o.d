@@ -1,7 +1,7 @@
 CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.o: \
   /Applications/Xcode-beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/share/asan_ignorelist.txt \
-  /Users/christopheprat/Code/TIPE/Tetris\ Cpp/Helpers/blocksNshapes.cpp \
-  /Users/christopheprat/Code/TIPE/Tetris\ Cpp/Helpers/blocksNshapes.hpp \
+  /Users/christopheprat/Code/TIPE/Tetris-Cpp/Helpers/blocksNshapes.cpp \
+  /Users/christopheprat/Code/TIPE/Tetris-Cpp/Helpers/blocksNshapes.hpp \
   /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/stdio.h \
   /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/__config \
   /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/__config_site \
@@ -255,7 +255,7 @@ CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.o: \
   /Library/Frameworks/SDL2.framework/Headers/SDL_version.h \
   /Library/Frameworks/SDL2.framework/Headers/SDL_locale.h \
   /Library/Frameworks/SDL2.framework/Headers/SDL_misc.h \
-  /Users/christopheprat/Code/TIPE/Tetris\ Cpp/./Gameplay/game.h \
+  /Users/christopheprat/Code/TIPE/Tetris-Cpp/./Gameplay/game.h \
   /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/stdbool.h \
   /Applications/Xcode-beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/include/stdbool.h \
   /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/assert.h \
