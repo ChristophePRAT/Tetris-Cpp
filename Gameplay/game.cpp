@@ -38,24 +38,6 @@ int heightOfColumn(mat m, int col) {
   }
   return m.rows;
 }
-int* heightOfColumnShape(block s, int col) {
-    assert(col >= 0 && col < 4);
-    int* re = (int*)malloc(2 * sizeof(int));
-    re[0] = 3;
-    re[1] = 4;
-//    int re[2] = {3,4};
-
-//    int start = -1, end = -1;
-    for (int i = 0; i < 4; i++) {
-        if (s.shape[s.currentShape][i][col] != 0) {
-            if (re[0] == 3| i == 0) {
-                re[0] = i;
-            }
-            re[1] = i;
-        }
-    }
-    return re;
-}
 
 int firstIndexNotZInColInShape(block s, int col) {
     for (int i = 3; i >= 0; i--) {
@@ -585,7 +567,7 @@ double meaned(int* arr, int size) {
     for (int i = 0; i < size; i++) {
         sum += arr[i];
     }
-    return sum / (double)size;
+    return sum;
 }
 
 double previewScore(mat m, block s, double* prefs, evars* previousEvars, int col, double mch, double mdch) {
@@ -601,7 +583,7 @@ double previewScore(mat m, block s, double* prefs, evars* previousEvars, int col
         prefs[0] * ev->hMax +
         prefs[1] * ev->numHoles +
     // les parametres suivants sont inutilisés par l'IA:
-    prefs[2] * mch +
+        prefs[2] * mch +
         prefs[3] * mdch +
         prefs[4] * numCleared +
         prefs[5] * ev->minMax;

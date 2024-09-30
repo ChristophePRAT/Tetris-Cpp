@@ -43,19 +43,32 @@ char* join_doubles(double* arr, int len) {
   return str;
 }
 
-void addEntry(char* fileName, int score, double* weights, int populationId) {
+void addEntry(unsigned int *fileNum, int score, double* weights, int populationId, bool firstEntry) {
     FILE *fptr;
-    
+    char fileName[40];
+
+    sprintf(fileName, "scores_%d.csv", *fileNum);
+
     // Open a file in read mode
     fptr = fopen(fileName, "a");
     if (fptr == nullptr) {
         fptr = fopen(fileName, "w");
         fprintf(fptr, "score,weight1,weight2,weight3,weight4,weight5,weight6,population");
+    } else {
+        fseek(fptr, 0, SEEK_END);
+        if (ftell(fptr) == 0) {
+            fprintf(fptr, "score,weight1,weight2,weight3,weight4,weight5,weight6,population");
+        } else {
+            if (firstEntry) {
+                *fileNum += 1;
+                addEntry(fileNum, score, weights, populationId, firstEntry);
+            }
+        }
     }
-    
+
     // Stored at /Users/christopheprat/Library/Containers/com.christopheprat.tutorial/Data
     fprintf(fptr, "\n%d, %s, %d", score, join_doubles(weights, 6), populationId);
-    
-    
+
+
     fclose(fptr);
 }

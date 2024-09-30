@@ -7,14 +7,15 @@
 
 #include "agent.h"
 #include "game.h"
+#include <cstdio>
 #import <stdlib.h>
 
 // #include <stdlib.h>
-#include <time.h>
+// #include <time.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <cassert>
-#include <iostream>
+// #include <iostream>
 
 
 const int NUM_WEIGHTS = 6;
@@ -96,9 +97,8 @@ indi randomIndiIn(int a, int b, population* g) {
 }
 
 
-void mutatepopulation(population* g, indi bestMan, indi secondBestMan, double scale, int* scores) {
+unsigned int mutatepopulation(population* g, int* scores) {
     g->id = g->id + 1;
-//    g->learningRate = g->learningRate * 0.8;
     sort(g, scores);
 
     // Ensure that the sort is correct
@@ -107,10 +107,18 @@ void mutatepopulation(population* g, indi bestMan, indi secondBestMan, double sc
     int upper = g->numIndividuals;
     int lower = g->numIndividuals / 2;
 
+    printf("\n\nMUTATING POPULATION\n");
+    printf("Population ID: %d\n", g->id);
+    printf("Previous best score: %d\n", scores[g->numIndividuals - 1]);
+    printWeights(g->individuals[g->numIndividuals - 1].weights);
+    printf("\n");
+
+
     for (int i = 0; i < g->numIndividuals/2; i++) {
 //        assert(g->individuals[i].id != i);
-        pregnancy(randomIndiIn(lower, upper, g), randomIndiIn(lower, upper, g), g->individuals[i].weights, 0.2, 0.05);
+        pregnancy(randomIndiIn(lower, upper, g), randomIndiIn(lower, upper, g), g->individuals[i].weights, 2, 0.05);
     }
+    return scores[g->numIndividuals - 1];
 }
 
 

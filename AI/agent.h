@@ -8,7 +8,6 @@
 #ifndef agent_hpp
 #define agent_hpp
 
-#include <stdio.h>
 #include "game.h"
 
 typedef struct Individual {
@@ -22,7 +21,7 @@ typedef struct population {
     int id;
 } population;
 
-void mutatepopulation(population* g, indi bestMan, indi secondBestMan, double scale, int* scores);
+unsigned int mutatepopulation(population* g, int* scores);
 void printpopulation(population* g);
 population* initializePopulation(int numIndi);
 void freepopulation(population* g);

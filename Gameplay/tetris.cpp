@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "SDL2/SDL_pixels.h"
+#include "SDL2/SDL_render.h"
 #include "SDL2/SDL_video.h"
 #include "game.h"
 #include "../Helpers/blocksNshapes.hpp"
@@ -54,8 +55,8 @@ Uint32 timerID = NULL;
 Uint64 start, end, time_taken;
 
 
-void renderText(SDL_Renderer *renderer, TTF_Font* Sans, int s, const char* str, int y) {
-    char message[20];
+void renderText(SDL_Renderer *renderer, TTF_Font* Sans, int s, char* str, int y) {
+    char message[25];
     SDL_Color black = {0, 0, 0};
     SDL_snprintf(message, sizeof(message), "%s%d", str, s);
 
@@ -90,9 +91,6 @@ void drawSquare(SDL_Rect* squareRect, SDL_Color* color, SDL_Renderer* renderer) 
     // Draw filled square
     SDL_RenderFillRect(renderer, squareRect);
 }
-
-
-
 
 
 void drawBlock(block s, int x, int y, SDL_Renderer* renderer) {
@@ -188,162 +186,84 @@ void loop() {
     population* g = initializePopulation(20);
     printpopulation(g);
 
-    int bestScore = 0;
-    int bestIndex = 0;
+    // int bestScore = 0;
+    // int bestIndex = 0;
 
-    int secondBestScore = 0;
-    int secondBestIndex = 0;
+    // int secondBestScore = 0;
+    // int secondBestIndex = 0;
 
     unsigned int index = 0;
     unsigned int score = 0;
+
+    unsigned int previousBest = 0;
 
     int* scores = (int*)malloc(g->numIndividuals * sizeof(int));
 
 
     static int MAX_POP = 10000;
 
+    unsigned int fileNum = 0;
+
     // Event loop
-    if (!instantMode) {
-        while(!quit)
-        {
-            SDL_Event e;
-            // assert(&e != NULL);
+    while(!quit) {
+        SDL_Event e;
+        // assert(&e != NULL);
 
-            if (&e != NULL && SDL_PollEvent(&e)) {
-                switch (e.type) {
-                    case SDL_QUIT:
-                        quit = true;
-                        break;
-                    case SDL_USEREVENT:
-                        printf("User event \n");
-                        break;
-                    case SDL_KEYDOWN:
-                        if (e.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
-                            moveRLShape(m, s, 1);
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_LEFT) {
-                            moveRLShape(m, s, -1);
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_DOWN) {
-                            //                        downShape(*m, s);
-                            tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_UP) {
-                            rotateShape(*m, s);
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_B) {
-                            instantMode = !instantMode;
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_9) {
-                            TIMER_INTERVAL = 20;
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_8) {
-                            TIMER_INTERVAL = userMode ? 400 : 100;
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_F) {
-                            //                        TIMER_INTERVAL *= 0.9;
-                            if (TIMER_INTERVAL > 1) {
-                                TIMER_INTERVAL -= 1;
-                            }
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_S) {
-                            TIMER_INTERVAL += 1;
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_SPACE) {
-                            int i = fullDrop(*m, *s, false);
-                            s->position[0] = i;
-                            tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_0) {
-                            int i = fullDrop(*m, *s, false);
-                            s->position[0] = i;
+        if (&e != NULL && SDL_PollEvent(&e)) {
+            switch (e.type) {
+                case SDL_QUIT:
+                    quit = true;
+                    break;
+                case SDL_USEREVENT:
+                    printf("User event \n");
+                    break;
+                case SDL_KEYDOWN:
+                    if (e.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
+                        moveRLShape(m, s, 1);
+                    } else if (e.key.keysym.scancode == SDL_SCANCODE_LEFT) {
+                        moveRLShape(m, s, -1);
+                    } else if (e.key.keysym.scancode == SDL_SCANCODE_DOWN) {
+                        //                        downShape(*m, s);
+                        tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
+                    } else if (e.key.keysym.scancode == SDL_SCANCODE_UP) {
+                        rotateShape(*m, s);
+                    } else if (e.key.keysym.scancode == SDL_SCANCODE_B) {
+                        instantMode = !instantMode;
+                        // Initialize renderer color white for the background
+                        SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+
+                        // Clear screen
+                        SDL_RenderClear(renderer);
+                        renderText(renderer, latexFont, 1, "Mode Boost: ", 0);
+                        SDL_RenderPresent(renderer);
+                    } else if (e.key.keysym.scancode == SDL_SCANCODE_9) {
+                        TIMER_INTERVAL = 20;
+                    } else if (e.key.keysym.scancode == SDL_SCANCODE_8) {
+                        TIMER_INTERVAL = userMode ? 400 : 100;
+                    } else if (e.key.keysym.scancode == SDL_SCANCODE_F) {
+                        //                        TIMER_INTERVAL *= 0.9;
+                        if (TIMER_INTERVAL > 1) {
+                            TIMER_INTERVAL -= 1;
                         }
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            // Check if it's time to call the TimerCallback function
-            Uint32 current_time = SDL_GetTicks();
-            if (current_time >= next_time || instantMode) {
-                gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
-                if (gameOver) {
-
-                    if (userMode) {
-                        TTF_CloseFont(latexFont);
-                        quit = true;
-                        return;
-                    } else {
-                        addEntry((char*)"scores.csv", score, g->individuals[index].weights, g->id);
+                    } else if (e.key.keysym.scancode == SDL_SCANCODE_S) {
+                        TIMER_INTERVAL += 1;
+                    } else if (e.key.keysym.scancode == SDL_SCANCODE_SPACE) {
+                        int i = fullDrop(*m, *s, false);
+                        s->position[0] = i;
+                        tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
+                    } else if (e.key.keysym.scancode == SDL_SCANCODE_0) {
+                        int i = fullDrop(*m, *s, false);
+                        s->position[0] = i;
                     }
-
-                    scores[index] = score;
-                    if (score > bestScore) {
-                        secondBestIndex = bestIndex;
-                        secondBestScore = bestScore;
-                        bestScore = score;
-                        bestIndex = index;
-                    } else if (score > secondBestScore) {
-                        secondBestIndex = index;
-                        secondBestScore = score;
-                    }
-                    index++;
-                    printf(" ------ GAME OVER ------ \n");
-                    printf("Score: %d \n", score);
-                    printf("Best score: %d \n", bestScore);
-                    printf("Second best score: %d \n", secondBestScore);
-                    printf("Best index: %d \n", bestIndex);
-                    printf("Second best index: %d \n", secondBestIndex);
-                    printf("Index: %d/%d \n", index, g->numIndividuals);
-                    printf(" ~~~~ population ~~~~ \n");
-                    //                printf("Learning rate: %f\n", g->learningRate);
-                    printf("Population id: #%d \n", g->id);
-                    printf(" ----------------------- \n\n\n");
-                    if (index >= g->numIndividuals) {
-
-                        mutatepopulation(
-                                         g,
-                                         g->individuals[bestIndex],
-                                         g->individuals[secondBestIndex],
-                                         (bestScore - secondBestScore) / (double)bestScore,
-                                         scores
-                                         );
-                        index = 0;
-                        bestIndex = 0;
-                        bestScore = 0;
-                        secondBestIndex = 0;
-                        secondBestScore = 0;
-                    }
-                    reset(&score, m, s, nextBlock, BASIC_BLOCKS, envVars);
-
-                }
-
-
-
-
-                next_time = current_time + TIMER_INTERVAL;
-                //            score += 1;
+                    break;
+                default:
+                    break;
             }
-
-
-
-
-            // Initialize renderer color white for the background
-            SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-
-            // Clear screen
-            SDL_RenderClear(renderer);
-
-            renderText(renderer, latexFont, score, (char*)"Score: ", 5);
-            renderText(renderer, latexFont, bestScore, (char*)"Best score: ", 6);
-            renderText(renderer, latexFont, TIMER_INTERVAL, (char*)"Interval: ", 7);
-            renderText(renderer, latexFont, index, (char*)"Individual: ", 8);
-            renderText(renderer, latexFont, g->id, (char*)"Population: ", 9);
-            // renderText(renderer, latexFont, TIMER_INTERVAL, (char*)"Interval: ",10);
-            if (!instantMode) {
-                // Display next shape by the side of the screen
-                drawBlock(*nextBlock, 12, 1, renderer);
-
-                drawMat(*m, *s, renderer);
-            }
-            //         Update screen
-            SDL_RenderPresent(renderer);
         }
-    }
-    else {
-        while (true) {
 
+        // Check if it's time to call the TimerCallback function
+        Uint32 current_time = SDL_GetTicks();
+        if (current_time >= next_time || instantMode) {
             gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
             if (gameOver) {
 
@@ -352,191 +272,72 @@ void loop() {
                     quit = true;
                     return;
                 } else {
-                    addEntry((char*)"scores.csv", score, g->individuals[index].weights, g->id);
+                    addEntry(&fileNum, score, g->individuals[index].weights, g->id, index == 0 && g->id == 0);
                 }
 
                 scores[index] = score;
-
-                if (score > bestScore) {
-                    secondBestIndex = bestIndex;
-                    secondBestScore = bestScore;
-                    bestScore = score;
-                    bestIndex = index;
-                } else if (score > secondBestScore) {
-                    secondBestIndex = index;
-                    secondBestScore = score;
-                }
+                // if (score > bestScore) {
+                //     secondBestIndex = bestIndex;
+                //     secondBestScore = bestScore;
+                //     bestScore = score;
+                //     bestIndex = index;
+                // } else if (score > secondBestScore) {
+                //     secondBestIndex = index;
+                //     secondBestScore = score;
+                // }
                 index++;
-                printf(" ------ GAME OVER ------ \n");
-                printf("Score: %d \n", score);
-                printf("Best score: %d \n", bestScore);
-                printf("Second best score: %d \n", secondBestScore);
-                printf("Best index: %d \n", bestIndex);
-                printf("Second best index: %d \n", secondBestIndex);
-                printf("Index: %d/%d \n", index, g->numIndividuals);
-                printf(" ~~~~ population ~~~~ \n");
-                //                printf("Learning rate: %f\n", g->learningRate);
-                printf("Population id: #%d \n", g->id);
-                printf(" ----------------------- \n\n\n");
+                // printf(" ------ GAME OVER ------ \n");
+                // printf("Score: %d \n", score);
+                // printf("Best score: %d \n", bestScore);
+                // printf("Second best score: %d \n", secondBestScore);
+                // printf("Best index: %d \n", bestIndex);
+                // printf("Second best index: %d \n", secondBestIndex);
+                // printf("Index: %d/%d \n", index, g->numIndividuals);
+                // printf(" ~~~~ population ~~~~ \n");
+                // //                printf("Learning rate: %f\n", g->learningRate);
+                // printf("Population id: #%d \n", g->id);
+                // printf(" ----------------------- \n\n\n");
                 if (index >= g->numIndividuals) {
 
-                    mutatepopulation(
-                                     g,
-                                     g->individuals[bestIndex],
-                                     g->individuals[secondBestIndex],
-                                     (bestScore - secondBestScore) / (double)bestScore,
-                                     scores
-                                     );
+                    previousBest = mutatepopulation(g, scores);
                     index = 0;
-                    bestIndex = 0;
-                    bestScore = 0;
-                    secondBestIndex = 0;
-                    secondBestScore = 0;
+                    // bestIndex = 0;
+                    // bestScore = 0;
+                    // secondBestIndex = 0;
+                    // secondBestScore = 0;
                 }
                 reset(&score, m, s, nextBlock, BASIC_BLOCKS, envVars);
 
             }
+
+            next_time = current_time + TIMER_INTERVAL;
         }
-        instantMode = false;
-        while(!quit)
-        {
-            SDL_Event e;
-            assert(&e != NULL);
-
-            if (SDL_PollEvent(&e)) {
-                switch (e.type) {
-                    case SDL_QUIT:
-                        quit = true;
-                        break;
-                    case SDL_USEREVENT:
-                        printf("User event \n");
-                        break;
-                    case SDL_KEYDOWN:
-                        if (e.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
-                            moveRLShape(m, s, 1);
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_LEFT) {
-                            moveRLShape(m, s, -1);
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_DOWN) {
-                            //                        downShape(*m, s);
-                            tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_UP) {
-                            rotateShape(*m, s);
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_B) {
-                            instantMode = !instantMode;
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_9) {
-                            TIMER_INTERVAL = 20;
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_8) {
-                            TIMER_INTERVAL = userMode ? 400 : 100;
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_F) {
-                            //                        TIMER_INTERVAL *= 0.9;
-                            if (TIMER_INTERVAL > 1) {
-                                TIMER_INTERVAL -= 1;
-                            }
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_S) {
-                            TIMER_INTERVAL += 1;
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_SPACE) {
-                            // Un peu sale mais ca passe
-                            //                        while (s->position[0] > 0) {
-                            //                            tickCallback(m, s, nextBlock, envVars);
-                            //                        }
-                            //                        printf("poaisjdfpoiasjdf");
-
-                            int i = fullDrop(*m, *s, false);
-                            s->position[0] = i;
-                            tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
-                        } else if (e.key.keysym.scancode == SDL_SCANCODE_0) {
-                            int i = fullDrop(*m, *s, false);
-                            s->position[0] = i;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            // Check if it's time to call the TimerCallback function
-            Uint32 current_time = SDL_GetTicks();
-            if (current_time >= next_time || instantMode) {
-                gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
-                if (gameOver) {
-
-                    if (userMode) {
-                        TTF_CloseFont(latexFont);
-                        quit = true;
-                        return;
-                    } else {
-                        addEntry((char*)"scores.csv", score, g->individuals[index].weights, g->id);
-                    }
-
-                    scores[index] = score;
-                    if (score > bestScore) {
-                        secondBestIndex = bestIndex;
-                        secondBestScore = bestScore;
-                        bestScore = score;
-                        bestIndex = index;
-                    } else if (score > secondBestScore) {
-                        secondBestIndex = index;
-                        secondBestScore = score;
-                    }
-                    index++;
-                    printf(" ------ GAME OVER ------ \n");
-                    printf("Score: %d \n", score);
-                    printf("Best score: %d \n", bestScore);
-                    printf("Second best score: %d \n", secondBestScore);
-                    printf("Best index: %d \n", bestIndex);
-                    printf("Second best index: %d \n", secondBestIndex);
-                    printf("Index: %d/%d \n", index, g->numIndividuals);
-                    printf(" ~~~~ population ~~~~ \n");
-                    //                printf("Learning rate: %f\n", g->learningRate);
-                    printf("Population id: #%d \n", g->id);
-                    printf(" ----------------------- \n\n\n");
-                    if (index >= g->numIndividuals) {
-
-                        mutatepopulation(
-                                         g,
-                                         g->individuals[bestIndex],
-                                         g->individuals[secondBestIndex],
-                                         (bestScore - secondBestScore) / (double)bestScore,
-                                         scores
-                                         );
-                        index = 0;
-                        bestIndex = 0;
-                        bestScore = 0;
-                        secondBestIndex = 0;
-                        secondBestScore = 0;
-                    }
-                    reset(&score, m, s, nextBlock, BASIC_BLOCKS, envVars);
-
-                }
 
 
 
-
-                next_time = current_time + TIMER_INTERVAL;
-                //            score += 1;
-            }
-
-
-
-
+        if (!instantMode) {
             // Initialize renderer color white for the background
             SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
             // Clear screen
             SDL_RenderClear(renderer);
+            char s1[] = "Score: ";
+            char s2[] = "Individual: ";
+            char s3[] = "Population: ";
+            char s4[] = "Previous best: ";
+            char s5[] = "Interval: ";
+            renderText(renderer, latexFont, score, s1, 5);
+            renderText(renderer, latexFont, index, s2, 7);
+            renderText(renderer, latexFont, g->id, s3, 8);
 
-            renderText(renderer, latexFont, score, (char*)"Score: ", 5);
-            renderText(renderer, latexFont, bestScore, (char*)"Best score: ", 6);
-            renderText(renderer, latexFont, TIMER_INTERVAL, (char*)"Interval: ", 7);
-            renderText(renderer, latexFont, index, (char*)"Individual: ", 8);
-            renderText(renderer, latexFont, g->id, (char*)"Population: ", 9);
+            renderText(renderer, latexFont, previousBest, s4, 6);
+            renderText(renderer, latexFont, TIMER_INTERVAL, s5, 10);
 
-            if (!instantMode) {
-                // Display next shape by the side of the screen
-                drawBlock(*nextBlock, 12, 1, renderer);
+            // Display next shape by the side of the screen
+            drawBlock(*nextBlock, 12, 1, renderer);
 
-                drawMat(*m, *s, renderer);
-            }
+            drawMat(*m, *s, renderer);
+            // }
             //         Update screen
             SDL_RenderPresent(renderer);
         }
