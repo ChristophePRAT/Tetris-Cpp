@@ -6,7 +6,7 @@ CXX_DEFINES = -DMETAL_PATH=\"/usr/local/lib/mlx.metallib\"
 
 CXX_INCLUDES = -I/Library/Frameworks/SDL2.framework/Versions/A/Headers -I/Library/Frameworks/SDL2_image.framework/Versions/A/Headers -I/Library/Frameworks/SDL2_ttf.framework/Versions/A/Headers -I/usr/local/include -I/Users/christopheprat/Code/TIPE/Tetris-Cpp/./Gameplay -I/Users/christopheprat/Code/TIPE/Tetris-Cpp/./AI -I/Users/christopheprat/Code/TIPE/Tetris-Cpp/./Helpers -F/Library/Frameworks
 
-CXX_FLAGSarm64 = -std=gnu++2b -arch arm64 -isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk -fsanitize=address
+CXX_FLAGSarm64 =  -fsanitize=address -fno-omit-frame-pointer -g -std=gnu++2b -arch arm64 -isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk -fsanitize=address
 
-CXX_FLAGS = -std=gnu++2b -arch arm64 -isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk -fsanitize=address
+CXX_FLAGS =  -fsanitize=address -fno-omit-frame-pointer -g -std=gnu++2b -arch arm64 -isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk -fsanitize=address
 

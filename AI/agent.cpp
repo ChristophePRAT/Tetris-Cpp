@@ -9,7 +9,7 @@
 #include "game.h"
 #include <cstdio>
 #import <stdlib.h>
-
+#include "cmath"
 // #include <stdlib.h>
 // #include <time.h>
 #include <stdlib.h>
@@ -123,10 +123,65 @@ unsigned int mutatepopulation(population* g, int* scores) {
 
 
 
-block* randomBlock(block** BASIC_BLOCKS) {
-    int rdI = random() % 7;
-    assert(rdI <= 6);
-    return BASIC_BLOCKS[rdI];
+double* getColFromBotDecision(mat m, block s, double* preferences, evars* previousEvars) {
+//    int lastValidIndexForBlock = m.cols - blockWidth(s);
+
+    double meanedColHeights = meaned(previousEvars->colHeights, m.cols);
+    double meanedDeltaColHeights = meaned(previousEvars->deltaColHeights, m.cols);
+
+    int bestCol = 0;
+
+    double bestScore = previewScore(m, s, preferences, previousEvars, 0, meanedColHeights, meanedDeltaColHeights);
+    double* cs = (double*) malloc(2 * sizeof(double));
+    for (int i = 1; i < m.cols; i++) {
+//        if (i > lastValidIndexForBlock + 2) {
+//            break;
+//        }
+//        s.position[1] = i;
+//        mat* preview = previewMatIfPushDown(&m, s);
+//        if (preview == NULL) {
+//            continue;
+//        }
+//        evars* ev = retrieveEvars(*preview, previousEvars);
+//        double score = preferences[0] * ev->hMax +
+//        preferences[1] * ev->numHoles +
+//        preferences[2] * meanedColHeights +
+//        preferences[3] * meanedDeltaColHeights;
+        double score = previewScore(m, s, preferences, previousEvars, i, meanedColHeights, meanedDeltaColHeights);
+        if (score > bestScore) {
+            bestScore = score;
+            bestCol = i;
+        }
+//        freeMat(preview);
+//        free(ev->colHeights);
+//        free(ev->deltaColHeights);
+//        free(ev);
+    }
+
+    cs[0] = bestCol;
+    cs[1] = bestScore;
+
+    return cs;
+}
+
+bestc theFinestDecision(mat m, block s, double* preferences, evars* previousEvars) {
+    int bestCol = 0;
+    int bestScore = -100000;
+    int bestShape = -1;
+    for (int i = 0; i < s.numberOfShapes; i++) {
+        s.currentShape = i;
+        double* cs = getColFromBotDecision(m, s, preferences, previousEvars);
+        if (cs[1] > bestScore) {
+            bestScore = cs[1];
+            bestCol = cs[0];
+            bestShape = i;
+        }
+        free(cs);
+    }
+    return {
+        .col = bestCol,
+        .shapeN = bestShape
+    };
 }
 
 
@@ -137,7 +192,7 @@ bool tickCallback(mat* m, block* s, block* nextBl, evars* e, population* g, unsi
 
     if (down == -1) {
         int numCleared = pushToMat(m, *s);
-        *score += numCleared * 200;
+        *score += 200 * pow(numCleared, 2);
 
         updateEvars(*m, e);
         changeBlock(s, nextBl);
@@ -158,13 +213,4 @@ bool tickCallback(mat* m, block* s, block* nextBl, evars* e, population* g, unsi
         return canInsertShape(*m, *s);
     }
     return true;
-}
-
-void reset(unsigned int* score, mat* m, block* s, block* nextBlock, block** BASIC_BLOCKS, evars* envVars) {
-    *score = 0;
-    clearMat(m);
-    changeBlock(s, randomBlock(BASIC_BLOCKS));
-    computeDownPos(*m, s);
-    changeBlock(nextBlock, randomBlock(BASIC_BLOCKS));
-    resetVars(*m, envVars);
 }

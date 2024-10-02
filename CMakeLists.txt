@@ -11,6 +11,11 @@ add_executable(tetris-ai ${SOURCES})
 target_compile_options(tetris-ai PRIVATE -fsanitize=address)
 target_link_options(tetris-ai PRIVATE -fsanitize=address)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
+
+set(CMAKE_BUILD_TYPE Debug)
+
 # Variables storing SDL framework locations
 set(SDL2 /Library/Frameworks/SDL2.framework)
 set(SDL2_image /Library/Frameworks/SDL2_image.framework)
@@ -55,4 +60,3 @@ add_custom_command(
   ${CMAKE_SOURCE_DIR}/resources/lmroman17-regular.otf
   ${CMAKE_BINARY_DIR}/resources/lmroman17-regular.otf
 )
-

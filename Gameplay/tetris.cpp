@@ -17,14 +17,17 @@
 #include <cstdlib>
 #include <time.h>
 #include "FileHelper.hpp"
+#include "NN.hpp"
 
+#define userMode false
+#define DQN_MODE true
 
 void loop(void);
 int init(void);
 void kill(void);
 // USER MODE
 
-#define userMode false
+
 
 bool instantMode = false;
 
@@ -182,9 +185,21 @@ void loop() {
     // Event loop exit flag
     bool quit = false;
 
-    // population
-    population* g = initializePopulation(20);
-    printpopulation(g);
+    population* g;
+    MLP ml = initMLP();
+    // -------------
+    // AIs
+    // Mutation génétique
+    if (!DQN_MODE) {
+        g = initializePopulation(20);
+
+        printpopulation(g);
+    }
+    // else {
+    // // DQN
+    //     ml = initMLP();
+    // }
+    // -------------
 
     // int bestScore = 0;
     // int bestIndex = 0;
@@ -197,7 +212,10 @@ void loop() {
 
     unsigned int previousBest = 0;
 
-    int* scores = (int*)malloc(g->numIndividuals * sizeof(int));
+    int* scores;
+    if (!DQN_MODE) {
+        scores = (int*)malloc(g->numIndividuals * sizeof(int));
+    }
 
 
     static int MAX_POP = 10000;
@@ -224,7 +242,9 @@ void loop() {
                         moveRLShape(m, s, -1);
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_DOWN) {
                         //                        downShape(*m, s);
-                        tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
+                        if (!DQN_MODE) {
+                            tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
+                        }
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_UP) {
                         rotateShape(*m, s);
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_B) {
@@ -250,7 +270,11 @@ void loop() {
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_SPACE) {
                         int i = fullDrop(*m, *s, false);
                         s->position[0] = i;
-                        tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
+                        if (!DQN_MODE) {
+                            tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
+                        } else {
+                            tickCallback(m,s,nextBlock, envVars, &score, ml, index, userMode, BASIC_BLOCKS);
+                        }
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_0) {
                         int i = fullDrop(*m, *s, false);
                         s->position[0] = i;
@@ -264,47 +288,32 @@ void loop() {
         // Check if it's time to call the TimerCallback function
         Uint32 current_time = SDL_GetTicks();
         if (current_time >= next_time || instantMode) {
-            gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
+            if (!DQN_MODE) {
+                gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
+            } else {
+                gameOver = !tickCallback(m,s,nextBlock, envVars, &score, ml, index, userMode, BASIC_BLOCKS);
+            }
             if (gameOver) {
 
                 if (userMode) {
                     TTF_CloseFont(latexFont);
                     quit = true;
                     return;
-                } else {
+                } else if (!DQN_MODE) {
                     addEntry(&fileNum, score, g->individuals[index].weights, g->id, index == 0 && g->id == 0);
                 }
+                if (!DQN_MODE) {
+                    scores[index] = score;
+                    index++;
+                    if (index >= g->numIndividuals) {
 
-                scores[index] = score;
-                // if (score > bestScore) {
-                //     secondBestIndex = bestIndex;
-                //     secondBestScore = bestScore;
-                //     bestScore = score;
-                //     bestIndex = index;
-                // } else if (score > secondBestScore) {
-                //     secondBestIndex = index;
-                //     secondBestScore = score;
-                // }
-                index++;
-                // printf(" ------ GAME OVER ------ \n");
-                // printf("Score: %d \n", score);
-                // printf("Best score: %d \n", bestScore);
-                // printf("Second best score: %d \n", secondBestScore);
-                // printf("Best index: %d \n", bestIndex);
-                // printf("Second best index: %d \n", secondBestIndex);
-                // printf("Index: %d/%d \n", index, g->numIndividuals);
-                // printf(" ~~~~ population ~~~~ \n");
-                // //                printf("Learning rate: %f\n", g->learningRate);
-                // printf("Population id: #%d \n", g->id);
-                // printf(" ----------------------- \n\n\n");
-                if (index >= g->numIndividuals) {
-
-                    previousBest = mutatepopulation(g, scores);
-                    index = 0;
-                    // bestIndex = 0;
-                    // bestScore = 0;
-                    // secondBestIndex = 0;
-                    // secondBestScore = 0;
+                        previousBest = mutatepopulation(g, scores);
+                        index = 0;
+                        // bestIndex = 0;
+                        // bestScore = 0;
+                        // secondBestIndex = 0;
+                        // secondBestScore = 0;
+                    }
                 }
                 reset(&score, m, s, nextBlock, BASIC_BLOCKS, envVars);
 
@@ -328,9 +337,11 @@ void loop() {
             char s5[] = "Interval: ";
             renderText(renderer, latexFont, score, s1, 5);
             renderText(renderer, latexFont, index, s2, 7);
-            renderText(renderer, latexFont, g->id, s3, 8);
+            if (!DQN_MODE) {
+                renderText(renderer, latexFont, g->id, s3, 8);
 
-            renderText(renderer, latexFont, previousBest, s4, 6);
+                renderText(renderer, latexFont, previousBest, s4, 6);
+            }
             renderText(renderer, latexFont, TIMER_INTERVAL, s5, 10);
 
             // Display next shape by the side of the screen

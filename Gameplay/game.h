@@ -69,4 +69,10 @@ int randomIntBetween(int a, int b);
 void clearMat(mat* m);
 void changeBlock(block* dest, block* src);
 void resetVars(mat m, evars* ev);
+block* randomBlock(block** BASIC_BLOCKS);
+void reset(unsigned int* score, mat* m, block* s, block* nextBlock, block** BASIC_BLOCKS, evars* envVars);
+double meaned(int* arr, int size);
+double previewScore(mat m, block s, double* prefs, evars* previousEvars, int col, double mch, double mdch);
+mat* previewMatIfPushDown(mat* m, block s, int* numCleared);
+evars* retrieveEvars(mat m, evars* previousEvars);
 #endif /* game_h */
