@@ -146,6 +146,7 @@ void drawMat(mat m, block s, SDL_Renderer* renderer) {
 int main( int argc, char* args[] ) {
 
     if (!init()) {
+        train();
         loop();
     } else { kill(); return 1; }
     kill();
@@ -186,7 +187,7 @@ void loop() {
     bool quit = false;
 
     population* g;
-    MLP ml = initMLP();
+    // MLP ml = initMLP();
     // -------------
     // AIs
     // Mutation génétique
@@ -273,7 +274,7 @@ void loop() {
                         if (!DQN_MODE) {
                             tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
                         } else {
-                            tickCallback(m,s,nextBlock, envVars, &score, ml, index, userMode, BASIC_BLOCKS);
+                            // tickCallback(m,s,nextBlock, envVars, &score, ml, index, userMode, BASIC_BLOCKS);
                         }
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_0) {
                         int i = fullDrop(*m, *s, false);
@@ -291,7 +292,7 @@ void loop() {
             if (!DQN_MODE) {
                 gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
             } else {
-                gameOver = !tickCallback(m,s,nextBlock, envVars, &score, ml, index, userMode, BASIC_BLOCKS);
+                // gameOver = !tickCallback(m,s,nextBlock, envVars, &score, ml, index, userMode, BASIC_BLOCKS);
             }
             if (gameOver) {
 

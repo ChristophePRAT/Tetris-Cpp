@@ -8,261 +8,126 @@
 #ifndef NN_hpp
 #define NN_hpp
 
-#include <set>
-#include <stdio.h>
 #include "game.h"
-// #include <mlx/mlx.h>
+#include "mlx/array.h"
+#include "mlx/ops.h"
+#include "mlx/random.h"
+#include <cstddef>
+#include <mlx/mlx.h>
+#include <vector>
 const int NUM_WEIGHTS = 6;
 const int NUM_LAYERS = 2;
 
-// using namespace mlx::core;
-#include <iostream>
-#include <vector>
-#include <set>
-#include <cmath>
-#include <functional>
+using namespace mlx::core;
 
-class Value {
-public:
-    double data;
-    double grad;
-    std::vector<Value*> _prev;
-    std::string _op;
-    std::function<void()> _backward;
+class Linear {
+    public:
+        int input_dims;
+        int output_dims;
+        array *weights = nullptr;
+        array *bias = nullptr;
+        int layer_id;
+        Linear(int input_dims, int output_dims, int layer_id) { // y = x * transpose(W) + B
 
-    Value(double data, const std::vector<Value*>& _children = {}, const std::string& _op = "")
-        : data(data), grad(0), _prev(_children), _op(_op), _backward([](){}) {}
+            this->input_dims = input_dims;
+            this->output_dims = output_dims;
 
-    Value operator+(const Value& other) {
-        Value out(this->data + other.data, {const_cast<Value*>(this), const_cast<Value*>(&other)}, "+");
+            float k = sqrt(1.0 / input_dims);
+            this->weights = new array({output_dims, input_dims});
+            *this->weights = random::uniform(-k, k, {output_dims, input_dims});
 
-        out._backward = [out, this, other]() mutable {
-            this->grad += out.grad;
-            const_cast<Value&>(other).grad += out.grad;
-        };
-
-        return out;
-    }
-
-    Value operator*(const Value& other) {
-        Value out(this->data * other.data, {const_cast<Value*>(this), const_cast<Value*>(&other)}, "*");
-
-        out._backward = [out, this, other]() mutable {
-            this->grad += other.data * out.grad;
-            const_cast<Value&>(other).grad += this->data * out.grad;
-        };
-
-        return out;
-    }
-
-    Value operator^(double other) {
-        Value out(std::pow(this->data, other), {const_cast<Value*>(this)}, "**" + std::to_string(other));
-
-        out._backward = [out, this, other]() mutable {
-            this->grad += (other * std::pow(this->data, other - 1)) * out.grad;
-        };
-
-        return out;
-    }
-
-    Value relu() {
-        Value out(this->data > 0 ? this->data : 0, {const_cast<Value*>(this)}, "ReLU");
-
-        out._backward = [out, this]() mutable {
-            this->grad += (out.data > 0) * out.grad;
-        };
-
-        return out;
-    }
-
-    void backward() {
-        std::vector<Value*> topo;
-        std::set<Value*> visited;
-
-        std::function<void(Value*)> build_topo = [&](Value* v) {
-            if (visited.find(v) == visited.end()) {
-                visited.insert(v);
-                for (Value* child : v->_prev) {
-                    build_topo(child);
-                }
-                topo.push_back(v);
-            }
-        };
-
-        build_topo(this);
-
-        this->grad = 1;
-        for (auto it = topo.rbegin(); it != topo.rend(); ++it) {
-            (*it)->_backward();
+            this->bias = new array({output_dims});
+            // *this->bias = random::uniform(-k, k, {output_dims});
+            *this->bias = zeros({output_dims});
+            this->layer_id = layer_id;
+            eval(*this->weights);
+            eval(*this->bias);
+            return;
         }
-    }
+        array forward(array x) {
+            return matmul(x,transpose(*this->weights)) + *this->bias;
+        }
+        void update_layer(const array& weightsGrads,const array& biasGrads, float lr) {
 
-    Value operator-() {
-        return *this * -1;
-    }
-
-    Value operator+(double other) {
-        return *this + Value(other);
-    }
-
-    // Value operator-(const Value& other) {
-    //     return *this + (-other);
-    // }
-
-    // Value operator/(const Value& other) {
-    //     return *this * (other ^ -1);
-    // }
-
-    Value operator*(double other) {
-        return *this * Value(other);
-    }
-
-    Value operator/(double other) {
-        return *this * (Value(other) ^ -1);
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const Value& v) {
-        os << "Value(data=" << v.data << ", grad=" << v.grad << ")";
-        return os;
-    }
+            *this->weights = *this->weights - weightsGrads * lr;
+            *this->bias = *this->bias - biasGrads * lr;
+            eval(*this->weights);
+            eval(*this->bias);
+        }
 };
 
-class Module {
+class MultiLayer {
 public:
-    virtual void zero_grad() {
-        for (Value* p : parameters()) {
-            p->grad = 0;
-        }
-    }
+    int input_size;
+    std::vector<Linear> layers;
+    std::vector<array> params;
 
-    virtual std::vector<Value*> parameters() {
-        return {};
-    }
-};
+    MultiLayer(int input_size, std::vector<int> hidden_sizes) {
+        this->input_size = input_size;
+        // this->output_size = output_size;
 
-class Neuron : public Module {
-public:
-    std::vector<Value> w;
-    Value b;
-    bool nonlin;
-
-
-
-    Neuron(int nin, bool nonlin = true) : nonlin(nonlin), b(0) {
-        std::srand(std::time(0));
-        for (int i = 0; i < nin; ++i) {
-            w.push_back(Value(static_cast<double>(std::rand()) / RAND_MAX * 2 - 1));
-        }
-        b = Value(0);
-    }
-
-    Value operator()(const std::vector<Value>& x) {
-        // Ensure the input size matches the number of weights
-        // assert(x.size() == w.size() && "Input size must match the number of weights");
-
-        Value act = b; // Start with the bias
-        for (size_t i = 0; i < w.size(); ++i) {
-            act = act + (w[i] * x[i]);
-        }
-        return nonlin ? act.relu() : act;
-    }
-
-    std::vector<Value*> parameters() override {
-        std::vector<Value*> params;
-        for (Value& v : w) {
-            params.push_back(&v);
-        }
-        params.push_back(&b);
-        return params;
-    }
-
-    std::string toString() const {
-        return std::string(nonlin ? "ReLU" : "Linear") + "Neuron(" + std::to_string(w.size()) + ")";
-    }
-};
-
-class Layer : public Module {
-public:
-    std::vector<Neuron> neurons;
-
-    Layer(int nin, int nout, bool nonlin = true) {
-        for (int i = 0; i < nout; ++i) {
-            neurons.push_back(Neuron(nin, nonlin));
-        }
-    }
-
-    std::vector<Value> operator()(const std::vector<Value>& x) {
-        std::vector<Value> out;
-        for (Neuron& n : neurons) {
-            out.push_back(n(x));
-        }
-        return out.size() == 1 ? std::vector<Value>{out[0]} : out;
-    }
-
-    std::vector<Value*> parameters() override {
-        std::vector<Value*> params;
-        for (Neuron& n : neurons) {
-            std::vector<Value*> neuron_params = n.parameters();
-            params.insert(params.end(), neuron_params.begin(), neuron_params.end());
-        }
-        return params;
-    }
-
-    std::string toString() const {
-        std::string result = "Layer of [";
-        for (size_t i = 0; i < neurons.size(); ++i) {
-            result += neurons[i].toString();
-            if (i < neurons.size() - 1) {
-                result += ", ";
+        for (int i = 0; i < hidden_sizes.size(); i++) {
+            if (i == 0) {
+                layers.push_back(Linear(input_size, hidden_sizes[i], i));
+            } else {
+                layers.push_back(Linear(hidden_sizes[i - 1], hidden_sizes[i], i));
             }
         }
-        result += "]";
-        return result;
-    }
-};
 
-class MLP : public Module {
-public:
-    std::vector<Layer> layers;
+        // layers.push_back(Linear(input_size, 64, 0));
+        // layers.push_back(Linear(64, 32, 1));
+        // layers.push_back(Linear(32, output_size, 2));
 
-    MLP(int nin, const std::vector<int>& nouts) {
-        std::vector<int> sz = {nin};
-        sz.insert(sz.end(), nouts.begin(), nouts.end());
-        for (size_t i = 0; i < nouts.size(); ++i) {
-            layers.push_back(Layer(sz[i], sz[i + 1], i != nouts.size() - 1));
+        for (const auto& layer : layers) {
+            params.push_back(*layer.weights);
+            params.push_back(*layer.bias);
         }
     }
 
-    std::vector<Value> operator()(const std::vector<Value>& x) {
-        std::vector<Value> out = x;
-        for (Layer& layer : layers) {
-            out = layer(out);
-        }
-        return out;
-    }
+    array forward(const array& x);
 
-    std::vector<Value*> parameters() override {
-        std::vector<Value*> params;
-        for (Layer& layer : layers) {
-            std::vector<Value*> layer_params = layer.parameters();
-            params.insert(params.end(), layer_params.begin(), layer_params.end());
+    void update(const std::vector<array>& new_params) {
+        if (new_params.size() != params.size()) {
+            throw std::runtime_error("Mismatch in parameter count");
         }
-        return params;
-    }
-
-    std::string toString() const {
-        std::string result = "MLP of [";
         for (size_t i = 0; i < layers.size(); ++i) {
-            result += layers[i].toString();
-            if (i < layers.size() - 1) {
-                result += ", ";
-            }
+            *layers[i].weights = new_params[2 * i];
+            *layers[i].bias = new_params[2 * i + 1];
+            eval(*layers[i].weights);
+            eval(*layers[i].bias);
         }
-        result += "]";
-        return result;
+        params = new_params;
+    }
+
+    void update_parameters(const std::vector<array>& grads, float lr) {
+        if (grads.size() != params.size()) {
+            throw std::runtime_error("Mismatch in gradient count");
+        }
+        for (size_t i = 0; i < params.size(); i++) {
+            eval(grads[i]);
+            params[i] = params[i] - grads[i] * lr;
+
+            eval(params[i]);
+        }
+        update(params);
+        // if (grads.size() != 2*layers.size()) {
+        //     throw std::runtime_error("Mismatch in gradient count");
+        // }
+        // for (size_t i = 0; i < layers.size(); i++) {
+        //     eval(grads[i]);
+        //     layers[i].update_layer(grads[2 * i], grads[2 * i + 1], lr);
+        // }
     }
 };
 
-bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, MLP ml, unsigned int index, bool userMode, block** BASIC_BLOCKS);
-MLP initMLP();
+
+
+typedef struct MLP_X {
+    int input_size;
+    int output_size;
+    Linear* layers;
+} MLP;
+
+void train();
+bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, MLP* ml, unsigned int index, bool userMode, block** BASIC_BLOCKS);
 #endif /* NN_hpp */

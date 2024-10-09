@@ -8,8 +8,8 @@ file(GLOB_RECURSE SOURCES "Gameplay/*.cpp" "AI/*.cpp" "Helpers/*.cpp")
 add_executable(tetris-ai ${SOURCES})
 
 # Enable AddressSanitizer
-target_compile_options(tetris-ai PRIVATE -fsanitize=address)
-target_link_options(tetris-ai PRIVATE -fsanitize=address)
+target_compile_options(tetris-ai PRIVATE -fsanitize=address -g)
+target_link_options(tetris-ai PRIVATE -fsanitize=address -g)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")

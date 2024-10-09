@@ -8,92 +8,190 @@
 #include "NN.hpp"
 #include "game.h"
 #include <assert.h>
+#include "mlx/array.h"
 #include "mlx/mlx.h"
+#include "mlx/ops.h"
+#include "mlx/random.h"
+#include "mlx/transforms.h"
+#include <cstdio>
 #include <cstdlib>
+#include <vector>
+#include <random>
+
+using namespace mlx::core;
+
 // #include "mlx/ops.h"
 // #include "mlx/array.h"
 // #include "mlx/transforms.h"
 // using namespace mlx::core;
-/*
+
+
+void printArray(array a) {
+    printf("SUM: %f\n", sum(a).item<float>());
+    printf("Mean: %f\n", mean(a).item<float>());
+    printf("Max: %f\n", max(a).item<float>());
+    printf("Min: %f\n", min(a).item<float>());
+    for (auto s: a) {
+        for (auto j: s) {
+            // printf("%zu\n", j.size());
+            // printf("%f\n", j.dtype());
+            // printf("data: %f\n", j.data<float>());
+            printf(" %f ", j.item<float>());
+        }
+        printf("\n");
+    }
+}
+void printVect(array x) {
+    for (auto i: x) {
+        printf("%f ", i.item<float>());
+    }
+    printf("\n");
+}
+
 array relu(const array& input) {
   return maximum(input, {0.0}); // Applies element-wise maximum [1]
 }
 
-array forward(mlp* ml, array input) {
-  // Layer 1
-  array z1 = add(matmul(input, *ml->w1), *ml->b1); // Linear transformation [2]
-  array a1 = relu(z1);  // ReLU activation
-
-  // Layer 2
-  array z2 = add(matmul(a1, *ml->w2), *ml->b2);
-  array a2 = relu(z2);
-
-  // Layer 3
-  array z3 = add(matmul(a2, *ml->w3), *ml->b3);
-  array a3 = relu(z3);
-
-  // Output Layer
-  array output = add(matmul(a3, *ml->w4), *ml->b4);
-
-  return output; // Assuming a single output value
+array loss(array predictions, array targets) {
+    auto loss = square(predictions - targets);
+    return mean(loss);
 }
-void backprop(mlp* ml, const array& input, const array& target, double learning_rate) {
-    // Forward pass
 
-    auto loss_fn = [&](array w) {
-        auto yhat = forward(ml, input);
-        return 0.5f * sum(square(yhat - target));
-      };
+array MultiLayer::forward(const array& x) {
+    eval(x);
 
-    auto grad_fn = grad(loss_fn);
+    printf("FORWARD PASS\n");
+    // printf("%f", x.item<float>());
+    printVect(x);
+    array y = x;
+    for (int i = 0; i < this->layers.size(); i++) {
+        if (i == 0) {
+            y = relu(this->layers[i].forward(y));
+        } else {
+            y = this->layers[i].forward(y);
+        }
 
-    // Compute gradients
-    auto gradw1 = grad_fn(*ml->w1);
-    auto gradb1 = grad_fn(*ml->b1);
-    auto gradw2 = grad_fn(*ml->w2);
-    auto gradb2 = grad_fn(*ml->b2);
-    auto gradw3 = grad_fn(*ml->w3);
-    auto gradb3 = grad_fn(*ml->b3);
-    auto gradw4 = grad_fn(*ml->w4);
-    auto gradb4 = grad_fn(*ml->b4);
-
-    // Update weights
-    *ml->w1 = *ml->w1 - learning_rate * gradw1;
-    *ml->b1 = *ml->b1 - learning_rate * gradb1;
-    *ml->w2 = *ml->w2 - learning_rate * gradw2;
-    *ml->b2 = *ml->b2 - learning_rate * gradb2;
-
-    *ml->w3 = *ml->w3 - learning_rate * gradw3;
-    *ml->b3 = *ml->b3 - learning_rate * gradb3;
-    *ml->w4 = *ml->w4 - learning_rate * gradw4;
-    *ml->b4 = *ml->b4 - learning_rate * gradb4;
-
-
-    eval(*ml->w1);
-    eval(*ml->b1);
-    eval(*ml->w2);
-    eval(*ml->b2);
-    eval(*ml->w3);
-    eval(*ml->b3);
-    eval(*ml->w4);
-    eval(*ml->b4);
-}*/
-
-MLP initMLP() {
-
-
-    MLP ml = MLP(6, {64, 32, 1});
-
-    return ml;
-}
-void backprop(MLP ml, Value loss) {
-    ml.zero_grad();
-    loss.backward();
-
-    for (Value* p : ml.parameters()) {
-        p->data -= p->grad * 0.01;
+        printf("Bias: \n");
+        printVect(*this->layers[i].bias);
+        printf("y%d: \n", i);
+        // printVect(y);
     }
+    eval(y);
+    printf("last y\n");
+    printVect(y);
+    printf("x:\n");
+    // printVect(x);
+    printf("END FORWARD PASS\n");
+    return y;
 }
+
+void train() {
+    MultiLayer ml = MultiLayer(2, {16,16,16,1});
+
+    array x = linspace(0, 20, 100);
+    eval(x);
+    array y = 2 * x + 1;
+    eval(y);
+    array targetZ = 3 * y - 4*x -3;
+    eval(targetZ);
+
+    auto forw = [&](array w) {
+        return ml.forward(w);
+    };
+    auto inputs = transpose(stack({x,y}));
+    // auto inputs = x;
+
+    eval(ml.params);
+
+    // printf("fopisndfpis\n");
+    printArray(ml.params[0]);
+
+
+    auto loss_fn = [&ml, &targetZ](const std::vector<array>& input) {
+            // ml.set_parameters(input);
+
+            std::vector<array> ps = {input.begin(), input.end() - 1};
+            // ml.update(ps);
+            array predictions = ml.forward(input.back());
+            return mean(square(predictions - targetZ));
+        };
+
+    // Create a value_and_grad function
+
+    // calculate the grad of each parameter, i.e. from layers 0, 1, 2, each of them has 2 parameters (weights, bias)
+
+    // create vector containing all integers from 0 to n
+    std::vector<int> argnums = {};
+
+    for (int i = 0; i < ml.params.size(); i++) {
+        argnums.push_back(i);
+    }
+
+    auto value_and_grad_fn = value_and_grad(loss_fn, argnums);
+
+    for (int epoch = 0; epoch < 10; epoch++) {
+        std::random_device dev;
+        std::mt19937 rng(dev());
+        std::uniform_int_distribution<std::mt19937::result_type> randI(0,inputs.size()/2 - 1);
+
+        int r = randI(rng);
+
+        assert(r<inputs.size()/2);
+        printf("Random sample: %d\n", r);
+
+        auto in = inputs.begin() + r;
+
+
+        std::vector<array> input = ml.params;
+
+        // input.push_back(in);
+        array in2 = *in;
+        // printf("\n\nNUmber: %f\n\n", in2.item<float>());
+        // assert(in2.size() == 2);
+
+        input.push_back(in2);
+        auto [loss, grads] = value_and_grad_fn(input);
+        for (int i = 0; i < grads.size(); i++) {
+            eval(grads[i]);
+            printf("Grads of %d\n", i);
+            if (i % 2 == 0) {
+                printArray(grads[i]);
+            } else {
+                printVect(grads[i]);
+            }
+
+        }
+        printf("faoipsjdfiopasjdf\n");
+        printf("faoipsjdfiopasjdf\n");
+        eval(loss);
+        ml.update_parameters(grads, 1);
+        eval(ml.params);
+        // print loss
+        printf("Epoch %d, Loss: %f\n", epoch, loss.item<float>());
+    }
+    // for (auto i: inputs) {
+        // std::vector<array> input = {*ml.layers[0].weights, *ml.layers[0].bias, *ml.layers[1].weights, *ml.layers[1].bias, *ml.layers[2].weights, *ml.layers[2].bias};
+    //     input.push_back(i);
+    //     auto [loss, grads] = value_and_grad_fn(input);
+    //     ml.update_parameters(grads, 0.01);
+    // }
+}
+
+// MLP initMLP() {
+
+
+//     MLP ml = MLP(6, {64, 32, 1});
+
+//     return ml;
+// }
+// void backprop(MLP ml, Value loss) {
+//     ml.zero_grad();
+//     loss.backward();
+
+//     for (Value* p : ml.parameters()) {
+//         p->data -= p->grad * 0.01;
+//     }
+// }
 
 double previewScore(mat m, block s, evars* previousEvars, int col, double mch, double mdch, MLP ml) {
     s.position[1] = col;
@@ -105,7 +203,8 @@ double previewScore(mat m, block s, evars* previousEvars, int col, double mch, d
     }
     evars* ev = retrieveEvars(*preview, previousEvars);
 
-    double score = ml({Value(ev->hMax), Value(ev->numHoles), Value(mch), Value(mdch), Value(numCleared), Value(ev->minMax)})[0].data;
+    double score = 0;
+    // double score = ml({Value(ev->hMax), Value(ev->numHoles), Value(mch), Value(mdch), Value(numCleared), Value(ev->minMax)})[0].data;
     // double score = forward(ml, array({
     //     float(ev->hMax),
     //     float(ev->numHoles),
