@@ -21,7 +21,6 @@ typedef struct Matrix mat;
 
 struct Block {
     int*** shape; // constante
-    int shapeIndex;
     int currentShape;
     int numberOfShapes; // constante
     int position[2];
@@ -75,4 +74,6 @@ double meaned(int* arr, int size);
 double previewScore(mat m, block s, double* prefs, evars* previousEvars, int col, double mch, double mdch);
 mat* previewMatIfPushDown(mat* m, block s, int* numCleared);
 evars* retrieveEvars(mat m, evars* previousEvars);
+void printMat(mat* m, block s);
+void printMatrix(int** data, int rows, int cols);
 #endif /* game_h */

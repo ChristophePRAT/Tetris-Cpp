@@ -563,11 +563,11 @@ int blockWidth(block s) {
     return w;
 }
 double meaned(int* arr, int size) {
-    int sum = 0;
+    float sum = 0;
     for (int i = 0; i < size; i++) {
         sum += arr[i];
     }
-    return sum;
+    return sum/float(size);
 }
 
 double previewScore(mat m, block s, double* prefs, evars* previousEvars, int col, double mch, double mdch) {

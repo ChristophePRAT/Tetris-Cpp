@@ -7,24 +7,22 @@
 
 #include "NN.hpp"
 #include "game.h"
+#include <_stdlib.h>
+#include <algorithm>
 #include <assert.h>
 #include "mlx/array.h"
-#include "mlx/mlx.h"
+#include "mlx/dtype.h"
 #include "mlx/ops.h"
 #include "mlx/random.h"
 #include "mlx/transforms.h"
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <utility>
 #include <vector>
 #include <random>
 
 using namespace mlx::core;
-
-// #include "mlx/ops.h"
-// #include "mlx/array.h"
-// #include "mlx/transforms.h"
-// using namespace mlx::core;
-
 
 void printArray(array a) {
     printf("SUM: %f\n", sum(a).item<float>());
@@ -33,9 +31,6 @@ void printArray(array a) {
     printf("Min: %f\n", min(a).item<float>());
     for (auto s: a) {
         for (auto j: s) {
-            // printf("%zu\n", j.size());
-            // printf("%f\n", j.dtype());
-            // printf("data: %f\n", j.data<float>());
             printf(" %f ", j.item<float>());
         }
         printf("\n");
@@ -51,85 +46,68 @@ void printVect(array x) {
 array relu(const array& input) {
   return maximum(input, {0.0}); // Applies element-wise maximum [1]
 }
+array generalizedForward(const array& x, const std::vector<array> params) {
+    std::vector<array> xs = {x};
 
-array loss(array predictions, array targets) {
-    auto loss = square(predictions - targets);
-    return mean(loss);
-}
-
-array MultiLayer::forward(const array& x) {
-    eval(x);
-
-    printf("FORWARD PASS\n");
-    // printf("%f", x.item<float>());
-    printVect(x);
-    array y = x;
-    for (int i = 0; i < this->layers.size(); i++) {
-        if (i == 0) {
-            y = relu(this->layers[i].forward(y));
-        } else {
-            y = this->layers[i].forward(y);
+    for (int i = 0; i < params.size(); i+=2) {
+        array x1 = matmul(xs.back(), transpose(params[i])) + params[i+1];
+        if (i < params.size() - 2) {
+            array x2 = relu(x1);
+            xs.push_back(x2);
         }
-
-        printf("Bias: \n");
-        printVect(*this->layers[i].bias);
-        printf("y%d: \n", i);
-        // printVect(y);
+        else {
+            xs.push_back(x1);
+        }
     }
-    eval(y);
-    printf("last y\n");
-    printVect(y);
-    printf("x:\n");
-    // printVect(x);
-    printf("END FORWARD PASS\n");
-    return y;
+    return xs.back();
+}
+array DQN::generalizedForward(const array& x, const std::vector<array> params) {
+    std::vector<array> xs = {x};
+
+    for (int i = 0; i < params.size(); i+=2) {
+        array x1 = matmul(xs.back(), transpose(params[i])) + params[i+1];
+        if (i < params.size() - 2) {
+            array x2 = relu(x1);
+            xs.push_back(x2);
+        }
+        else {
+            xs.push_back(x1);
+        }
+    }
+    return xs.back();
 }
 
+/*
 void train() {
-    MultiLayer ml = MultiLayer(2, {16,16,16,1});
+    MultiLayer ml = MultiLayer(2, {16,16,1});
 
-    array x = linspace(0, 20, 100);
-    eval(x);
-    array y = 2 * x + 1;
-    eval(y);
-    array targetZ = 3 * y - 4*x -3;
+    array x = linspace(0, 3.141592, 100);
+    array y = cos(x);
+    array targetZ = sin(x) + 3*y;
     eval(targetZ);
 
-    auto forw = [&](array w) {
-        return ml.forward(w);
-    };
-    auto inputs = transpose(stack({x,y}));
-    // auto inputs = x;
+    array inputs = transpose(stack({x,y}));
 
-    eval(ml.params);
+    auto loss_fn = [&targetZ, &inputs](const std::vector<array>& input) {
+            int index = input.back().item<int>();
+            array inp = *(inputs.begin() + index);
+            array zTrue = *(targetZ.begin() + index);
 
-    // printf("fopisndfpis\n");
-    printArray(ml.params[0]);
+            std::vector<array> p = input;
+            p.pop_back();
 
+            array predictions = generalizedForward(inp, p);
 
-    auto loss_fn = [&ml, &targetZ](const std::vector<array>& input) {
-            // ml.set_parameters(input);
-
-            std::vector<array> ps = {input.begin(), input.end() - 1};
-            // ml.update(ps);
-            array predictions = ml.forward(input.back());
-            return mean(square(predictions - targetZ));
+            return mean(square(predictions - zTrue));
         };
 
-    // Create a value_and_grad function
-
-    // calculate the grad of each parameter, i.e. from layers 0, 1, 2, each of them has 2 parameters (weights, bias)
-
-    // create vector containing all integers from 0 to n
     std::vector<int> argnums = {};
 
     for (int i = 0; i < ml.params.size(); i++) {
         argnums.push_back(i);
     }
 
-    auto value_and_grad_fn = value_and_grad(loss_fn, argnums);
-
-    for (int epoch = 0; epoch < 10; epoch++) {
+    for (int epoch = 0; epoch < 1000; epoch++) {
         std::random_device dev;
         std::mt19937 rng(dev());
         std::uniform_int_distribution<std::mt19937::result_type> randI(0,inputs.size()/2 - 1);
@@ -139,157 +117,292 @@ void train() {
         assert(r<inputs.size()/2);
         printf("Random sample: %d\n", r);
 
-        auto in = inputs.begin() + r;
-
-
         std::vector<array> input = ml.params;
 
-        // input.push_back(in);
-        array in2 = *in;
-        // printf("\n\nNUmber: %f\n\n", in2.item<float>());
-        // assert(in2.size() == 2);
+        input.push_back(array(r));
 
-        input.push_back(in2);
-        auto [loss, grads] = value_and_grad_fn(input);
-        for (int i = 0; i < grads.size(); i++) {
-            eval(grads[i]);
-            printf("Grads of %d\n", i);
-            if (i % 2 == 0) {
-                printArray(grads[i]);
-            } else {
-                printVect(grads[i]);
-            }
+        auto [loss, grads] = value_and_grad(loss_fn, argnums)(input);;
 
-        }
-        printf("faoipsjdfiopasjdf\n");
-        printf("faoipsjdfiopasjdf\n");
         eval(loss);
-        ml.update_parameters(grads, 1);
-        eval(ml.params);
-        // print loss
-        printf("Epoch %d, Loss: %f\n", epoch, loss.item<float>());
+        ml.update_parameters(grads, 0.01);
+        printf("Epoch %d, loss: %f\n", epoch, loss.item<float>());
     }
-    // for (auto i: inputs) {
-        // std::vector<array> input = {*ml.layers[0].weights, *ml.layers[0].bias, *ml.layers[1].weights, *ml.layers[1].bias, *ml.layers[2].weights, *ml.layers[2].bias};
-    //     input.push_back(i);
-    //     auto [loss, grads] = value_and_grad_fn(input);
-    //     ml.update_parameters(grads, 0.01);
-    // }
+    exit(0);
+}
+*/
+float heuristic(evars e, int numCleared) {
+    return e.hMax * (-2) + e.numHoles * (-5) + numCleared * 4;
 }
 
-// MLP initMLP() {
+std::vector<tetrisState> possibleStates(mat m, block s, evars* previousEvars) {
+    std::vector<std::tuple<evars, bestc, int>> states;
 
+    for (int i = 0; i < m.cols; i++) {
+        for (int r = 0; r < s.numberOfShapes; r++) {
+            s.currentShape = r;
+            int numCleared = 0;
+            mat *preview = previewMatIfPushDown(&m, s, &numCleared);
+            if (preview == NULL) {
+                printf("Move not possible: { %d, %d }", i,r);
+                continue;
+            }
+            evars* ev = retrieveEvars(*preview, previousEvars);
+            bestc config = {
+                .col = i,
+                .shapeN = r
+            };
+            states.push_back(std::tuple<evars, bestc, int>(*ev, config, numCleared));
+            freeMat(preview);
+            free(ev->colHeights);
+            free(ev->deltaColHeights);
+            free(ev);
 
-//     MLP ml = MLP(6, {64, 32, 1});
-
-//     return ml;
-// }
-// void backprop(MLP ml, Value loss) {
-//     ml.zero_grad();
-//     loss.backward();
-
-//     for (Value* p : ml.parameters()) {
-//         p->data -= p->grad * 0.01;
-//     }
-// }
-
-double previewScore(mat m, block s, evars* previousEvars, int col, double mch, double mdch, MLP ml) {
-    s.position[1] = col;
-    int numCleared = 0;
-
-    mat* preview = previewMatIfPushDown(&m, s, &numCleared);;
-    if (preview == NULL) {
-        return -10000000000;
+        }
     }
-    evars* ev = retrieveEvars(*preview, previousEvars);
+    return states;
+}
+/*
 
-    double score = 0;
-    // double score = ml({Value(ev->hMax), Value(ev->numHoles), Value(mch), Value(mdch), Value(numCleared), Value(ev->minMax)})[0].data;
-    // double score = forward(ml, array({
-    //     float(ev->hMax),
-    //     float(ev->numHoles),
-    //     float(mch),
-    //     float(mdch),
-    //     float(numCleared),
-    //     float(ev->minMax)
-    // })).item<double>();
+// Modified training step with improved learning
+void trainStep(mat m, block s, evars* e, MultiLayer ml) {
+    int numCleared = 0;
+    mat *preview = previewMatIfPushDown(&m, s, &numCleared);
+    if (!preview) return;
+
+    evars *ev = retrieveEvars(*preview, e);
+
+    // Modified heuristic scaling
+    float heurScore = heuristic(*ev, numCleared) / 100.0;  // Scale down the target values
+
+    // Add positional information to input features
+    std::vector<float> input = {
+        float(ev->hMax) / m.rows,
+        float(ev->numHoles) / (m.rows * m.cols),
+        float(ev->minMax) / m.rows,
+        float(meaned(ev->colHeights, m.cols)) / m.rows,
+        float(meaned(ev->deltaColHeights, m.cols)) / m.rows,
+        float(numCleared) / float(4.0),
+        float(s.position[1]) / m.cols,  // Add normalized column position
+        float(s.currentShape) / s.numberOfShapes  // Add normalized shape number
+    };
+
+    std::vector<int> shape = {8};  // Updated input size
+    mlx::core::array inputArray = mlx::core::array(input.data(), shape, float32);
+
+    auto loss_fn = [&heurScore](const std::vector<array>& input) {
+        array trueScore = array({heurScore});
+        std::vector<array> params(input.begin(), input.end() - 1);
+        array x = input.back();
+
+        array predictions = generalizedForward(x, params);
+        return mean(square(predictions - trueScore));
+    };
+
+    std::vector<int> argnums(ml.params.size());
+    std::iota(argnums.begin(), argnums.end(), 0);
+
+    std::vector<array> inputs = ml.params;
+    inputs.push_back(inputArray);
+
+    auto [loss, grads] = value_and_grad(loss_fn, argnums)(inputs);
+    ml.update_parameters(grads, 0.01);
+
+    // printf("Loss: %f, Learning Rate: %f, Patience: %d\n",
+           // loss.item<float>(), 0.01, 1);
+
     freeMat(preview);
     free(ev->colHeights);
     free(ev->deltaColHeights);
     free(ev);
+    }*/
 
-    return score;
-}
-double* getColFromBotDecision(mat m, block s, evars* previousEvars, MLP ml) {
-//    int lastValidIndexForBlock = m.cols - blockWidth(s);
+void DQN::train(std::vector<array> states, std::vector<array> yTruth) {
 
-    double meanedColHeights = meaned(previousEvars->colHeights, m.cols);
-    double meanedDeltaColHeights = meaned(previousEvars->deltaColHeights, m.cols);
+    std::vector<int> argnums(ml->params.size());
+    std::iota(argnums.begin(), argnums.end(), 0);
 
-    int bestCol = 0;
+    for (int epoch = 0; epoch < 1000; epoch++) {
+        std::random_device dev;
+        std::mt19937 rng(dev());
+        std::uniform_int_distribution<std::mt19937::result_type> randI(0, states.size() - 1);
 
-    double bestScore = previewScore(m, s, previousEvars, 0, meanedColHeights, meanedDeltaColHeights, ml);
-    double* cs = (double*) malloc(2 * sizeof(double));
-    for (int i = 1; i < m.cols; i++) {
-        double score = previewScore(m, s, previousEvars, i, meanedColHeights, meanedDeltaColHeights, ml);
-        if (score > bestScore) {
-            bestScore = score;
-            bestCol = i;
-        }
+        int r = randI(rng);
+
+        assert(r < states.size());
+        printf("Random sample: %d\n", r);
+
+        std::vector<array> input = ml->params;
+        input.push_back(states[r]);
+
+        auto loss_fn = [&yTruth, &r, this](const std::vector<array>& input) {
+            array trueScore = yTruth[r];
+            std::vector<array> params(input.begin(), input.end() - 1);
+            array x = input.back();
+
+            array predictions = generalizedForward(x, params);
+            return mean(square(predictions - trueScore));
+        };
+
+        auto [loss, grads] = value_and_grad(loss_fn, argnums)(input);
+
+        eval(loss);
+        ml->update_parameters(grads, 0.01);
+        printf("Epoch %d, loss: %f\n", epoch, loss.item<float>());
     }
 
-    cs[0] = bestCol;
-    cs[1] = bestScore;
-
-    return cs;
+    // Update epsilon for exploration
+    epsilon = std::max(eps_min, epsilon * eps_decay);
 }
-bestc theFinestDecision(mat m, block s, evars* previousEvars, MLP ml) {
-    int bestCol = 0;
-    int bestScore = -100000;
-    int bestShape = -1;
-    for (int i = 0; i < s.numberOfShapes; i++) {
-        s.currentShape = i;
-        double* cs = getColFromBotDecision(m, s, previousEvars, ml);
-        if (cs[1] > bestScore) {
-            bestScore = cs[1];
-            bestCol = cs[0];
-            bestShape = i;
-        }
-        free(cs);
-    }
-    return {
-        .col = bestCol,
-        .shapeN = bestShape
+
+// Modified decision function with position-aware scoring
+bestc theFinestDecision(mat m, block s, evars* previousEvars, MultiLayer ml) {
+    std::vector<std::tuple<evars, bestc, int>> states = possibleStates(m, s, previousEvars);
+    float maxScore = -std::numeric_limits<float>::infinity();
+    bestc bestConfig = {
+        .col = 0,
+        .shapeN = 0
     };
-}
 
-bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, MLP ml, unsigned int index, bool userMode, block** BASIC_BLOCKS) {
+    if (states.size() == 0) {
+        printf("NO MOVES POSSIBLE");
+        return {0, -1};
+    }
+
+    // Improved exploration strategy
+    static int totalMoves = 0;
+    totalMoves++;
+    float explorationRate = 0.2 * exp(-totalMoves / 20000.0);  // Slower decay
+
+    if (true) {
+        int index = randomIntBetween(0, states.size() - 1);
+        auto [e, b, i] = states[index];
+        // printf("Exploring random move (rate: %f)\n", explorationRate);
+        return b;
+    }
+
+    for (const auto& [ev, config, numCleared] : states) {
+        std::vector<float> input = {
+            float(ev.hMax) / m.rows,
+            float(ev.numHoles) / (m.rows * m.cols),
+            float(ev.minMax) / m.rows,
+            float(meaned(previousEvars->colHeights, m.cols)) / m.rows,
+            float(meaned(previousEvars->deltaColHeights, m.cols)) / m.rows,
+            float(numCleared) / float(4.0),
+            float(config.col) / m.cols,  // Add column position
+            float(config.shapeN) / s.numberOfShapes  // Add shape information
+        };
+
+        std::vector<int> shape = {8};
+        mlx::core::array inputArray = mlx::core::array(input.data(), shape, float32);
+
+        array prediction = generalizedForward(inputArray, ml.params);
+        float score = prediction.item<float>();
+
+        // Add position-based bonus/penalty
+        float heightPenalty = ev.hMax / float(m.rows);  // Penalize high stacks
+        float holePenalty = ev.numHoles * 0.1;  // Penalize holes
+        float clearBonus = numCleared * 0.2;  // Bonus for clearing lines
+
+        score = score - heightPenalty - holePenalty + clearBonus;
+
+        printf("Col: %d, Shape: %d, Raw Score: %f, Final Score: %f\n",
+               config.col, config.shapeN, prediction.item<float>(), score);
+
+        if (score > maxScore) {
+            maxScore = score;
+            bestConfig = config;
+        }
+    }
+
+    return bestConfig;
+}
+bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, MultiLayer ml, unsigned int index, bool userMode, block** BASIC_BLOCKS) {
     int down = downShape(*m, s);
 
-    *score += 1;
+    // *score += 1;
 
     if (down == -1) {
+        computeDownPos(*m, s);
+        printf("Down pos: %d \n", s->downPos);
+
         int numCleared = pushToMat(m, *s);
         *score += 200 * pow(numCleared, 2);
 
         updateEvars(*m, e);
         changeBlock(s, nextBl);
         changeBlock(nextBl, randomBlock(BASIC_BLOCKS));
-        if (userMode) {
-            computeDownPos(*m, s);
+
+        bestc compo = theFinestDecision(*m, *s, e, ml);
+
+        if (compo.shapeN == -1) { return false; }
+        int nextPosX = compo.col;
+
+        assert(nextPosX >= 0 && nextPosX < m->cols + 2);
+
+        s->position[1] = nextPosX;
+        s->currentShape = compo.shapeN;
+        computeDownPos(*m, s);
+
+        bool canInsert = canInsertShape(*m, *s);
+
+        if (canInsert) {
+            //trainStep(*m, *s, e, ml);
+        } else {
+            printf("Can't insert shape...");
+            // printMat(m, *s);
+            printMatrix(m->data, m->rows, m->cols);
+            printMatrix(s->shape[compo.shapeN], 4, 4);
+        }
+        return canInsert;
+    }
+    return true;
+}
+
+bool DQN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int index, bool userMode, block** BASIC_BLOCKS) {
+    int down = downShape(*m, s);
+
+    // *score += 1;
+
+    if (down == -1) {
+        computeDownPos(*m, s);
+        printf("Down pos: %d \n", s->downPos);
+
+        int numCleared = pushToMat(m, *s);
+        *score += 200 * pow(numCleared, 2);
+
+        updateEvars(*m, e);
+        changeBlock(s, nextBl);
+        changeBlock(nextBl, randomBlock(BASIC_BLOCKS));
+
+        std::vector<tetrisState> maybeStates = possibleStates(*m, *s, e);
+
+        bestc compo = this->act(maybeStates);
+
+        // 50% chance to add a random state
+        if (random::uniform(0,1,{1}).item<float>() < 0.5) {
+            mem.push_back(maybeStates[random::uniform(0, maybeStates.size() - 1, {1}).item<int>()]);
         }
 
-        if (!userMode) {
+        if (compo.shapeN == -1) { return false; }
+        int nextPosX = compo.col;
 
-            bestc compo = theFinestDecision(*m, *s, e, ml);
-            if (compo.shapeN == -1) { return false; }
-            int nextPosX = compo.col;
-            assert(nextPosX >= 0 && nextPosX < m->cols + 2);
-            s->position[1] = nextPosX;
-            s->currentShape = compo.shapeN;
-            computeDownPos(*m, s);
+        assert(nextPosX >= 0 && nextPosX < m->cols + 2);
+
+        s->position[1] = nextPosX;
+        s->currentShape = compo.shapeN;
+        computeDownPos(*m, s);
+
+        bool canInsert = canInsertShape(*m, *s);
+
+        if (canInsert) {
+            //trainStep(*m, *s, e, ml);
+        } else {
+            printf("Can't insert shape...");
+            // printMat(m, *s);
+            printMatrix(m->data, m->rows, m->cols);
+            printMatrix(s->shape[compo.shapeN], 4, 4);
         }
-        return canInsertShape(*m, *s);
+        return canInsert;
     }
     return true;
 }

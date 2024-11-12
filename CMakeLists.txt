@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 set(CMAKE_CXX_STANDARD 23)
 project(tetris-ai VERSION 1.0.0)
+set(CMAKE_C_COMPILER "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc")
+set(CMAKE_CXX_COMPILER "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Add all source files

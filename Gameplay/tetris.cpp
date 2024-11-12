@@ -53,7 +53,7 @@ SDL_Renderer* renderer = NULL;
 TTF_Font* gFont = NULL;
 
 // Refresh timer
-Uint32 timerID = NULL;
+Uint32 timerID = 0;
 
 Uint64 start, end, time_taken;
 
@@ -146,7 +146,6 @@ void drawMat(mat m, block s, SDL_Renderer* renderer) {
 int main( int argc, char* args[] ) {
 
     if (!init()) {
-        train();
         loop();
     } else { kill(); return 1; }
     kill();
@@ -187,7 +186,7 @@ void loop() {
     bool quit = false;
 
     population* g;
-    // MLP ml = initMLP();
+    DQN dqn = DQN(6, 0,0,0,0,0.01);
     // -------------
     // AIs
     // Mutation génétique
@@ -195,19 +194,11 @@ void loop() {
         g = initializePopulation(20);
 
         printpopulation(g);
+    } else {
+        // printArray(ml.params[0]);
+        // printf("\n\n");
+        // printArray(ml.params[2]);
     }
-    // else {
-    // // DQN
-    //     ml = initMLP();
-    // }
-    // -------------
-
-    // int bestScore = 0;
-    // int bestIndex = 0;
-
-    // int secondBestScore = 0;
-    // int secondBestIndex = 0;
-
     unsigned int index = 0;
     unsigned int score = 0;
 
@@ -275,6 +266,7 @@ void loop() {
                             tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
                         } else {
                             // tickCallback(m,s,nextBlock, envVars, &score, ml, index, userMode, BASIC_BLOCKS);
+                            dqn.tickCallback(m, s, nextBlock, envVars, &score, index, userMode, BASIC_BLOCKS);
                         }
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_0) {
                         int i = fullDrop(*m, *s, false);
@@ -292,7 +284,7 @@ void loop() {
             if (!DQN_MODE) {
                 gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
             } else {
-                // gameOver = !tickCallback(m,s,nextBlock, envVars, &score, ml, index, userMode, BASIC_BLOCKS);
+                gameOver = !dqn.tickCallback(m, s, nextBlock, envVars, &score, index, userMode, BASIC_BLOCKS);
             }
             if (gameOver) {
 
@@ -307,13 +299,8 @@ void loop() {
                     scores[index] = score;
                     index++;
                     if (index >= g->numIndividuals) {
-
                         previousBest = mutatepopulation(g, scores);
                         index = 0;
-                        // bestIndex = 0;
-                        // bestScore = 0;
-                        // secondBestIndex = 0;
-                        // secondBestScore = 0;
                     }
                 }
                 reset(&score, m, s, nextBlock, BASIC_BLOCKS, envVars);
