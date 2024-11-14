@@ -121,14 +121,16 @@ class DQN {
         float lr;
         MultiLayer* ml = nullptr;
         std::vector<array> mem = {};
+        unsigned int memCapacity;
 
-    DQN(int input_size, float discount, float epsilon, float eps_decay, float eps_min, float lr) {
+    DQN(int input_size, float discount, float epsilon, float eps_decay, float eps_min, float lr, unsigned int memCapacity) {
         this->discount = discount;
         this->epsilon = epsilon;
         this->eps_decay = eps_decay;
         this->eps_min = eps_min;
         this->lr = lr;
         this->ml = new MultiLayer(input_size, {64, 64, 32, 1});
+        this->memCapacity = memCapacity;
     }
     bestc act(std::vector<tetrisState>& possibleStates) {
         if (generateRandomDouble(0, 1) < epsilon) {
@@ -169,6 +171,9 @@ class DQN {
         }
         if (best_action.shapeN != -1 && generateRandomDouble(0, 1) < 0.5) {
             mem.push_back(stateToArray(possibleStates[best_index]));
+            if (mem.size() >= memCapacity) {
+                mem.erase(mem.begin());
+            }
             evars* best = std::get<0>(possibleStates[best_index]);
             free(best->colHeights);
             free(best->deltaColHeights);

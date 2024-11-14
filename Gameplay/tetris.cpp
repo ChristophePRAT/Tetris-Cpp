@@ -20,7 +20,7 @@
 #include "NN.hpp"
 
 #define userMode false
-#define DQN_MODE true
+#define DQN_MODE false
 
 void loop(void);
 int init(void);
@@ -186,7 +186,7 @@ void loop() {
     bool quit = false;
 
     population* g;
-    DQN dqn = DQN(6, 0,0,0,0,0.01);
+    DQN dqn = DQN(6, 0,0,0,0,0.01, 100);
     // -------------
     // AIs
     // Mutation génétique
@@ -289,6 +289,10 @@ void loop() {
             }
             if (gameOver) {
 
+                printf("\n------------------");
+                printf("\nGAME OVER \n");
+                printf("------------------\n");
+                printf("Lines cleared: %d \n", linesCleared);
                 if (userMode) {
                     TTF_CloseFont(latexFont);
                     quit = true;
