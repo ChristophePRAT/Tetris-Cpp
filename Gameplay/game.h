@@ -69,11 +69,13 @@ void clearMat(mat* m);
 void changeBlock(block* dest, block* src);
 void resetVars(mat m, evars* ev);
 block* randomBlock(block** BASIC_BLOCKS);
-void reset(unsigned int* score, mat* m, block* s, block* nextBlock, block** BASIC_BLOCKS, evars* envVars);
+void reset(unsigned int* score, unsigned int* linesCleared, mat* m, block* s, block* nextBlock, block** BASIC_BLOCKS, evars* envVars);
 double meaned(int* arr, int size);
 double previewScore(mat m, block s, double* prefs, evars* previousEvars, int col, double mch, double mdch);
 mat* previewMatIfPushDown(mat* m, block s, int* numCleared);
 evars* retrieveEvars(mat m, evars* previousEvars);
 void printMat(mat* m, block s);
 void printMatrix(int** data, int rows, int cols);
+int generateRandomNumber(int min, int max);
+double generateRandomDouble(double min, double max);
 #endif /* game_h */

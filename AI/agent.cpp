@@ -185,7 +185,7 @@ bestc theFinestDecision(mat m, block s, double* preferences, evars* previousEvar
 }
 
 
-bool tickCallback(mat* m, block* s, block* nextBl, evars* e, population* g, unsigned int* score, unsigned int index, bool userMode, block** BASIC_BLOCKS) {
+bool tickCallback(mat* m, block* s, block* nextBl, evars* e, population* g, unsigned int* score, unsigned int* linesCleared, unsigned int index, bool userMode, block** BASIC_BLOCKS) {
     int down = downShape(*m, s);
 
     *score += 1;
@@ -193,6 +193,7 @@ bool tickCallback(mat* m, block* s, block* nextBl, evars* e, population* g, unsi
     if (down == -1) {
         int numCleared = pushToMat(m, *s);
         *score += 200 * pow(numCleared, 2);
+        *linesCleared = *linesCleared + numCleared;
 
         updateEvars(*m, e);
         changeBlock(s, nextBl);

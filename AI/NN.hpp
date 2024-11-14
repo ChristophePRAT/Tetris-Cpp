@@ -22,7 +22,7 @@ const int NUM_LAYERS = 2;
 
 using namespace mlx::core;
 // a tuple representing the env variables, the combination it came from and the lines cleared
-typedef std::tuple<evars, bestc, int> tetrisState;
+typedef std::tuple<evars *, bestc, int> tetrisState;
 
 class Linear {
     public:
@@ -120,7 +120,8 @@ class DQN {
         float eps_min;
         float lr;
         MultiLayer* ml = nullptr;
-        std::vector<tetrisState> mem = {};
+        std::vector<array> mem = {};
+
     DQN(int input_size, float discount, float epsilon, float eps_decay, float eps_min, float lr) {
         this->discount = discount;
         this->epsilon = epsilon;
@@ -130,24 +131,48 @@ class DQN {
         this->ml = new MultiLayer(input_size, {64, 64, 32, 1});
     }
     bestc act(std::vector<tetrisState>& possibleStates) {
-        if (random::uniform(0, 1, {1}).item<float>() < epsilon) {
+        if (generateRandomDouble(0, 1) < epsilon) {
             printf("\nEXPLORING --- \n");
-            tetrisState randomState = possibleStates[random::uniform(0, possibleStates.size() - 1, {1}).item<int>()];
+            tetrisState randomState = possibleStates[generateRandomNumber(0, possibleStates.size() - 1)];
             return std::get<1>(randomState);
         }
-        float max_rating = -1000000;
+        float max_rating = -std::numeric_limits<float>::infinity();
+
         bestc best_action = {
             .col = -1,
             .shapeN = -1
         };
+        int best_index = -1;
         std::vector<array> ratings = batchForward(possibleStates);
 
         for (int i = 0; i < ratings.size(); i++) {
             float rating = ratings[i].item<float>();
             if (rating > max_rating) {
+                if (best_index != -1) {
+                    evars* previousBest = std::get<0>(possibleStates[best_index]);
+                    if (previousBest != nullptr) {
+                        free(previousBest->colHeights);
+                        free(previousBest->deltaColHeights);
+                        free(previousBest);
+                    }
+                }
+
                 max_rating = rating;
                 best_action = std::get<1>(possibleStates[i]);
+                best_index = i;
+            } else {
+                evars* e = std::get<0>(possibleStates[i]);
+                free(e->colHeights);
+                free(e->deltaColHeights);
+                free(e);
             }
+        }
+        if (best_action.shapeN != -1 && generateRandomDouble(0, 1) < 0.5) {
+            mem.push_back(stateToArray(possibleStates[best_index]));
+            evars* best = std::get<0>(possibleStates[best_index]);
+            free(best->colHeights);
+            free(best->deltaColHeights);
+            free(best);
         }
         return best_action;
     }
@@ -157,10 +182,16 @@ class DQN {
         std::vector<array> targets;
         return std::make_tuple(inputs, targets);
     }
-    void train(std::vector<array> states, std::vector<array> yTruth);
+    void trainNN() {
+        train(mem, batchHeuristic(mem));
+    }
 
-    bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int index, bool userMode, block** BASIC_BLOCKS);
+    bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, bool userMode, block** BASIC_BLOCKS);
+
     private:
+    std::vector<array> batchHeuristic(std::vector<array>);
+
+    void train(std::vector<array> states, std::vector<array> yTruth);
 
 std::vector<array> batchGetTrue(std::vector<tetrisState> states) {
         std::vector<array> predictions;
@@ -173,16 +204,16 @@ std::vector<array> batchGetTrue(std::vector<tetrisState> states) {
         return predictions;
     }
     array stateToArray(tetrisState s) {
-        evars ev = std::get<0>(s);
+        evars* ev = std::get<0>(s);
         bestc b = std::get<1>(s);
         int lines = std::get<2>(s);
 
         std::vector<float> input = {
-            float(ev.hMax) / 20,
-            float(ev.numHoles) / 200,
-            float(ev.minMax) / 20,
-            float(meaned(ev.colHeights, 10)) / 20,
-            float(meaned(ev.deltaColHeights, 10)) / 20,
+            float(ev->hMax) / 20,
+            float(ev->numHoles) / 200,
+            float(ev->minMax) / 20,
+            float(meaned(ev->colHeights, 10)) / 20,
+            float(meaned(ev->deltaColHeights, 9)) / 20,
             float(lines) / float(4.0),
         };
 
@@ -220,8 +251,8 @@ std::vector<array> batchGetTrue(std::vector<tetrisState> states) {
     array generalizedForward(const array& x, const std::vector<array> params);
 };
 
-void train();
-bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, MultiLayer ml, unsigned int index, bool userMode, block** BASIC_BLOCKS);
+// void train();
+// bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, MultiLayer ml, unsigned int index, bool userMode, block** BASIC_BLOCKS);
 void printArray(array a);
 
 #endif /* NN_hpp */

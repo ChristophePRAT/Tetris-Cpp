@@ -9,7 +9,9 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <stdlib.h>
-
+#include <iostream>
+#include <random>
+// using namespace std;
 
 int min(int a, int b) {
     return a < b ? a : b;
@@ -389,6 +391,8 @@ void rotateShape(mat m, block* s) {
 
 
 bool canInsertShape(mat m, block s) {
+    // printMatrix(s.shape[s.currentShape], 4, 4);
+
     for (int i = 0; i < 4; i++) { // for each row
         for (int j = 0; j < 4; j++) { // for each column
             if (s.shape[s.currentShape][i][j] > 0) {
@@ -612,11 +616,28 @@ block* randomBlock(block** BASIC_BLOCKS) {
     return BASIC_BLOCKS[rdI];
 }
 
-void reset(unsigned int* score, mat* m, block* s, block* nextBlock, block** BASIC_BLOCKS, evars* envVars) {
+void reset(unsigned int* score, unsigned int* linesCleared, mat* m, block* s, block* nextBlock, block** BASIC_BLOCKS, evars* envVars) {
     *score = 0;
+    *linesCleared = 0;
     clearMat(m);
     changeBlock(s, randomBlock(BASIC_BLOCKS));
     computeDownPos(*m, s);
     changeBlock(nextBlock, randomBlock(BASIC_BLOCKS));
     resetVars(*m, envVars);
+}
+
+int generateRandomNumber(int min, int max) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(min, max);
+
+    return distrib(gen);
+}
+double generateRandomDouble(double min, double max) {
+    // Use random_device to seed the random number generator
+    std::random_device rd;  // Truly random seed source
+    std::mt19937 gen(rd()); // Mersenne Twister RNG, seeded with rd
+    std::uniform_real_distribution<> distrib(min, max);
+
+    return distrib(gen);
 }

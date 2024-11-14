@@ -200,6 +200,7 @@ void loop() {
         // printArray(ml.params[2]);
     }
     unsigned int index = 0;
+    unsigned int linesCleared = 0;
     unsigned int score = 0;
 
     unsigned int previousBest = 0;
@@ -235,7 +236,7 @@ void loop() {
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_DOWN) {
                         //                        downShape(*m, s);
                         if (!DQN_MODE) {
-                            tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
+                            tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
                         }
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_UP) {
                         rotateShape(*m, s);
@@ -246,7 +247,7 @@ void loop() {
 
                         // Clear screen
                         SDL_RenderClear(renderer);
-                        renderText(renderer, latexFont, 1, "Mode Boost: ", 0);
+                        renderText(renderer, latexFont, 1, "Boost Mode: ", 0);
                         SDL_RenderPresent(renderer);
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_9) {
                         TIMER_INTERVAL = 20;
@@ -263,10 +264,10 @@ void loop() {
                         int i = fullDrop(*m, *s, false);
                         s->position[0] = i;
                         if (!DQN_MODE) {
-                            tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
+                            tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
                         } else {
                             // tickCallback(m,s,nextBlock, envVars, &score, ml, index, userMode, BASIC_BLOCKS);
-                            dqn.tickCallback(m, s, nextBlock, envVars, &score, index, userMode, BASIC_BLOCKS);
+                            dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
                         }
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_0) {
                         int i = fullDrop(*m, *s, false);
@@ -282,9 +283,9 @@ void loop() {
         Uint32 current_time = SDL_GetTicks();
         if (current_time >= next_time || instantMode) {
             if (!DQN_MODE) {
-                gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, index, userMode, BASIC_BLOCKS);
+                gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
             } else {
-                gameOver = !dqn.tickCallback(m, s, nextBlock, envVars, &score, index, userMode, BASIC_BLOCKS);
+                gameOver = !dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
             }
             if (gameOver) {
 
@@ -302,8 +303,10 @@ void loop() {
                         previousBest = mutatepopulation(g, scores);
                         index = 0;
                     }
+                } else {
+                    dqn.trainNN();
                 }
-                reset(&score, m, s, nextBlock, BASIC_BLOCKS, envVars);
+                reset(&score, &linesCleared, m, s, nextBlock, BASIC_BLOCKS, envVars);
 
             }
 
@@ -324,13 +327,14 @@ void loop() {
             char s4[] = "Previous best: ";
             char s5[] = "Interval: ";
             renderText(renderer, latexFont, score, s1, 5);
-            renderText(renderer, latexFont, index, s2, 7);
             if (!DQN_MODE) {
-                renderText(renderer, latexFont, g->id, s3, 8);
-
-                renderText(renderer, latexFont, previousBest, s4, 6);
+                renderText(renderer, latexFont, g->id, s3, 9);
+                renderText(renderer, latexFont, index, s2, 8);
+                renderText(renderer, latexFont, previousBest, s4, 7);
             }
-            renderText(renderer, latexFont, TIMER_INTERVAL, s5, 10);
+            char linesClearedText[] = "Lines Cleared: ";
+            renderText(renderer, latexFont, linesCleared, linesClearedText, 6);
+            renderText(renderer, latexFont, TIMER_INTERVAL, s5, 11);
 
             // Display next shape by the side of the screen
             drawBlock(*nextBlock, 12, 1, renderer);
