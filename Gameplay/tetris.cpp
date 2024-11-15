@@ -20,7 +20,7 @@
 #include "NN.hpp"
 
 #define userMode false
-#define DQN_MODE false
+#define DQN_MODE true
 
 void loop(void);
 int init(void);
@@ -298,7 +298,9 @@ void loop() {
                     quit = true;
                     return;
                 } else if (!DQN_MODE) {
-                    addEntry(&fileNum, score, g->individuals[index].weights, g->id, index == 0 && g->id == 0);
+                    addGMEntry(&fileNum, score, g->individuals[index].weights, g->id, index == 0 && g->id == 0);
+                } else {
+                    addDQNEntry(&fileNum, score, linesCleared, index == 0 && dqn.step == 0, dqn.step);
                 }
                 if (!DQN_MODE) {
                     scores[index] = score;

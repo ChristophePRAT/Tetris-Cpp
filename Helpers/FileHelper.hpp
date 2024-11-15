@@ -9,6 +9,6 @@
 #define FileHelper_hpp
 
 #include <stdio.h>
-void addEntry(unsigned int *fileNum, int score, double* weights, int populationId, bool firstEntry);
-
+void addGMEntry(unsigned int *fileNum, int score, double* weights, int populationId, bool firstEntry);
+void addDQNEntry(unsigned int *fileNum, int score, int linesCleared, bool firstEntry, int step);
 #endif /* FileHelper_hpp */

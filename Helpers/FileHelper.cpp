@@ -6,6 +6,7 @@
 //
 
 #include "FileHelper.hpp"
+#include "NN.hpp"
 #include <iostream>
 #include <fstream>
 
@@ -43,7 +44,7 @@ char* join_doubles(double* arr, int len) {
   return str;
 }
 
-void addEntry(unsigned int *fileNum, int score, double* weights, int populationId, bool firstEntry) {
+void addGMEntry(unsigned int *fileNum, int score, double* weights, int populationId, bool firstEntry) {
     FILE *fptr;
     char fileName[40];
 
@@ -61,7 +62,7 @@ void addEntry(unsigned int *fileNum, int score, double* weights, int populationI
         } else {
             if (firstEntry) {
                 *fileNum += 1;
-                addEntry(fileNum, score, weights, populationId, firstEntry);
+                addGMEntry(fileNum, score, weights, populationId, firstEntry);
             }
         }
     }
@@ -69,6 +70,34 @@ void addEntry(unsigned int *fileNum, int score, double* weights, int populationI
     // Stored at /Users/christopheprat/Library/Containers/com.christopheprat.tutorial/Data
     fprintf(fptr, "\n%d, %s, %d", score, join_doubles(weights, 6), populationId);
 
+
+    fclose(fptr);
+}
+
+void addDQNEntry(unsigned int *fileNum, int score, int linesCleared, bool firstEntry, int step) {
+    FILE *fptr;
+    char fileName[40];
+
+    sprintf(fileName, "scores_dqn_%d.csv", *fileNum);
+
+    // Open a file in read mode
+    fptr = fopen(fileName, "a");
+    if (fptr == nullptr) {
+        fptr = fopen(fileName, "w");
+        fprintf(fptr, "score,linesCleared,step");
+    } else {
+        fseek(fptr, 0, SEEK_END);
+        if (ftell(fptr) == 0) {
+            fprintf(fptr, "score,linesCleared,step");
+        } else {
+            if (firstEntry) {
+                *fileNum += 1;
+                addDQNEntry(fileNum, score, linesCleared, firstEntry, step);
+            }
+        }
+    }
+
+    fprintf(fptr, "\n%d, %d, %d", score, linesCleared, step);
 
     fclose(fptr);
 }

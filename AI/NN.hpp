@@ -122,6 +122,7 @@ class DQN {
         MultiLayer* ml = nullptr;
         std::vector<array> mem = {};
         unsigned int memCapacity;
+        int step = 0;
 
     DQN(int input_size, float discount, float epsilon, float eps_decay, float eps_min, float lr, unsigned int memCapacity) {
         this->discount = discount;
@@ -188,6 +189,7 @@ class DQN {
         return std::make_tuple(inputs, targets);
     }
     void trainNN() {
+        step += 1;
         train(mem, batchHeuristic(mem));
     }
 
