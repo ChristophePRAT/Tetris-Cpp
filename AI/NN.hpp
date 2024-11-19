@@ -152,16 +152,16 @@ class DQN {
 
     void train(std::vector<array> states, std::vector<array> yTruth);
 
-std::vector<array> batchGetTrue(std::vector<tetrisState> states) {
-        std::vector<array> predictions;
-        for (int i = 0; i < states.size(); i++) {
-            array input = stateToArray(states[i]);
+// std::vector<array> batchGetTrue(std::vector<tetrisState> states) {
+//         std::vector<array> predictions;
+//         for (int i = 0; i < states.size(); i++) {
+//             array input = stateToArray(states[i]);
 
-            array trueValue = mlx::core::matmul(input, transpose(array({-1,-2,-0.4,-0.5,4})));
-            predictions.push_back(trueValue);
-        }
-        return predictions;
-    }
+//             array trueValue = mlx::core::matmul(input, transpose(array({-1,-2,-0.4,-0.5,4})));
+//             predictions.push_back(trueValue);
+//         }
+//         return predictions;
+//     }
     array stateToArray(tetrisState s) {
         evars* ev = std::get<0>(s);
         bestc b = std::get<1>(s);
@@ -171,8 +171,8 @@ std::vector<array> batchGetTrue(std::vector<tetrisState> states) {
             float(ev->hMax) / 20,
             float(ev->numHoles) / 200,
             float(ev->minMax) / 20,
-            float(meaned(ev->colHeights, 10)) / 20,
-            float(meaned(ev->deltaColHeights, 9)) / 20,
+            float(meaned(ev->colHeights, 10)),
+            float(meaned(ev->deltaColHeights, 9)),
             float(lines) / float(4.0),
         };
 

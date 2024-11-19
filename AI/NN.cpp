@@ -93,11 +93,32 @@ array heuristic2(const array& input) {
     return hMax * (-2) + numHoles * (-5) + numCleared * 4 + deltaColHeights * (-1) + minMax * (-1) + colHeights * (-1.5);
 }
 
+array heuristic3(const array& input) {
+    array hMax = (*input.begin());
+    array numHoles = (*(input.begin() + 1));
+    array minMax = (*(input.begin() + 2));
+    array colHeights = (*(input.begin() + 3));
+    array deltaColHeights = (*(input.begin() + 4));
+    array numCleared = (*(input.begin() + 5));
+
+    return -0.3 * colHeights + 8 * numCleared - 7.5 * numHoles - 5 * deltaColHeights;
+}
+
+array heuristic4(const array& input) {
+    array hMax = (*input.begin());
+    array numHoles = (*(input.begin() + 1));
+    array minMax = (*(input.begin() + 2));
+    array colHeights = (*(input.begin() + 3));
+    array deltaColHeights = (*(input.begin() + 4));
+    array numCleared = (*(input.begin() + 5));
+
+    return -0.3 * colHeights + 8 * numCleared - 7.5 * numHoles - 5 * deltaColHeights - hMax*hMax;
+}
 std::vector<array> DQN::batchHeuristic(std::vector<array> states) {
     std::vector<array> ys = {};
 
     for (array input : states) {
-        array y = heuristic2(input);
+        array y = heuristic4(input);
         ys.push_back(y);
     }
     return ys;

@@ -20,7 +20,6 @@
 // AI_MODE  = "DQN" | "GENETIC"
 const char AI_MODE[] = "DQN";
 
-
 void loop(void);
 int init(void);
 void kill(void);
@@ -185,7 +184,7 @@ void loop() {
     bool quit = false;
 
     population* g;
-    DQN dqn = DQN(6, 0,0,0,0,0.01, 100);
+    DQN dqn = DQN(6, 0,0,0,0,0.01, 10);
     // -------------
     // AIs
     // Mutation génétique

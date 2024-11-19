@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-file_name = "../build/scores.csv"
+file_name = "../scores/scores.csv"
 
 df = pd.read_csv(file_name)
 # Add index column
