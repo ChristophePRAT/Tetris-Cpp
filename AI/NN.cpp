@@ -12,7 +12,6 @@
 #include <assert.h>
 #include "mlx/array.h"
 #include "mlx/ops.h"
-// #include "mlx/random.h"
 #include "mlx/transforms.h"
 #include <cstdio>
 #include <cstdlib>
@@ -59,6 +58,7 @@ array generalizedForward(const array& x, const std::vector<array> params) {
     }
     return xs.back();
 }
+
 array DQN::generalizedForward(const array& x, const std::vector<array> params) {
     std::vector<array> xs = {x};
 
@@ -213,4 +213,54 @@ bool DQN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* 
         return canInsert;
     }
     return true;
+}
+
+bestc DQN::act(std::vector<tetrisState>& possibleStates) {
+    if (generateRandomDouble(0, 1) < epsilon) {
+        printf("\nEXPLORING --- \n");
+        tetrisState randomState = possibleStates[generateRandomNumber(0, possibleStates.size() - 1)];
+        return std::get<1>(randomState);
+    }
+    float max_rating = -std::numeric_limits<float>::infinity();
+
+    bestc best_action = {
+        .col = -1,
+        .shapeN = -1
+    };
+    int best_index = -1;
+    std::vector<array> ratings = batchForward(possibleStates);
+
+    for (int i = 0; i < ratings.size(); i++) {
+        float rating = ratings[i].item<float>();
+        if (rating > max_rating) {
+            if (best_index != -1) {
+                evars* previousBest = std::get<0>(possibleStates[best_index]);
+                if (previousBest != nullptr) {
+                    free(previousBest->colHeights);
+                    free(previousBest->deltaColHeights);
+                    free(previousBest);
+                }
+            }
+
+            max_rating = rating;
+            best_action = std::get<1>(possibleStates[i]);
+            best_index = i;
+        } else {
+            evars* e = std::get<0>(possibleStates[i]);
+            free(e->colHeights);
+            free(e->deltaColHeights);
+            free(e);
+        }
+    }
+    if (best_action.shapeN != -1 && generateRandomDouble(0, 1) < 0.5) {
+        mem.push_back(stateToArray(possibleStates[best_index]));
+        if (mem.size() >= memCapacity) {
+            mem.erase(mem.begin());
+        }
+        evars* best = std::get<0>(possibleStates[best_index]);
+        free(best->colHeights);
+        free(best->deltaColHeights);
+        free(best);
+    }
+    return best_action;
 }

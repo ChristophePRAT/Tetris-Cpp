@@ -133,55 +133,7 @@ class DQN {
         this->ml = new MultiLayer(input_size, {64, 64, 32, 1});
         this->memCapacity = memCapacity;
     }
-    bestc act(std::vector<tetrisState>& possibleStates) {
-        if (generateRandomDouble(0, 1) < epsilon) {
-            printf("\nEXPLORING --- \n");
-            tetrisState randomState = possibleStates[generateRandomNumber(0, possibleStates.size() - 1)];
-            return std::get<1>(randomState);
-        }
-        float max_rating = -std::numeric_limits<float>::infinity();
-
-        bestc best_action = {
-            .col = -1,
-            .shapeN = -1
-        };
-        int best_index = -1;
-        std::vector<array> ratings = batchForward(possibleStates);
-
-        for (int i = 0; i < ratings.size(); i++) {
-            float rating = ratings[i].item<float>();
-            if (rating > max_rating) {
-                if (best_index != -1) {
-                    evars* previousBest = std::get<0>(possibleStates[best_index]);
-                    if (previousBest != nullptr) {
-                        free(previousBest->colHeights);
-                        free(previousBest->deltaColHeights);
-                        free(previousBest);
-                    }
-                }
-
-                max_rating = rating;
-                best_action = std::get<1>(possibleStates[i]);
-                best_index = i;
-            } else {
-                evars* e = std::get<0>(possibleStates[i]);
-                free(e->colHeights);
-                free(e->deltaColHeights);
-                free(e);
-            }
-        }
-        if (best_action.shapeN != -1 && generateRandomDouble(0, 1) < 0.5) {
-            mem.push_back(stateToArray(possibleStates[best_index]));
-            if (mem.size() >= memCapacity) {
-                mem.erase(mem.begin());
-            }
-            evars* best = std::get<0>(possibleStates[best_index]);
-            free(best->colHeights);
-            free(best->deltaColHeights);
-            free(best);
-        }
-        return best_action;
-    }
+    bestc act(std::vector<tetrisState>& possibleStates);
 
     std::tuple<std::vector<array>, std::vector<array>> gatherTrainingData(std::vector<tetrisState> memory) {
         std::vector<array> inputs = batchStateToArray(memory);
@@ -258,8 +210,6 @@ std::vector<array> batchGetTrue(std::vector<tetrisState> states) {
     array generalizedForward(const array& x, const std::vector<array> params);
 };
 
-// void train();
-// bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, MultiLayer ml, unsigned int index, bool userMode, block** BASIC_BLOCKS);
 void printArray(array a);
 
 #endif /* NN_hpp */

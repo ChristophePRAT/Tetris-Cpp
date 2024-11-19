@@ -1,7 +1,3 @@
-/*This source code copyrighted by Lazy Foo' Productions 2004-2024
- and may not be redistributed without written permission.*/
-
-//Using SDL and standard IO
 #include <SDL2/SDL.h>
 #include <SDL2_ttf/SDL_ttf.h>
 #include <SDL2_image/SDL_image.h>
@@ -20,7 +16,10 @@
 #include "NN.hpp"
 
 #define userMode false
-#define DQN_MODE true
+
+// AI_MODE  = "DQN" | "GENETIC"
+const char AI_MODE[] = "DQN";
+
 
 void loop(void);
 int init(void);
@@ -190,7 +189,7 @@ void loop() {
     // -------------
     // AIs
     // Mutation génétique
-    if (!DQN_MODE) {
+    if (AI_MODE == "GENETIC") {
         g = initializePopulation(20);
 
         printpopulation(g);
@@ -206,7 +205,7 @@ void loop() {
     unsigned int previousBest = 0;
 
     int* scores;
-    if (!DQN_MODE) {
+    if (AI_MODE == "GENETIC") {
         scores = (int*)malloc(g->numIndividuals * sizeof(int));
     }
 
@@ -235,7 +234,7 @@ void loop() {
                         moveRLShape(m, s, -1);
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_DOWN) {
                         //                        downShape(*m, s);
-                        if (!DQN_MODE) {
+                        if (AI_MODE == "GENETIC") {
                             tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
                         }
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_UP) {
@@ -263,7 +262,7 @@ void loop() {
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_SPACE) {
                         int i = fullDrop(*m, *s, false);
                         s->position[0] = i;
-                        if (!DQN_MODE) {
+                        if (AI_MODE == "GENETIC") {
                             tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
                         } else {
                             // tickCallback(m,s,nextBlock, envVars, &score, ml, index, userMode, BASIC_BLOCKS);
@@ -282,7 +281,7 @@ void loop() {
         // Check if it's time to call the TimerCallback function
         Uint32 current_time = SDL_GetTicks();
         if (current_time >= next_time || instantMode) {
-            if (!DQN_MODE) {
+            if (AI_MODE == "GENETIC") {
                 gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
             } else {
                 gameOver = !dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
@@ -297,12 +296,12 @@ void loop() {
                     TTF_CloseFont(latexFont);
                     quit = true;
                     return;
-                } else if (!DQN_MODE) {
+                } else if (AI_MODE == "GENETIC") {
                     addGMEntry(&fileNum, score, g->individuals[index].weights, g->id, index == 0 && g->id == 0);
                 } else {
                     addDQNEntry(&fileNum, score, linesCleared, index == 0 && dqn.step == 0, dqn.step);
                 }
-                if (!DQN_MODE) {
+                if (AI_MODE == "GENETIC") {
                     scores[index] = score;
                     index++;
                     if (index >= g->numIndividuals) {
@@ -333,7 +332,7 @@ void loop() {
             char s4[] = "Previous best: ";
             char s5[] = "Interval: ";
             renderText(renderer, latexFont, score, s1, 5);
-            if (!DQN_MODE) {
+            if (AI_MODE == "GENETIC") {
                 renderText(renderer, latexFont, g->id, s3, 9);
                 renderText(renderer, latexFont, index, s2, 8);
                 renderText(renderer, latexFont, previousBest, s4, 7);
