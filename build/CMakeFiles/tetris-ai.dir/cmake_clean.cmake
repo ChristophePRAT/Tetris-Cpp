@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/tetris-ai.dir/AI/GenNN.cpp.o"
+  "CMakeFiles/tetris-ai.dir/AI/GenNN.cpp.o.d"
   "CMakeFiles/tetris-ai.dir/AI/NN.cpp.o"
   "CMakeFiles/tetris-ai.dir/AI/NN.cpp.o.d"
   "CMakeFiles/tetris-ai.dir/AI/agent.cpp.o"

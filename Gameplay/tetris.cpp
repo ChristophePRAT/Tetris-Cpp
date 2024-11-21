@@ -14,11 +14,12 @@
 #include <time.h>
 #include "FileHelper.hpp"
 #include "NN.hpp"
+#include "GenNN.hpp"
 
 #define userMode false
 
-// AI_MODE  = "DQN" | "GENETIC"
-const char AI_MODE[] = "DQN";
+// AI_MODE  = 0: "GENETIC" | 1: "DQN" | 2: Genetic Neural Network
+const int AI_MODE = 2;
 
 void loop(void);
 int init(void);
@@ -184,19 +185,19 @@ void loop() {
     bool quit = false;
 
     population* g;
-    DQN dqn = DQN(6, 0,0,0,0,0.01, 10);
+    DQN dqn = DQN(6, 0,0,0,0,0.01, 50);
+
+    GeneticNN genNN = GeneticNN(20, 6, { 16,8,1 });
+
     // -------------
     // AIs
     // Mutation génétique
-    if (AI_MODE == "GENETIC") {
+    if (AI_MODE == 0) {
         g = initializePopulation(20);
 
         printpopulation(g);
-    } else {
-        // printArray(ml.params[0]);
-        // printf("\n\n");
-        // printArray(ml.params[2]);
     }
+
     unsigned int index = 0;
     unsigned int linesCleared = 0;
     unsigned int score = 0;
@@ -204,7 +205,7 @@ void loop() {
     unsigned int previousBest = 0;
 
     int* scores;
-    if (AI_MODE == "GENETIC") {
+    if (AI_MODE == 0) {
         scores = (int*)malloc(g->numIndividuals * sizeof(int));
     }
 
@@ -218,7 +219,7 @@ void loop() {
         SDL_Event e;
         // assert(&e != NULL);
 
-        if (&e != NULL && SDL_PollEvent(&e)) {
+        if (SDL_PollEvent(&e)) {
             switch (e.type) {
                 case SDL_QUIT:
                     quit = true;
@@ -233,7 +234,7 @@ void loop() {
                         moveRLShape(m, s, -1);
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_DOWN) {
                         //                        downShape(*m, s);
-                        if (AI_MODE == "GENETIC") {
+                        if (AI_MODE == 0) {
                             tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
                         }
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_UP) {
@@ -245,7 +246,8 @@ void loop() {
 
                         // Clear screen
                         SDL_RenderClear(renderer);
-                        renderText(renderer, latexFont, 1, "Boost Mode: ", 0);
+                        char s[] = "Boost Mode: ";
+                        renderText(renderer, latexFont, 1, s, 0);
                         SDL_RenderPresent(renderer);
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_9) {
                         TIMER_INTERVAL = 20;
@@ -261,11 +263,13 @@ void loop() {
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_SPACE) {
                         int i = fullDrop(*m, *s, false);
                         s->position[0] = i;
-                        if (AI_MODE == "GENETIC") {
+                        if (AI_MODE == 0) {
                             tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
-                        } else {
+                        } else if (AI_MODE == 1) {
                             // tickCallback(m,s,nextBlock, envVars, &score, ml, index, userMode, BASIC_BLOCKS);
                             dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
+                        } else if (AI_MODE == 2) {
+                            genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
                         }
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_0) {
                         int i = fullDrop(*m, *s, false);
@@ -280,35 +284,46 @@ void loop() {
         // Check if it's time to call the TimerCallback function
         Uint32 current_time = SDL_GetTicks();
         if (current_time >= next_time || instantMode) {
-            if (AI_MODE == "GENETIC") {
+            if (AI_MODE == 0) {
                 gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
-            } else {
+            } else if (AI_MODE == 1) {
                 gameOver = !dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
+            } else {
+                gameOver = !genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
             }
             if (gameOver) {
 
-                printf("\n------------------");
+                printf("------------------");
                 printf("\nGAME OVER \n");
-                printf("------------------\n");
                 printf("Lines cleared: %d \n", linesCleared);
+                printf("------------------\n");
                 if (userMode) {
                     TTF_CloseFont(latexFont);
                     quit = true;
                     return;
-                } else if (AI_MODE == "GENETIC") {
+                } else if (AI_MODE == 0) {
                     addGMEntry(&fileNum, score, g->individuals[index].weights, g->id, index == 0 && g->id == 0);
-                } else {
+                } else if (AI_MODE == 1) {
                     addDQNEntry(&fileNum, score, linesCleared, index == 0 && dqn.step == 0, dqn.step);
                 }
-                if (AI_MODE == "GENETIC") {
+
+                if (AI_MODE == 0) {
                     scores[index] = score;
                     index++;
                     if (index >= g->numIndividuals) {
                         previousBest = mutatepopulation(g, scores);
                         index = 0;
                     }
-                } else {
+                } else if (AI_MODE == 1) {
                     dqn.trainNN();
+                } else if (AI_MODE == 2) {
+                    scores[index] = score;
+                    genNN.setResult(index, score);
+                    index++;
+                    if (index >= genNN.count) {
+                        genNN.udpatePopulation();
+                        index = 0;
+                    }
                 }
                 reset(&score, &linesCleared, m, s, nextBlock, BASIC_BLOCKS, envVars);
 
@@ -331,10 +346,13 @@ void loop() {
             char s4[] = "Previous best: ";
             char s5[] = "Interval: ";
             renderText(renderer, latexFont, score, s1, 5);
-            if (AI_MODE == "GENETIC") {
+            if (AI_MODE == 0) {
                 renderText(renderer, latexFont, g->id, s3, 9);
                 renderText(renderer, latexFont, index, s2, 8);
                 renderText(renderer, latexFont, previousBest, s4, 7);
+            } else if (AI_MODE == 2) {
+                renderText(renderer, latexFont, genNN.populationID, s3, 9);
+                renderText(renderer, latexFont, index, s2, 8);
             }
             char linesClearedText[] = "Lines Cleared: ";
             renderText(renderer, latexFont, linesCleared, linesClearedText, 6);

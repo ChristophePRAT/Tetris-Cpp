@@ -129,6 +129,30 @@ tetris-ai/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/build
 .PHONY : tetris-ai/fast
 
+AI/GenNN.o: AI/GenNN.cpp.o
+.PHONY : AI/GenNN.o
+
+# target to build an object file
+AI/GenNN.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/GenNN.cpp.o
+.PHONY : AI/GenNN.cpp.o
+
+AI/GenNN.i: AI/GenNN.cpp.i
+.PHONY : AI/GenNN.i
+
+# target to preprocess a source file
+AI/GenNN.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/GenNN.cpp.i
+.PHONY : AI/GenNN.cpp.i
+
+AI/GenNN.s: AI/GenNN.cpp.s
+.PHONY : AI/GenNN.s
+
+# target to generate assembly for a file
+AI/GenNN.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/GenNN.cpp.s
+.PHONY : AI/GenNN.cpp.s
+
 AI/NN.o: AI/NN.cpp.o
 .PHONY : AI/NN.o
 
@@ -282,6 +306,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... tetris-ai"
+	@echo "... AI/GenNN.o"
+	@echo "... AI/GenNN.i"
+	@echo "... AI/GenNN.s"
 	@echo "... AI/NN.o"
 	@echo "... AI/NN.i"
 	@echo "... AI/NN.s"

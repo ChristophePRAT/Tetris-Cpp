@@ -23,6 +23,8 @@ const int NUM_LAYERS = 2;
 using namespace mlx::core;
 // a tuple representing the env variables, the combination it came from and the lines cleared
 typedef std::tuple<evars *, bestc, int> tetrisState;
+array stateToArray(tetrisState s);
+
 
 class Linear {
     public:
@@ -152,35 +154,6 @@ class DQN {
 
     void train(std::vector<array> states, std::vector<array> yTruth);
 
-// std::vector<array> batchGetTrue(std::vector<tetrisState> states) {
-//         std::vector<array> predictions;
-//         for (int i = 0; i < states.size(); i++) {
-//             array input = stateToArray(states[i]);
-
-//             array trueValue = mlx::core::matmul(input, transpose(array({-1,-2,-0.4,-0.5,4})));
-//             predictions.push_back(trueValue);
-//         }
-//         return predictions;
-//     }
-    array stateToArray(tetrisState s) {
-        evars* ev = std::get<0>(s);
-        bestc b = std::get<1>(s);
-        int lines = std::get<2>(s);
-
-        std::vector<float> input = {
-            float(ev->hMax) / 20,
-            float(ev->numHoles) / 200,
-            float(ev->minMax) / 20,
-            float(meaned(ev->colHeights, 10)),
-            float(meaned(ev->deltaColHeights, 9)),
-            float(lines) / float(4.0),
-        };
-
-        std::vector<int> shape = {int(input.size())};
-        mlx::core::array inputArray = mlx::core::array(input.data(), shape, float32);
-
-        return inputArray;
-    }
     std::vector<array> batchStateToArray(std::vector<tetrisState> states) {
         std::vector<array> inputs;
         for (const auto& state : states) {
@@ -211,5 +184,7 @@ class DQN {
 };
 
 void printArray(array a);
+std::vector<tetrisState> possibleStates(mat m, block s, evars* previousEvars);
+array generalizedForward(const array& x, const std::vector<array> params);
 
 #endif /* NN_hpp */

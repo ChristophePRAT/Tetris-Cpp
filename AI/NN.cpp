@@ -39,6 +39,25 @@ void printVect(array x) {
     }
     printf("\n");
 }
+array stateToArray(tetrisState s) {
+    evars* ev = std::get<0>(s);
+    bestc b = std::get<1>(s);
+    int lines = std::get<2>(s);
+
+    std::vector<float> input = {
+        float(ev->hMax) / 20,
+        float(ev->numHoles) / 200,
+        float(ev->minMax) / 20,
+        float(meaned(ev->colHeights, 10)),
+        float(meaned(ev->deltaColHeights, 9)),
+        float(lines) / float(4.0),
+    };
+
+    std::vector<int> shape = {int(input.size())};
+    mlx::core::array inputArray = mlx::core::array(input.data(), shape, float32);
+
+    return inputArray;
+}
 
 array relu(const array& input) {
   return maximum(input, {0.0}); // Applies element-wise maximum [1]

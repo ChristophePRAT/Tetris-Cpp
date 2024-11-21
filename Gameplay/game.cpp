@@ -9,7 +9,6 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <stdlib.h>
-#include <iostream>
 #include <random>
 // using namespace std;
 
@@ -198,10 +197,6 @@ bool canMoveDownShape(mat m, block s) {
     return true;
 }
 int downShape(mat m, block* s) {
-//        if (canMoveDownShape(m, *s)) {
-//            s->position[0]++;
-//            return 0;
-//        } else { return -1; }
     if (s->downPos > s->position[0]) {
         s->position[0]++;
         return 0;

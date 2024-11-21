@@ -1054,4 +1054,5 @@ CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o: \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/__stop_token/stop_source.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/__thread/thread.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/__thread/this_thread.h \
-  /usr/local/include/mlx/linalg.h /usr/local/include/mlx/transforms.h
+  /usr/local/include/mlx/linalg.h /usr/local/include/mlx/transforms.h \
+  /Users/christopheprat/Code/TIPE/Tetris-Cpp/./AI/GenNN.hpp
