@@ -15,7 +15,7 @@ Tetris is an arcade game created by Alexey Pajitnov in 1984. The game consists o
 
 ## AIs
 
-You can check the scores in the `build/scores.csv` file.
+You can check the scores in the `scores/` folder.
 
 ### Genetic Algorithm
 Our genetic algorithm is based on the following steps:
@@ -26,5 +26,12 @@ Our genetic algorithm is based on the following steps:
 5. Create new individuals by crossing over the best individuals (choosing random weights from the best individuals to create the new ones)
 6. Repeat step 2 to 6
 ### DQN
+Our DQN algorithm is based on the following steps:
+1. Create a NN
+2. Define a heuristic function that evaluates the state of the game
+3. Play the game and randomly store states in a replay buffer
+4. Once each game ends, train the NN with the states stored in the replay buffer for 10 epochs
 
-Yet to come...
+### Genetic Neural Network
+Same as the basic genetic algorithm but the individuals are neural networks.
+Currently this is the best we have. Managed to get a score of 289 lines cleared within 7 minutes of training in boost mode. For reference, I scored 180 and gamers can score around 220.

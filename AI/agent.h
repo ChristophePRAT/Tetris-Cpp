@@ -11,13 +11,13 @@
 #include "game.h"
 
 typedef struct Individual {
-  int id;
-  double* weights;
+    int id;
+    double* weights;
 } indi;
 typedef struct population {
-  indi* individuals;
-  int numIndividuals;
-  int numWeights;
+    indi* individuals;
+    int numIndividuals;
+    int numWeights;
     int id;
 } population;
 

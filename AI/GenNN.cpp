@@ -152,13 +152,13 @@ bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned
         changeBlock(s, nextBl);
         changeBlock(nextBl, randomBlock(BASIC_BLOCKS));
 
-        std::vector<tetrisState> maybeStates = possibleStates(*m, *s, e);
+        // std::vector<tetrisState> maybeStates = possibleStates(*m, *s, e);
 
-        bestc compo = this->act(maybeStates, index);
+        // bestc compo = this->act(maybeStates, index);
 
-        // std::vector<std::tuple<array, bestc>> maybeStates = possibleBoards(*m, *s, e);
+        std::vector<std::tuple<array, bestc>> maybeStates = possibleBoards(*m, *s, e);
 
-        // bestc compo = this->act2(maybeStates, index);
+        bestc compo = this->act2(maybeStates, index);
 
         if (compo.shapeN == -1) { return false; }
 

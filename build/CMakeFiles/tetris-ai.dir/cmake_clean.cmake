@@ -13,6 +13,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/tetris-ai.dir/Helpers/FileHelper.cpp.o.d"
   "CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.o"
   "CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.o.d"
+  "CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o"
+  "CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o.d"
   "tetris-ai"
   "tetris-ai.pdb"
 )

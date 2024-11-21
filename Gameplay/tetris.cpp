@@ -16,15 +16,15 @@
 #include "NN.hpp"
 #include "GenNN.hpp"
 
-#define userMode false
-
-// AI_MODE  = 0: "GENETIC" | 1: "DQN" | 2: Genetic Neural Network
-const int AI_MODE = 2;
+// AI_MODE  = -1: User mode | 0: Genetic | 1: DQN | 2: Genetic Neural Network
+unsigned int AI_MODE = 2;
 
 void loop(void);
 int init(void);
 void kill(void);
+
 // USER MODE
+const bool userMode = AI_MODE == -1;
 
 bool instantMode = false;
 
@@ -140,11 +140,31 @@ void drawMat(mat m, block s, SDL_Renderer* renderer) {
     }
 }
 
-int main( int argc, char* args[] ) {
+int main(int argc, char* args[] ) {
+    for (int i = 0; i < argc; i++) {
+        if (strcmp(args[i], "--ai_mode") == 0 || strcmp(args[i], "-m") == 0) {
+            if (i != argc - 1) {
+                AI_MODE = atoi(args[i + 1]);
+            } else {
+                printf("Please provide a value for the AI mode\n");
+                return 1;
+            }
+        }
+    }
+
+    if (AI_MODE == -1) {
+        printf("Game loaded with user mode 🕹️\n");
+    } else if (AI_MODE == 0) {
+        printf("Game loaded with genetic mutation mode 🦁\n");
+    } else if (AI_MODE == 1) {
+        printf("Game loaded with DQN mode 🧠\n");
+    } else if (AI_MODE == 2) {
+        printf("Game loaded with neural network genetic mutation mode ⚛️\n");
+    }
 
     if (!init()) {
         loop();
-    } else { kill(); return 1; }
+    } else { kill(); return 0; }
     kill();
     return 0;
 }
@@ -182,10 +202,10 @@ void loop() {
     // Event loop exit flag
     bool quit = false;
 
+    // AIs
     population* g;
     DQN dqn = DQN(6, 0,0,0,0,0.01, 50);
-
-    GeneticNN genNN = GeneticNN(20, 6, { 16,8,1 });
+    GeneticNN genNN = GeneticNN(20, 12, { 16,8,1 });
 
     // -------------
     // AIs
@@ -208,14 +228,11 @@ void loop() {
     }
 
 
-    // static int MAX_POP = 10000;
-
     unsigned int fileNum = 0;
 
     // Event loop
     while(!quit) {
         SDL_Event e;
-        // assert(&e != NULL);
 
         if (SDL_PollEvent(&e)) {
             switch (e.type) {
@@ -264,7 +281,6 @@ void loop() {
                         if (AI_MODE == 0) {
                             tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
                         } else if (AI_MODE == 1) {
-                            // tickCallback(m,s,nextBlock, envVars, &score, ml, index, userMode, BASIC_BLOCKS);
                             dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
                         } else if (AI_MODE == 2) {
                             genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
@@ -291,8 +307,6 @@ void loop() {
             }
             if (gameOver) {
 
-                printf("------------------");
-                printf("\nGAME OVER \n");
                 printf("Lines cleared: %d \n", linesCleared);
                 printf("------------------\n");
                 if (userMode) {

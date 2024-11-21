@@ -297,6 +297,30 @@ Helpers/blocksNshapes.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.s
 .PHONY : Helpers/blocksNshapes.cpp.s
 
+Helpers/loader.o: Helpers/loader.cpp.o
+.PHONY : Helpers/loader.o
+
+# target to build an object file
+Helpers/loader.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o
+.PHONY : Helpers/loader.cpp.o
+
+Helpers/loader.i: Helpers/loader.cpp.i
+.PHONY : Helpers/loader.i
+
+# target to preprocess a source file
+Helpers/loader.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.i
+.PHONY : Helpers/loader.cpp.i
+
+Helpers/loader.s: Helpers/loader.cpp.s
+.PHONY : Helpers/loader.s
+
+# target to generate assembly for a file
+Helpers/loader.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.s
+.PHONY : Helpers/loader.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -327,6 +351,9 @@ help:
 	@echo "... Helpers/blocksNshapes.o"
 	@echo "... Helpers/blocksNshapes.i"
 	@echo "... Helpers/blocksNshapes.s"
+	@echo "... Helpers/loader.o"
+	@echo "... Helpers/loader.i"
+	@echo "... Helpers/loader.s"
 .PHONY : help
 
 
