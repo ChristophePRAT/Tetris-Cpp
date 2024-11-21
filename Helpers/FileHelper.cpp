@@ -6,9 +6,7 @@
 //
 
 #include "FileHelper.hpp"
-#include "NN.hpp"
 #include <iostream>
-#include <fstream>
 
 char* join_doubles(double* arr, int len) {
   int i;
@@ -98,6 +96,34 @@ void addDQNEntry(unsigned int *fileNum, int score, int linesCleared, bool firstE
     }
 
     fprintf(fptr, "\n%d, %d, %d", score, linesCleared, step);
+
+    fclose(fptr);
+}
+
+void addGenNNEntry(unsigned int *fileNum, int score, int linesCleared, bool firstEntry, int individual, int population) {
+    FILE *fptr;
+    char fileName[40];
+
+    sprintf(fileName, "scores_gennn_%d.csv", *fileNum);
+
+    // Open a file in read mode
+    fptr = fopen(fileName, "a");
+    if (fptr == nullptr) {
+        fptr = fopen(fileName, "w");
+        fprintf(fptr, "score,linesCleared,individual,population");
+    } else {
+        fseek(fptr, 0, SEEK_END);
+        if (ftell(fptr) == 0) {
+            fprintf(fptr, "score,linesCleared,individual,population");
+        } else {
+            if (firstEntry) {
+                *fileNum += 1;
+                addGenNNEntry(fileNum, score, linesCleared, firstEntry, individual, population);
+            }
+        }
+    }
+
+    fprintf(fptr, "\n%d, %d, %d, %d", score, linesCleared, individual, population);
 
     fclose(fptr);
 }

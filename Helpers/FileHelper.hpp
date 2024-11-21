@@ -11,4 +11,5 @@
 #include <stdio.h>
 void addGMEntry(unsigned int *fileNum, int score, double* weights, int populationId, bool firstEntry);
 void addDQNEntry(unsigned int *fileNum, int score, int linesCleared, bool firstEntry, int step);
+void addGenNNEntry(unsigned int *fileNum, int score, int linesCleared, bool firstEntry, int individual, int population);
 #endif /* FileHelper_hpp */

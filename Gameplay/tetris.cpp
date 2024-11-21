@@ -26,8 +26,6 @@ int init(void);
 void kill(void);
 // USER MODE
 
-
-
 bool instantMode = false;
 
 //Screen dimension constants
@@ -210,7 +208,7 @@ void loop() {
     }
 
 
-    static int MAX_POP = 10000;
+    // static int MAX_POP = 10000;
 
     unsigned int fileNum = 0;
 
@@ -305,6 +303,8 @@ void loop() {
                     addGMEntry(&fileNum, score, g->individuals[index].weights, g->id, index == 0 && g->id == 0);
                 } else if (AI_MODE == 1) {
                     addDQNEntry(&fileNum, score, linesCleared, index == 0 && dqn.step == 0, dqn.step);
+                } else if (AI_MODE == 2) {
+                    addGenNNEntry(&fileNum, score, linesCleared, index == 0 && genNN.populationID == 0, index, genNN.populationID);
                 }
 
                 if (AI_MODE == 0) {

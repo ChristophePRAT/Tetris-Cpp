@@ -2,9 +2,45 @@
 #include <_stdlib.h>
 #include <assert.h>
 #include "mlx/array.h"
+#include "mlx/dtype.h"
 #include <cstdlib>
+#include <tuple>
 #include <vector>
 #include "GenNN.hpp"
+
+void GeneticNN::udpatePopulation() {
+    printf("UPDATING POPULATION \n");
+    std::sort(population.begin(), population.end(), [](NNIndividual a, NNIndividual b) {
+        return a.score > b.score;
+    });
+
+    for (int i = this->count / 2; i < this->count; i++) {
+        int parent1 = randomIntBetween(0, -1 +this->count / 2);
+        int parent2 = randomIntBetween(0, -1 +this->count / 2);
+        printf("Breeding %d and %d and replacing %d with score %d\n", parent1, parent2, i, population[i].score);
+
+        breed(parent1, parent2, i);
+    }
+
+    for (int i = 0; i < this->count; i++) {
+        population[i].score = 0;
+    }
+    populationID += 1;
+}
+void GeneticNN::breed(int parent1, int parent2, int child) {
+    std::vector<array> newParams;
+    for (int i = 0; i < population[child].mlp->params.size(); i++) {
+        double r1 = randomProba();
+        if (randomProba() > 0.05) {
+            newParams.push_back(population[parent1].mlp->params[i]* r1 + population[parent2].mlp->params[i] * (1-r1));
+        } else {
+            printf("choosing random params\n");
+            array newParam = random::uniform(-1, 1, population[parent1].mlp->params[i].shape());
+            newParams.push_back(newParam);
+        }
+    }
+    population[child].mlp->update(newParams);
+}
 
 bestc GeneticNN::act(std::vector<tetrisState>& possibleStates, int index) {
     float max_rating = -std::numeric_limits<float>::infinity();
@@ -33,6 +69,73 @@ bestc GeneticNN::act(std::vector<tetrisState>& possibleStates, int index) {
     return best_action;
 }
 
+std::vector<std::tuple<array, bestc>> possibleBoards(mat m, block s, evars* previousEvars) {
+
+    std::vector<std::tuple<array, bestc>> states;
+
+    for (int i = 0; i < m.cols; i++) {
+        for (int r = 0; r < s.numberOfShapes; r++) {
+            s.currentShape = r;
+            int numCleared = 0;
+            s.position[1] = i;
+
+            mat *preview = previewMatIfPushDown(&m, s, &numCleared);
+
+            if (preview && preview != NULL) {
+                evars* ev = retrieveEvars(*preview, previousEvars);
+                bestc config = {
+                    .col = i,
+                    .shapeN = r
+                };
+                std::vector<float> inp;
+                for (int j = 0; j < m.cols; j++) {
+                    inp.push_back(float(ev->colHeights[j])/20);
+                }
+                inp.push_back(numCleared);
+                inp.push_back(ev->numHoles);
+
+                std::vector<int> shape = {int(inp.size())};
+
+                array input = array(inp.data(), shape, float32);
+                states.push_back(std::make_tuple(input, config));
+
+                free(ev->colHeights);
+                free(ev->deltaColHeights);
+                free(ev);
+                freeMat(preview);
+            }
+        }
+    }
+    return states;
+}
+
+bestc GeneticNN::act2(std::vector<std::tuple<array, bestc>> possibleBoards, int index) {
+    float max_rating = -std::numeric_limits<float>::infinity();
+
+    bestc best_action = {
+        .col = -1,
+        .shapeN = -1
+    };
+    int best_index = -1;
+    std::vector<array> inputArrays;
+
+    for (int i = 0; i < possibleBoards.size(); i++) {
+        inputArrays.push_back(std::get<0>(possibleBoards[i]));
+    }
+    std::vector<array> ratings = batchForward(inputArrays, index);
+
+    for (int i = 0; i < ratings.size(); i++) {
+        float rating = ratings[i].item<float>();
+        if (rating > max_rating) {
+
+            max_rating = rating;
+            best_action = std::get<1>(possibleBoards[i]);
+            best_index = i;
+        }
+    }
+    return best_action;
+}
+
 
 bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, bool userMode, block** BASIC_BLOCKS) {
     int down = downShape(*m, s);
@@ -52,6 +155,10 @@ bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned
         std::vector<tetrisState> maybeStates = possibleStates(*m, *s, e);
 
         bestc compo = this->act(maybeStates, index);
+
+        // std::vector<std::tuple<array, bestc>> maybeStates = possibleBoards(*m, *s, e);
+
+        // bestc compo = this->act2(maybeStates, index);
 
         if (compo.shapeN == -1) { return false; }
 

@@ -3,8 +3,8 @@
 // #include <stdio.h>
 #include "game.h"
 #include "mlx/array.h"
-#include "mlx/ops.h"
-#include "mlx/random.h"
+// #include "mlx/ops.h"
+// #include "mlx/random.h"
 // #include <cstddef>
 #include <mlx/mlx.h>
 #include <vector>
@@ -29,6 +29,7 @@ class NNIndividual {
         this->mlp->update(params);
     }
 };
+
 class GeneticNN {
     public:
     std::vector<NNIndividual> population;
@@ -47,40 +48,9 @@ class GeneticNN {
     void setResult(unsigned int id, unsigned int score) {
         population[id].score = score;
     }
-    void udpatePopulation() {
-        printf("UPDATING POPULATION \n");
-        std::sort(population.begin(), population.end(), [](NNIndividual a, NNIndividual b) {
-            return a.score > b.score;
-        });
+    void udpatePopulation();
 
-        for (int i = this->count / 2; i < this->count; i++) {
-            int parent1 = randomIntBetween(0, -1 +this->count / 2);
-            int parent2 = randomIntBetween(0, -1 +this->count / 2);
-            printf("Breeding %d and %d and replacing %d with score %d\n", parent1, parent2, i, population[i].score);
-
-            breed(parent1, parent2, i);
-        }
-
-        for (int i = 0; i < this->count; i++) {
-            population[i].score = 0;
-        }
-        populationID += 1;
-    }
-
-    void breed(int parent1, int parent2, int child) {
-        std::vector<array> newParams;
-        for (int i = 0; i < population[child].mlp->params.size(); i++) {
-            double r1 = randomProba();
-            if (randomProba() > 0.05) {
-                newParams.push_back(population[parent1].mlp->params[i]* r1 + population[parent2].mlp->params[i] * (1-r1));
-            } else {
-                printf("choosing random params\n");
-                array newParam = random::uniform(-1, 1, population[parent1].mlp->params[i].shape());
-                newParams.push_back(newParam);
-            }
-        }
-        population[child].mlp->update(newParams);
-    }
+    void breed(int parent1, int parent2, int child);
 
     bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, bool userMode, block** BASIC_BLOCKS);
 
@@ -104,5 +74,6 @@ class GeneticNN {
     }
 
     bestc act(std::vector<tetrisState>& possibleStates, int index);
+    bestc act2(std::vector<std::tuple<array, bestc>> possibleBoards, int index);
 };
 #endif

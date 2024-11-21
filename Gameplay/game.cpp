@@ -245,6 +245,9 @@ void pushDown(mat* m, int toRow) {
             m->data[i][col] = m->data[i-1][col];
         }
     }
+    for (int i = 0; i < m->cols; i++) {
+        m->data[0][i] = 0;
+    }
 }
 
 
