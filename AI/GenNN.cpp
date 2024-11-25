@@ -4,9 +4,27 @@
 #include "mlx/array.h"
 #include "mlx/dtype.h"
 #include <cstdlib>
+#include <string>
 #include <tuple>
 #include <vector>
 #include "GenNN.hpp"
+#include "../Helpers/loader.hpp"
+#include <ctime>
+#include <sstream>
+#include <iomanip>
+
+std::string getCurrentDateTime() {
+    // Get the current time
+    std::time_t now = std::time(nullptr);
+    // Convert to local time structure
+    std::tm *localTime = std::localtime(&now);
+
+    // Create a string stream to format the date and time
+    std::ostringstream oss;
+    oss << std::put_time(localTime, "%Y-%m-%d_%H:%M"); // Format: YYYY-MM-DD HH:MM:SS
+
+    return oss.str();
+}
 
 void GeneticNN::udpatePopulation() {
     printf("UPDATING POPULATION \n");
@@ -26,7 +44,12 @@ void GeneticNN::udpatePopulation() {
         population[i].score = 0;
     }
     populationID += 1;
+    saveGen(*this);
 }
+void GeneticNN::loadPrevious(int genID, std::string date) {
+    loadGen(*this, genID, date);
+}
+
 void GeneticNN::breed(int parent1, int parent2, int child) {
     std::vector<array> newParams;
     for (int i = 0; i < population[child].mlp->params.size(); i++) {
@@ -40,6 +63,7 @@ void GeneticNN::breed(int parent1, int parent2, int child) {
         }
     }
     population[child].mlp->update(newParams);
+
 }
 
 bestc GeneticNN::act(std::vector<tetrisState>& possibleStates, int index) {
@@ -152,13 +176,13 @@ bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned
         changeBlock(s, nextBl);
         changeBlock(nextBl, randomBlock(BASIC_BLOCKS));
 
-        // std::vector<tetrisState> maybeStates = possibleStates(*m, *s, e);
+         std::vector<tetrisState> maybeStates = possibleStates(*m, *s, e);
 
-        // bestc compo = this->act(maybeStates, index);
+         bestc compo = this->act(maybeStates, index);
 
-        std::vector<std::tuple<array, bestc>> maybeStates = possibleBoards(*m, *s, e);
+        //std::vector<std::tuple<array, bestc>> maybeStates = possibleBoards(*m, *s, e);
 
-        bestc compo = this->act2(maybeStates, index);
+        //bestc compo = this->act2(maybeStates, index);
 
         if (compo.shapeN == -1) { return false; }
 

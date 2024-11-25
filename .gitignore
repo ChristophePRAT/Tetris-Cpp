@@ -53,4 +53,7 @@ build/
 # External projects
 *-prefix/
 
+.mypy_cache/
+.cache/
+.roseproject/
 # End of https://www.toptal.com/developers/gitignore/api/cmake,c++

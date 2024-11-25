@@ -1,15 +1,13 @@
 #ifndef GenNN_hpp
 #define GenNN_hpp
-// #include <stdio.h>
 #include "game.h"
 #include "mlx/array.h"
-// #include "mlx/ops.h"
-// #include "mlx/random.h"
-// #include <cstddef>
 #include <mlx/mlx.h>
 #include <vector>
 #include "assert.h"
 #include "NN.hpp"
+
+std::string getCurrentDateTime();
 
 using namespace mlx::core;
 // a tuple representing the env variables, the combination it came from and the lines cleared
@@ -35,12 +33,16 @@ class GeneticNN {
     std::vector<NNIndividual> population;
     unsigned int count;
     std::vector<int> hidden_sizes;
-
+    std::string createDate;
     unsigned int populationID = 0;
 
     GeneticNN(unsigned int count, int input_size, std::vector<int> hidden_sizes) {
         this->hidden_sizes = hidden_sizes;
         this->count = count;
+        this->createDate = getCurrentDateTime();
+
+        mkdir(createDate.c_str(), 0777);
+
         for (int i = 0; i < count; i ++) {
             population.push_back(NNIndividual(input_size, hidden_sizes, i));
         }
@@ -75,5 +77,6 @@ class GeneticNN {
 
     bestc act(std::vector<tetrisState>& possibleStates, int index);
     bestc act2(std::vector<std::tuple<array, bestc>> possibleBoards, int index);
+    void loadPrevious(int genID, std::string date);
 };
 #endif

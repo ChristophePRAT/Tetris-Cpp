@@ -19,6 +19,9 @@
 // AI_MODE  = -1: User mode | 0: Genetic | 1: DQN | 2: Genetic Neural Network
 unsigned int AI_MODE = 2;
 
+int loadGen = -1;
+std::string loadDate;
+
 void loop(void);
 int init(void);
 void kill(void);
@@ -127,7 +130,7 @@ void drawMat(mat m, block s, SDL_Renderer* renderer) {
             } else {
                 i_offset = i - s.position[0];
                 j_offset = j - s.position[1];
-                if (i_offset >= 0 && j_offset >= 0 && i_offset < 4 && j_offset < 4 &&
+                if (TIMER_INTERVAL >= 20 && i_offset >= 0 && j_offset >= 0 && i_offset < 4 && j_offset < 4 &&
                     s.shape[s.currentShape][i_offset][j_offset] != 0) {
                     color = blockColors[s.shape[s.currentShape][i_offset][j_offset]];
                     drawSquare(&squareRect, &color, renderer);
@@ -147,6 +150,14 @@ int main(int argc, char* args[] ) {
                 AI_MODE = atoi(args[i + 1]);
             } else {
                 printf("Please provide a value for the AI mode\n");
+                return 1;
+            }
+        } else if (strcmp(args[i], "--load") == 0 || strcmp(args[i], "-l") == 0) {
+            if (i < argc - 2) {
+                loadGen = atoi(args[i + 1]);
+                loadDate = args[i+2];
+            } else {
+                printf("Please provide a value for the file to load\n");
                 return 1;
             }
         }
@@ -205,15 +216,18 @@ void loop() {
     // AIs
     population* g;
     DQN dqn = DQN(6, 0,0,0,0,0.01, 50);
-    GeneticNN genNN = GeneticNN(20, 12, { 16,8,1 });
+    GeneticNN genNN = GeneticNN(20, 6, { 16,8,1 });
 
     // -------------
     // AIs
-    // Mutation génétique
+    // Genetic mutation
     if (AI_MODE == 0) {
         g = initializePopulation(20);
-
         printpopulation(g);
+    }
+
+    if (loadGen != -1) {
+        genNN.loadPrevious(loadGen, loadDate);
     }
 
     unsigned int index = 0;

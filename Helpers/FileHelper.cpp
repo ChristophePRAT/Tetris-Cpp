@@ -6,7 +6,8 @@
 //
 
 #include "FileHelper.hpp"
-#include <iostream>
+#include "stdlib.h"
+#include "string.h"
 
 char* join_doubles(double* arr, int len) {
   int i;
