@@ -58,7 +58,10 @@ void GeneticNN::breed(int parent1, int parent2, int child) {
             newParams.push_back(population[parent1].mlp->params[i]* r1 + population[parent2].mlp->params[i] * (1-r1));
         } else {
             printf("choosing random params\n");
-            array newParam = random::uniform(-1, 1, population[parent1].mlp->params[i].shape());
+            float meanArr = mean(population[parent1].mlp->params[i]).item<float>();
+            array newParam = population[parent1].mlp->params[i] + random::uniform(-meanArr, meanArr, population[parent1].mlp->params[i].shape());
+
+            // array newParam = random::uniform(-1, 1, population[parent1].mlp->params[i].shape());
             newParams.push_back(newParam);
         }
     }

@@ -31,6 +31,7 @@ void saveGen(GeneticNN genNN) {
 
 void loadGen(GeneticNN &genNN, int genID, std::string date) {
     std::string root = date + "/generation_" + std::to_string(genID);
+    genNN.populationID = genID;
 
     for (int i = 0; i < genNN.count; i++) {
         std::string folderName = root + "/individual_" + std::to_string(i);

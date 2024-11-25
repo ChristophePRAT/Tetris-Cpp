@@ -47,8 +47,8 @@ class GeneticNN {
             population.push_back(NNIndividual(input_size, hidden_sizes, i));
         }
     }
-    void setResult(unsigned int id, unsigned int score) {
-        population[id].score = score;
+    void setResult(unsigned int popid, unsigned int score) {
+        population[popid].score = score;
     }
     void udpatePopulation();
 

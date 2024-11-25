@@ -345,7 +345,7 @@ void loop() {
                 } else if (AI_MODE == 1) {
                     dqn.trainNN();
                 } else if (AI_MODE == 2) {
-                    scores[index] = score;
+                    // scores[index] = score;
                     genNN.setResult(index, score);
                     index++;
                     if (index >= genNN.count) {
