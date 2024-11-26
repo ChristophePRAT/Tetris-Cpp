@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <assert.h>
 #include "mlx/array.h"
+#include "mlx/dtype.h"
 #include "mlx/ops.h"
 #include "mlx/transforms.h"
 #include <cstdio>
@@ -44,6 +45,17 @@ array stateToArray(tetrisState s) {
     bestc b = std::get<1>(s);
     int lines = std::get<2>(s);
 
+    int numberOfCaveats = 0;
+
+    for (int i = 0; i < 9; i++) {
+        if (ev->colHeights[i] - ev->colHeights[i+1] >= 3) {
+            numberOfCaveats++;
+        }
+    }
+    if (-ev->colHeights[0] + ev->colHeights[1] >= 3) {
+        numberOfCaveats++;
+    }
+
     std::vector<float> input = {
         float(ev->hMax) / 20,
         float(ev->numHoles) / 200,
@@ -51,6 +63,8 @@ array stateToArray(tetrisState s) {
         float(meaned(ev->colHeights, 10)),
         float(meaned(ev->deltaColHeights, 9)),
         float(lines) / float(4.0),
+        float(numberOfCaveats) / 10,
+        // float(b.col)/10,
     };
 
     std::vector<int> shape = {int(input.size())};

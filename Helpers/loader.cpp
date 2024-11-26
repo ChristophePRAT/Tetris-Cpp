@@ -14,7 +14,7 @@ void mkdir(std::string name) {
 }
 
 void saveGen(GeneticNN genNN) {
-    std::string root = genNN.createDate + "/generation_" + std::to_string(genNN.populationID);
+    std::string root = genNN.name + "/generation_" + std::to_string(genNN.populationID);
     mkdir(root);
 
     for (int i = 0; i < genNN.count; i++) {

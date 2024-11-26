@@ -8,7 +8,7 @@
 #ifndef blocksNshapes_hpp
 #define blocksNshapes_hpp
 
-#include <stdio.h>
+// #include <stdio.h>
 #include "SDL2/SDL.h"
 #include "game.h"
 block** createBlocks();

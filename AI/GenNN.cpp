@@ -1,3 +1,4 @@
+#include "agent.h"
 #include "game.h"
 #include <_stdlib.h>
 #include <assert.h>
@@ -5,13 +6,17 @@
 #include "mlx/dtype.h"
 #include <cstdlib>
 #include <string>
+#include <thread>
 #include <tuple>
 #include <vector>
 #include "GenNN.hpp"
 #include "../Helpers/loader.hpp"
+#include "mlx/ops.h"
+#include "mlx/random.h"
 #include <ctime>
 #include <sstream>
 #include <iomanip>
+#include "thread"
 
 std::string getCurrentDateTime() {
     // Get the current time
@@ -21,7 +26,7 @@ std::string getCurrentDateTime() {
 
     // Create a string stream to format the date and time
     std::ostringstream oss;
-    oss << std::put_time(localTime, "%Y-%m-%d_%H:%M"); // Format: YYYY-MM-DD HH:MM:SS
+    oss << std::put_time(localTime, "%d-%m_%H-%M"); // Format: YYYY-MM-DD HH:MM:SS
 
     return oss.str();
 }
@@ -32,10 +37,11 @@ void GeneticNN::udpatePopulation() {
         return a.score > b.score;
     });
 
+    // printf("Previous gen best indiv score: %d\n", this->population[0].score);
     for (int i = this->count / 2; i < this->count; i++) {
         int parent1 = randomIntBetween(0, -1 +this->count / 2);
         int parent2 = randomIntBetween(0, -1 +this->count / 2);
-        printf("Breeding %d and %d and replacing %d with score %d\n", parent1, parent2, i, population[i].score);
+        // printf("Breeding %d and %d and replacing %d with score %d\n", parent1, parent2, i, population[i].score);
 
         breed(parent1, parent2, i);
     }
@@ -48,6 +54,10 @@ void GeneticNN::udpatePopulation() {
 }
 void GeneticNN::loadPrevious(int genID, std::string date) {
     loadGen(*this, genID, date);
+    for (int i = 0; i < count; i++) {
+        population[i].score = 0;
+        population[i].name = NAMES[i % count];
+    }
 }
 
 void GeneticNN::breed(int parent1, int parent2, int child) {
@@ -55,13 +65,15 @@ void GeneticNN::breed(int parent1, int parent2, int child) {
     for (int i = 0; i < population[child].mlp->params.size(); i++) {
         double r1 = randomProba();
         if (randomProba() > 0.05) {
-            newParams.push_back(population[parent1].mlp->params[i]* r1 + population[parent2].mlp->params[i] * (1-r1));
-        } else {
-            printf("choosing random params\n");
-            float meanArr = mean(population[parent1].mlp->params[i]).item<float>();
-            array newParam = population[parent1].mlp->params[i] + random::uniform(-meanArr, meanArr, population[parent1].mlp->params[i].shape());
+            array np = population[parent1].mlp->params[i]* r1 + population[parent2].mlp->params[i] * (1-r1);
 
-            // array newParam = random::uniform(-1, 1, population[parent1].mlp->params[i].shape());
+            newParams.push_back(mlx::core::random::normal(np.shape()) + np);
+        } else {
+            // printf("choosing random params\n");
+            float meanArr = mean(population[parent1].mlp->params[i]).item<float>();
+            // array newParam = population[parent1].mlp->params[i] + random::uniform(-meanArr, meanArr, population[parent1].mlp->params[i].shape());
+
+            array newParam = random::uniform(-meanArr, meanArr, population[parent1].mlp->params[i].shape());
             newParams.push_back(newParam);
         }
     }
@@ -202,4 +214,57 @@ bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned
         return canInsert;
     }
     return true;
+}
+
+void GeneticNN::supafastindiv(block** BASIC_BLOCKS, unsigned int index) {
+    bool gameOver = false;
+
+    unsigned int linesCleared = 0;
+    unsigned int score = 0;
+
+    mat* m = createMat(20, 10);
+    block* s = emptyShape();
+    block* sA = randomBlock(BASIC_BLOCKS);
+    copyBlock(s, sA);
+    computeDownPos(*m, s);
+
+    block* nextBlock = emptyShape();
+    sA = randomBlock(BASIC_BLOCKS);
+    copyBlock(nextBlock, sA);
+
+    evars* envVars = initVars(*m);
+
+
+    while (!gameOver) {
+        gameOver = !tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, false, BASIC_BLOCKS);
+    }
+    setResult(index, score);
+    printf("%s (#%d) - lines cleared = %d\n", this->population[index].name.c_str(), this->population[index].id, linesCleared);
+    // freeMat(m);
+    // freeBlock(s);
+    // freeBlock(sA);
+    // freeBlock(nextBlock);
+    // free(envVars->colHeights);
+    // free(envVars->deltaColHeights);
+    // free(envVars);
+}
+
+void GeneticNN::supafast(block** BASIC_BLOCKS) {
+    std::thread threads[20];
+
+    for (int i = 0; i < count; i++) {
+        threads[i] = std::thread(&GeneticNN::supafastindiv, this, BASIC_BLOCKS, i);
+    }
+
+    for (int i = 0; i < count; i++) {
+        if (threads[i].joinable()) {
+            threads[i].join();
+        }
+    }
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printf("Population #%d\n", this->populationID);
+    printf("Training for all individuals finished. Updating weights & biases\n");
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    this->udpatePopulation();
+    supafast(BASIC_BLOCKS);
 }

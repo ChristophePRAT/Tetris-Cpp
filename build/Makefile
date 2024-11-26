@@ -201,6 +201,30 @@ AI/agent.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/agent.cpp.s
 .PHONY : AI/agent.cpp.s
 
+Gameplay/display.o: Gameplay/display.cpp.o
+.PHONY : Gameplay/display.o
+
+# target to build an object file
+Gameplay/display.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Gameplay/display.cpp.o
+.PHONY : Gameplay/display.cpp.o
+
+Gameplay/display.i: Gameplay/display.cpp.i
+.PHONY : Gameplay/display.i
+
+# target to preprocess a source file
+Gameplay/display.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Gameplay/display.cpp.i
+.PHONY : Gameplay/display.cpp.i
+
+Gameplay/display.s: Gameplay/display.cpp.s
+.PHONY : Gameplay/display.s
+
+# target to generate assembly for a file
+Gameplay/display.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Gameplay/display.cpp.s
+.PHONY : Gameplay/display.cpp.s
+
 Gameplay/game.o: Gameplay/game.cpp.o
 .PHONY : Gameplay/game.o
 
@@ -339,6 +363,9 @@ help:
 	@echo "... AI/agent.o"
 	@echo "... AI/agent.i"
 	@echo "... AI/agent.s"
+	@echo "... Gameplay/display.o"
+	@echo "... Gameplay/display.i"
+	@echo "... Gameplay/display.s"
 	@echo "... Gameplay/game.o"
 	@echo "... Gameplay/game.i"
 	@echo "... Gameplay/game.s"

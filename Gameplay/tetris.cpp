@@ -15,12 +15,13 @@
 #include "FileHelper.hpp"
 #include "NN.hpp"
 #include "GenNN.hpp"
+#include "display.hpp"
 
 // AI_MODE  = -1: User mode | 0: Genetic | 1: DQN | 2: Genetic Neural Network
 unsigned int AI_MODE = 2;
 
 int loadGen = -1;
-std::string loadDate;
+std::string loadName = "";
 
 void loop(void);
 int init(void);
@@ -30,12 +31,7 @@ void kill(void);
 const bool userMode = AI_MODE == -1;
 
 bool instantMode = false;
-
-//Screen dimension constants
-const int SCREEN_WIDTH = 700;
-const int SCREEN_HEIGHT = 700;
-//const int TIMER_INTERVAL = 1000;
-const int SQUARE_WIDTH = 30;
+bool supafast = false;
 
 int TIMER_INTERVAL = userMode ? 400 : 100;
 
@@ -58,91 +54,6 @@ Uint32 timerID = 0;
 Uint64 start, end, time_taken;
 
 
-void renderText(SDL_Renderer *renderer, TTF_Font* Sans, int s, char* str, int y) {
-    char message[25];
-    SDL_Color black = {0, 0, 0};
-    SDL_snprintf(message, sizeof(message), "%s%d", str, s);
-
-    SDL_Surface* surfaceMessage = TTF_RenderText_Shaded(Sans, message, black, {255, 255, 255});
-    if (!surfaceMessage) {
-        SDL_Log("Failed to render text: %s", TTF_GetError());
-        return;
-    }
-
-    SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
-    if (!Message) {
-        SDL_Log("Failed to create texture from surface: %s", SDL_GetError());
-        SDL_FreeSurface(surfaceMessage);
-        return;
-    }
-
-    SDL_Rect Message_rect = { 13 * SQUARE_WIDTH, y * SQUARE_WIDTH, surfaceMessage->w, surfaceMessage->h };
-
-    SDL_RenderCopy(renderer, Message, NULL, &Message_rect);
-
-    SDL_FreeSurface(surfaceMessage);
-    SDL_DestroyTexture(Message);
-}
-
-
-
-
-void drawSquare(SDL_Rect* squareRect, SDL_Color* color, SDL_Renderer* renderer) {
-    // Set renderer color to draw the square
-    SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
-
-    // Draw filled square
-    SDL_RenderFillRect(renderer, squareRect);
-}
-
-
-void drawBlock(block s, int x, int y, SDL_Renderer* renderer) {
-    SDL_Rect squareRect;
-    SDL_Color color;
-    for (int i = 0; i < 4; i++) {
-        squareRect.y = (y + i) * SQUARE_WIDTH;
-        for (int j = 0; j < 4; j++) {
-            squareRect.x = (x + j) * SQUARE_WIDTH;
-            squareRect.w = SQUARE_WIDTH;
-            squareRect.h = SQUARE_WIDTH;
-            if (s.shape[s.currentShape][i][j] != 0) {
-                color = blockColors[s.shape[s.currentShape][i][j]];
-                drawSquare(&squareRect, &color, renderer);
-            }
-        }
-    }
-}
-
-
-void drawMat(mat m, block s, SDL_Renderer* renderer) {
-    SDL_Rect squareRect;
-    SDL_Color color;
-    int i_offset, j_offset;
-    for (int i = 0; i < m.rows; i++) {
-        squareRect.y = (i + 1) * SQUARE_WIDTH;
-        for (int j = 0; j < m.cols; j++) {
-            squareRect.x = (j + 1) * SQUARE_WIDTH;
-            squareRect.w = SQUARE_WIDTH;
-            squareRect.h = SQUARE_WIDTH;
-            if (m.data[i][j] != 0) {
-                color = blockColors[m.data[i][j]];
-                drawSquare(&squareRect, &color, renderer);
-            } else {
-                i_offset = i - s.position[0];
-                j_offset = j - s.position[1];
-                if (TIMER_INTERVAL >= 20 && i_offset >= 0 && j_offset >= 0 && i_offset < 4 && j_offset < 4 &&
-                    s.shape[s.currentShape][i_offset][j_offset] != 0) {
-                    color = blockColors[s.shape[s.currentShape][i_offset][j_offset]];
-                    drawSquare(&squareRect, &color, renderer);
-                } else {
-                    color = blockColors[0];
-                    drawSquare(&squareRect, &color, renderer);
-                }
-            }
-        }
-    }
-}
-
 int main(int argc, char* args[] ) {
     for (int i = 0; i < argc; i++) {
         if (strcmp(args[i], "--ai_mode") == 0 || strcmp(args[i], "-m") == 0) {
@@ -153,15 +64,26 @@ int main(int argc, char* args[] ) {
                 return 1;
             }
         } else if (strcmp(args[i], "--load") == 0 || strcmp(args[i], "-l") == 0) {
-            if (i < argc - 2) {
+            if (i < argc - 1) {
                 loadGen = atoi(args[i + 1]);
-                loadDate = args[i+2];
             } else {
                 printf("Please provide a value for the file to load\n");
                 return 1;
             }
+        } else if (strcmp(args[i], "--name") == 0 || strcmp(args[i], "-n") == 0) {
+            if (i < argc - 1) {
+                loadName = args[i + 1];
+            } else {
+                printf("Please provide a value for the file to load\n");
+                return 1;
+            }
+        } else if (strcmp(args[i], "--supafast") == 0 || strcmp(args[i], "-sp") == 0) {
+            supafast = true;
         }
     }
+
+    BASIC_BLOCKS = createBlocks();
+    assert(BASIC_BLOCKS != NULL);
 
     if (AI_MODE == -1) {
         printf("Game loaded with user mode 🕹️\n");
@@ -173,6 +95,15 @@ int main(int argc, char* args[] ) {
         printf("Game loaded with neural network genetic mutation mode ⚛️\n");
     }
 
+    if (supafast) {
+        GeneticNN genNN = GeneticNN(20, 7, { 16, 8, 1 }, loadName);
+        if (loadName != "" && loadGen != -1) {
+            genNN.loadPrevious(loadGen, loadName);
+        }
+        genNN.supafast(BASIC_BLOCKS);
+        printf("This should NEVER print\n");
+    }
+
     if (!init()) {
         loop();
     } else { kill(); return 0; }
@@ -180,17 +111,9 @@ int main(int argc, char* args[] ) {
     return 0;
 }
 
-
-// create a standard c class
-
 void loop() {
-//    srand(time(NULL));
-
     TTF_Font* latexFont = TTF_OpenFont("resources/lmroman17-regular.otf", 24);
 
-
-    BASIC_BLOCKS = createBlocks();
-    assert(BASIC_BLOCKS != NULL);
     mat* m = createMat(20, 10);
     block* s = emptyShape();
 //    block* sA = BASIC_BLOCKS[rand() % 7];
@@ -216,7 +139,7 @@ void loop() {
     // AIs
     population* g;
     DQN dqn = DQN(6, 0,0,0,0,0.01, 50);
-    GeneticNN genNN = GeneticNN(20, 6, { 16,8,1 });
+    GeneticNN genNN = GeneticNN(20, 7, { 16, 8, 1 }, loadName);
 
     // -------------
     // AIs
@@ -227,7 +150,7 @@ void loop() {
     }
 
     if (loadGen != -1) {
-        genNN.loadPrevious(loadGen, loadDate);
+        genNN.loadPrevious(loadGen, loadName);
     }
 
     unsigned int index = 0;
@@ -389,7 +312,7 @@ void loop() {
             // Display next shape by the side of the screen
             drawBlock(*nextBlock, 12, 1, renderer);
 
-            drawMat(*m, *s, renderer);
+            drawMat(*m, *s, renderer, TIMER_INTERVAL);
             // }
             //         Update screen
             SDL_RenderPresent(renderer);

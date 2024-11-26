@@ -17,8 +17,10 @@ class NNIndividual {
     MultiLayer *mlp = nullptr;
     unsigned int id;
     unsigned int score = 0;
+    std::string name;
 
-    NNIndividual(int input_size, std::vector<int> hidden_sizes, unsigned int id) {
+    NNIndividual(int input_size, std::vector<int> hidden_sizes, unsigned int id, std::string name) {
+        this->name = name;
         this->mlp = new MultiLayer(input_size, hidden_sizes);
         this->id = id;
     }
@@ -33,18 +35,22 @@ class GeneticNN {
     std::vector<NNIndividual> population;
     unsigned int count;
     std::vector<int> hidden_sizes;
-    std::string createDate;
+    std::string name;
     unsigned int populationID = 0;
 
-    GeneticNN(unsigned int count, int input_size, std::vector<int> hidden_sizes) {
+    GeneticNN(unsigned int count, int input_size, std::vector<int> hidden_sizes, std::string name = "") {
         this->hidden_sizes = hidden_sizes;
         this->count = count;
-        this->createDate = getCurrentDateTime();
+        if (name == "") {
+            this->name = getCurrentDateTime();
+        } else {
+            this->name = name;
+        }
 
-        mkdir(createDate.c_str(), 0777);
+        mkdir(this->name.c_str(), 0777);
 
         for (int i = 0; i < count; i ++) {
-            population.push_back(NNIndividual(input_size, hidden_sizes, i));
+            population.push_back(NNIndividual(input_size, hidden_sizes, i, NAMES[i % 20]));
         }
     }
     void setResult(unsigned int popid, unsigned int score) {
@@ -75,8 +81,16 @@ class GeneticNN {
         return batchOutput;
     }
 
+    void loadPrevious(int genID, std::string date);
+    void supafast(block **BASIC_BLOCKS);
+    private:
+    void supafastindiv(block** BASIC_BLOCKS, unsigned int index);
     bestc act(std::vector<tetrisState>& possibleStates, int index);
     bestc act2(std::vector<std::tuple<array, bestc>> possibleBoards, int index);
-    void loadPrevious(int genID, std::string date);
+    const std::string NAMES[20] = {
+        "M. Castel",   "Mme Hémery", "Alban", "Thibault", "Dai-Khanh", "Sidonie", "Romain",
+        "Irène", "Simon",  "Aurélien",    "Cédrick", "Zacharie", "Maxime", "Auxence",
+        "M. Boisseleau", "Timothée", "Adrien", "Karl", "Jérémie", "William"
+    };
 };
 #endif
