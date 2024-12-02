@@ -8,6 +8,7 @@
 #include "FileHelper.hpp"
 #include "stdlib.h"
 #include "string.h"
+#include <cstdio>
 
 char* join_doubles(double* arr, int len) {
   int i;
@@ -121,6 +122,28 @@ void addGenNNEntry(unsigned int *fileNum, int score, int linesCleared, bool firs
                 *fileNum += 1;
                 addGenNNEntry(fileNum, score, linesCleared, firstEntry, individual, population);
             }
+        }
+    }
+
+    fprintf(fptr, "\n%d, %d, %d, %d", score, linesCleared, individual, population);
+
+    fclose(fptr);
+}
+void addGenWithName(const char* name, int score, int linesCleared, bool firstEntry, int individual, int population) {
+    FILE *fptr;
+    char fileName[40];
+
+    sprintf(fileName, "scores_gennn_%s.csv", name);
+
+    // Open a file in read mode
+    fptr = fopen(fileName, "a");
+    if (fptr == nullptr) {
+        fptr = fopen(fileName, "w");
+        fprintf(fptr, "score,linesCleared,individual,population");
+    } else {
+        fseek(fptr, 0, SEEK_END);
+        if (ftell(fptr) == 0) {
+            fprintf(fptr, "score,linesCleared,individual,population");
         }
     }
 

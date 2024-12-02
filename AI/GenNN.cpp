@@ -1,3 +1,4 @@
+#include "NN.hpp"
 #include "agent.h"
 #include "game.h"
 #include <_stdlib.h>
@@ -10,13 +11,17 @@
 #include <tuple>
 #include <vector>
 #include "GenNN.hpp"
-#include "../Helpers/loader.hpp"
+#include "loader.hpp"
 #include "mlx/ops.h"
 #include "mlx/random.h"
 #include <ctime>
 #include <sstream>
 #include <iomanip>
+#include <stdbool.h>
 #include "thread"
+#include <chrono>
+
+using std::chrono::high_resolution_clock;
 
 std::string getCurrentDateTime() {
     // Get the current time
@@ -51,12 +56,14 @@ void GeneticNN::udpatePopulation() {
     }
     populationID += 1;
     saveGen(*this);
+    this->seed = time(NULL);
+    srand(this->seed);
 }
 void GeneticNN::loadPrevious(int genID, std::string date) {
     loadGen(*this, genID, date);
     for (int i = 0; i < count; i++) {
         population[i].score = 0;
-        population[i].name = NAMES[i % count];
+        population[i].name = NAMES[i % 23];
     }
 }
 
@@ -108,7 +115,8 @@ bestc GeneticNN::act(std::vector<tetrisState>& possibleStates, int index) {
     return best_action;
 }
 
-std::vector<std::tuple<array, bestc>> possibleBoards(mat m, block s, evars* previousEvars) {
+
+std::vector<std::tuple<array, bestc>> possibleBoardsEachCol(mat m, block s, evars* previousEvars) {
 
     std::vector<std::tuple<array, bestc>> states;
 
@@ -147,6 +155,220 @@ std::vector<std::tuple<array, bestc>> possibleBoards(mat m, block s, evars* prev
     }
     return states;
 }
+/*
+std::vector<tetrisState> possibleStatesWithNextBlock(mat m, block s, block nexts, evars* previousEvars) {
+    // number of cleared ; configuration
+    std::vector<tetrisState> statesMoveOne;
+
+    std::vector<tetrisState> finalStates;
+
+    for (int i = 0; i < m.cols; i++) {
+        for (int r = 0; r < s.numberOfShapes; r++) {
+            s.currentShape = r;
+            int numCleared = 0;
+            s.position[1] = i;
+
+            mat *preview = previewMatIfPushDown(&m, s, &numCleared);
+            if (preview && preview != NULL) {
+                evars* ev = retrieveEvars(*preview, previousEvars);
+                bestc config = {
+                    .col = i,
+                    .shapeN = r
+                };
+                statesMoveOne.push_back(std::tuple<evars *, bestc, int>(ev, config, numCleared));
+                for (int ip = 0; ip < m.cols; ip++) {
+                    for (int rp = 0; rp < s.numberOfShapes; rp++) {
+                        nexts.currentShape = rp;
+                        int numCleared2 = 0;
+                        nexts.position[1] = ip;
+
+                        mat *preview2 = previewMatIfPushDown(preview, nexts, &numCleared2);
+
+                        if (preview2 && preview2 != NULL) {
+                            evars* ev2 = retrieveEvars(*preview2, ev);
+                            bestc config2 = {
+                                .col = ip,
+                                .shapeN = rp
+                            };
+                            finalStates.push_back(std::make_tuple(ev2, config, numCleared + numCleared2));
+                            freeMat(preview2);
+                        }
+                    }
+                }
+                freeMat(preview);
+            }
+        }
+    }
+
+    return finalStates;
+}
+ */
+bestc GeneticNN::actWithNextBlock(mat m, block s, block ns, evars *prev, int index) {
+    bestc best_action = {
+        .col = -1,
+        .shapeN = -1
+    };
+    float max_rating = -std::numeric_limits<float>::infinity();
+    float max_rating_middle = -std::numeric_limits<float>::infinity();
+
+    int numChecked = 0;
+
+    for (int i = 0; i < m.cols; i++) {
+        for (int r = 0; r < s.numberOfShapes; r++) {
+            s.currentShape = r;
+            int numCleared = 0;
+            s.position[1] = i;
+
+            mat *preview = previewMatIfPushDown(&m, s, &numCleared);
+
+            if (preview && preview != NULL) {
+                evars* ev = retrieveEvars(*preview, prev);
+                bestc config = {
+                    .col = i,
+                    .shapeN = r
+                };
+
+                tetrisState midState = std::make_tuple(ev, config, numCleared);
+
+
+                array midOutput = generalizedForward(stateToArray(midState), this->population[index].mlp->params);
+
+                float midRating = midOutput.item<float>();
+
+                if (midRating < max_rating_middle && randomProba() > midRating/(max_rating_middle*max_rating_middle)) {
+                    free(ev->colHeights);
+                    free(ev->deltaColHeights);
+                    free(ev);
+                    freeMat(preview);
+                    continue;
+                }
+
+                for (int ip = 0; ip < m.cols; ip++) {
+                    for (int rp = 0; rp < s.numberOfShapes; rp++) {
+                        ns.currentShape = rp;
+                        int numCleared2 = 0;
+                        ns.position[1] = ip;
+
+                        mat *preview2 = previewMatIfPushDown(preview, ns, &numCleared2);
+
+                        if (preview2 && preview2 != NULL) {
+                            evars* ev2 = retrieveEvars(*preview2, ev);
+                            bestc config2 = {
+                                .col = ip,
+                                .shapeN = rp
+                            };
+
+                            tetrisState input = std::make_tuple(ev2, config, numCleared + numCleared2);
+
+                            array output = generalizedForward(stateToArray(input), this->population[index].mlp->params);
+
+                            float rating = output.item<float>();
+
+                            numChecked += 1;
+
+                            if (rating > max_rating) {
+                                max_rating = rating;
+                                best_action = config;
+                                max_rating_middle = midRating;
+                            }
+
+                            free(ev2->colHeights);
+                            free(ev2->deltaColHeights);
+                            free(ev2);
+                            freeMat(preview2);
+                        }
+                    }
+                }
+                numChecked -= 1; // We would have checked the middle state anyway
+                free(ev->colHeights);
+                free(ev->deltaColHeights);
+                free(ev);
+                freeMat(preview);
+            }
+        }
+    }
+    printf("Checked %d (additional) moves before playing\n", numChecked);
+    return best_action;
+}
+
+bestc GeneticNN::actWithNextBlock2(mat m, block s, block ns, evars *prev, int index) {
+    std::vector<tetrisState> ps = possibleStates(m, s, prev);
+    std::vector<array> ratings = batchForward(ps, index);
+
+    std::vector<std::tuple<array, tetrisState>> possibleBoards;
+    assert(ps.size() == ratings.size());
+    for (int i = 0; i < ps.size(); i++) {
+        possibleBoards.push_back(std::make_tuple(ratings[i], ps[i]));
+    }
+
+    // sort by rating
+    std::sort(possibleBoards.begin(), possibleBoards.end(), [](std::tuple<array, tetrisState> a, std::tuple<array, tetrisState> b) {
+        return std::get<0>(a).item<float>() > std::get<0>(b).item<float>();
+    });
+
+    unsigned int maxCheck = 5;
+    unsigned int numberToCheck = ps.size() > maxCheck ? maxCheck : ps.size();
+
+    float max_rating = -std::numeric_limits<float>::infinity();
+    int max_index = -1;
+    bestc best_action = {
+        .col = -1,
+        .shapeN = -1
+    };
+
+    for (int i = 0; i < numberToCheck; i++) {
+        tetrisState state = std::get<1>(possibleBoards[i]);
+
+        evars* ev = std::get<0>(state);
+        bestc config = std::get<1>(state);
+        int numCleared = std::get<2>(state);
+
+        for (int ip = 0; ip < m.cols; ip++) {
+            for (int rp = 0; rp < ns.numberOfShapes; rp++) {
+                ns.currentShape = rp;
+                int numCleared2 = 0;
+                ns.position[1] = ip;
+
+                mat *preview2 = previewMatIfPushDown(&m, ns, &numCleared2);
+
+                if (preview2 && preview2 != NULL) {
+                    evars* ev2 = retrieveEvars(*preview2, ev);
+                    bestc config2 = {
+                        .col = ip,
+                        .shapeN = rp
+                    };
+
+                    tetrisState input = std::make_tuple(ev2, config, numCleared + numCleared2);
+
+                    array output = generalizedForward(stateToArray(input), this->population[index].mlp->params);
+
+                    float rating = output.item<float>();
+
+                    if (rating > max_rating) {
+                        max_rating = rating;
+                        best_action = config;
+                        max_index = i;
+                    }
+
+                    free(ev2->colHeights);
+                    free(ev2->deltaColHeights);
+                    free(ev2);
+                    freeMat(preview2);
+                }
+            }
+        }
+    }
+    for (int i = 0; i < ps.size(); i++) {
+        evars* e = std::get<0>(ps[i]);
+        free(e->colHeights);
+        free(e->deltaColHeights);
+        free(e);
+    }
+    if (max_index > 0) {
+        printf(".");
+    }
+    return best_action;
+}
 
 bestc GeneticNN::act2(std::vector<std::tuple<array, bestc>> possibleBoards, int index) {
     float max_rating = -std::numeric_limits<float>::infinity();
@@ -184,18 +406,26 @@ bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned
         computeDownPos(*m, s);
 
         int numCleared = pushToMat(m, *s);
-        *score += 200 * pow(numCleared, 2) + 10;
+        *score += 150 * numCleared + 50;
         *linesCleared += numCleared;
 
         updateEvars(*m, e);
         changeBlock(s, nextBl);
         changeBlock(nextBl, randomBlock(BASIC_BLOCKS));
+        bestc compo;
 
-         std::vector<tetrisState> maybeStates = possibleStates(*m, *s, e);
+        if (e->hMax > 13) {
+            compo = actWithNextBlock(*m, *s, *nextBl, e, index);
+            //
+            // compo = actWithNextBlock2(*m, *s, *nextBl, e, index);
+        } else {
+            std::vector<tetrisState> maybeStates = possibleStates(*m, *s, e);
 
-         bestc compo = this->act(maybeStates, index);
+            compo = this->act(maybeStates, index);
+        }
 
-        //std::vector<std::tuple<array, bestc>> maybeStates = possibleBoards(*m, *s, e);
+
+        //std::vector<std::tuple<array, bestc>> maybeStates = possibleBoardsEachCol(*m, *s, e);
 
         //bestc compo = this->act2(maybeStates, index);
 
@@ -217,6 +447,8 @@ bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned
 }
 
 void GeneticNN::supafastindiv(block** BASIC_BLOCKS, unsigned int index) {
+    srand(this->seed);
+
     bool gameOver = false;
 
     unsigned int linesCleared = 0;
@@ -231,26 +463,27 @@ void GeneticNN::supafastindiv(block** BASIC_BLOCKS, unsigned int index) {
     block* nextBlock = emptyShape();
     sA = randomBlock(BASIC_BLOCKS);
     copyBlock(nextBlock, sA);
-
     evars* envVars = initVars(*m);
 
 
     while (!gameOver) {
         gameOver = !tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, false, BASIC_BLOCKS);
     }
-    setResult(index, score);
+    setResult(index, score, linesCleared);
     printf("%s (#%d) - lines cleared = %d\n", this->population[index].name.c_str(), this->population[index].id, linesCleared);
-    // freeMat(m);
-    // freeBlock(s);
-    // freeBlock(sA);
-    // freeBlock(nextBlock);
-    // free(envVars->colHeights);
-    // free(envVars->deltaColHeights);
-    // free(envVars);
+
+    freeMat(m);
+    freeBlock(s);
+    freeBlock(nextBlock);
+    free(envVars->colHeights);
+    free(envVars->deltaColHeights);
+    free(envVars);
 }
 
 void GeneticNN::supafast(block** BASIC_BLOCKS) {
-    std::thread threads[20];
+    // generate a random seed
+
+    std::thread threads[this->count];
 
     for (int i = 0; i < count; i++) {
         threads[i] = std::thread(&GeneticNN::supafastindiv, this, BASIC_BLOCKS, i);
@@ -262,7 +495,7 @@ void GeneticNN::supafast(block** BASIC_BLOCKS) {
         }
     }
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    printf("Population #%d\n", this->populationID);
+    printf("Population #%d\n", this->populationID + 1);
     printf("Training for all individuals finished. Updating weights & biases\n");
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     this->udpatePopulation();

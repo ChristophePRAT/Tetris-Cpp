@@ -1,6 +1,6 @@
 
-#ifndef FileHelper_hpp
-#define FileHelper_hpp
+#ifndef loader_hpp
+#define loader_hpp
 #include "GenNN.hpp"
 // #include <stdio.h>
 

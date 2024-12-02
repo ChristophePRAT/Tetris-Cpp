@@ -260,7 +260,7 @@ CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o: \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/_assert.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/_static_assert.h \
   /Users/christopheprat/Code/TIPE/Tetris-Cpp/Gameplay/game.h \
-  /Users/christopheprat/Code/TIPE/Tetris-Cpp/Gameplay/../Helpers/blocksNshapes.hpp \
+  /Users/christopheprat/Code/TIPE/Tetris-Cpp/./Helpers/blocksNshapes.hpp \
   /Users/christopheprat/Code/TIPE/Tetris-Cpp/./Gameplay/game.h \
   /Users/christopheprat/Code/TIPE/Tetris-Cpp/./AI/agent.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/cstdlib \

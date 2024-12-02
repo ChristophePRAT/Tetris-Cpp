@@ -4,11 +4,11 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
-#include "SDL2/SDL_pixels.h"
+// #include "SDL2/SDL_pixels.h"
 #include "SDL2/SDL_render.h"
 #include "SDL2/SDL_video.h"
 #include "game.h"
-#include "../Helpers/blocksNshapes.hpp"
+#include "blocksNshapes.hpp"
 #include "agent.h"
 #include <cstdlib>
 #include <time.h>
@@ -96,7 +96,7 @@ int main(int argc, char* args[] ) {
     }
 
     if (supafast) {
-        GeneticNN genNN = GeneticNN(20, 7, { 16, 8, 1 }, loadName);
+        GeneticNN genNN = GeneticNN(23, 7, { 8, 1 }, loadName);
         if (loadName != "" && loadGen != -1) {
             genNN.loadPrevious(loadGen, loadName);
         }
@@ -139,7 +139,7 @@ void loop() {
     // AIs
     population* g;
     DQN dqn = DQN(6, 0,0,0,0,0.01, 50);
-    GeneticNN genNN = GeneticNN(20, 7, { 16, 8, 1 }, loadName);
+    GeneticNN genNN = GeneticNN(23, 7, { 8, 1 }, loadName);
 
     // -------------
     // AIs
@@ -147,6 +147,8 @@ void loop() {
     if (AI_MODE == 0) {
         g = initializePopulation(20);
         printpopulation(g);
+    } else if (AI_MODE == 2) {
+        srand(genNN.seed);
     }
 
     if (loadGen != -1) {
@@ -255,7 +257,8 @@ void loop() {
                 } else if (AI_MODE == 1) {
                     addDQNEntry(&fileNum, score, linesCleared, index == 0 && dqn.step == 0, dqn.step);
                 } else if (AI_MODE == 2) {
-                    addGenNNEntry(&fileNum, score, linesCleared, index == 0 && genNN.populationID == 0, index, genNN.populationID);
+                    // addGenNNEntry(&fileNum, score, linesCleared, index == 0 && genNN.populationID == 0, index, genNN.populationID);
+                    addGenWithName(genNN.name.c_str(), score, linesCleared, index == 0 && genNN.populationID == 0, index, genNN.populationID);
                 }
 
                 if (AI_MODE == 0) {
@@ -269,7 +272,8 @@ void loop() {
                     dqn.trainNN();
                 } else if (AI_MODE == 2) {
                     // scores[index] = score;
-                    genNN.setResult(index, score);
+                    genNN.setResult(index, score, linesCleared);
+                    srand(genNN.seed);
                     index++;
                     if (index >= genNN.count) {
                         genNN.udpatePopulation();
@@ -292,18 +296,20 @@ void loop() {
             // Clear screen
             SDL_RenderClear(renderer);
             char s1[] = "Score: ";
-            char s2[] = "Individual: ";
+            char s2[] = "Individual: #";
             char s3[] = "Population: ";
             char s4[] = "Previous best: ";
             char s5[] = "Interval: ";
+            char s6[] = "Name: ";
             renderText(renderer, latexFont, score, s1, 5);
             if (AI_MODE == 0) {
                 renderText(renderer, latexFont, g->id, s3, 9);
                 renderText(renderer, latexFont, index, s2, 8);
                 renderText(renderer, latexFont, previousBest, s4, 7);
             } else if (AI_MODE == 2) {
-                renderText(renderer, latexFont, genNN.populationID, s3, 9);
+                renderText(renderer, latexFont, genNN.populationID, s3, 10);
                 renderText(renderer, latexFont, index, s2, 8);
+                renderString(renderer, latexFont, s6, genNN.population[index].name.c_str(), 9);
             }
             char linesClearedText[] = "Lines Cleared: ";
             renderText(renderer, latexFont, linesCleared, linesClearedText, 6);

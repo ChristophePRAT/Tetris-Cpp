@@ -609,7 +609,7 @@ int randomIntBetween(int a, int b) {
 }
 
 block* randomBlock(block** BASIC_BLOCKS) {
-    int rdI = random() % 7;
+    int rdI = rand() % 7;
     assert(rdI <= 6);
     return BASIC_BLOCKS[rdI];
 }

@@ -1,5 +1,6 @@
 #ifndef GenNN_hpp
 #define GenNN_hpp
+#include "FileHelper.hpp"
 #include "game.h"
 #include "mlx/array.h"
 #include <mlx/mlx.h>
@@ -12,11 +13,13 @@ std::string getCurrentDateTime();
 using namespace mlx::core;
 // a tuple representing the env variables, the combination it came from and the lines cleared
 typedef std::tuple<evars *, bestc, int> tetrisState;
+
 class NNIndividual {
     public:
     MultiLayer *mlp = nullptr;
     unsigned int id;
     unsigned int score = 0;
+    unsigned int linesCleared = 0;
     std::string name;
 
     NNIndividual(int input_size, std::vector<int> hidden_sizes, unsigned int id, std::string name) {
@@ -37,8 +40,10 @@ class GeneticNN {
     std::vector<int> hidden_sizes;
     std::string name;
     unsigned int populationID = 0;
+    int seed;
 
     GeneticNN(unsigned int count, int input_size, std::vector<int> hidden_sizes, std::string name = "") {
+        this->seed = time(NULL);
         this->hidden_sizes = hidden_sizes;
         this->count = count;
         if (name == "") {
@@ -50,11 +55,13 @@ class GeneticNN {
         mkdir(this->name.c_str(), 0777);
 
         for (int i = 0; i < count; i ++) {
-            population.push_back(NNIndividual(input_size, hidden_sizes, i, NAMES[i % 20]));
+            population.push_back(NNIndividual(input_size, hidden_sizes, i, NAMES[i % 23]));
         }
     }
-    void setResult(unsigned int popid, unsigned int score) {
+    void setResult(unsigned int popid, unsigned int score, unsigned int linesCleared) {
         population[popid].score = score;
+        population[popid].linesCleared = linesCleared;
+        addGenWithName(name.c_str(), score, linesCleared, popid == 0 && populationID == 0, population[popid].id, populationID);
     }
     void udpatePopulation();
 
@@ -87,10 +94,12 @@ class GeneticNN {
     void supafastindiv(block** BASIC_BLOCKS, unsigned int index);
     bestc act(std::vector<tetrisState>& possibleStates, int index);
     bestc act2(std::vector<std::tuple<array, bestc>> possibleBoards, int index);
-    const std::string NAMES[20] = {
-        "M. Castel",   "Mme Hémery", "Alban", "Thibault", "Dai-Khanh", "Sidonie", "Romain",
-        "Irène", "Simon",  "Aurélien",    "Cédrick", "Zacharie", "Maxime", "Auxence",
-        "M. Boisseleau", "Timothée", "Adrien", "Karl", "Jérémie", "William"
+    bestc actWithNextBlock(mat m, block s, block ns, evars *prev, int index);
+    bestc actWithNextBlock2(mat m, block s, block ns, evars *prev, int index);
+    const std::string NAMES[23] = {
+        "M. Castel", "Mme Hémery", "Alban", "Thibault", "Dai-Khanh", "Sidonie", "Romain",
+        "Irène", "Simon", "Aurélien", "Cédrick", "Zacharie", "Maxime", "Auxence",
+        "M. Boisseleau", "Timothée", "Adrien", "Karl", "Jérémie", "William", "Benoît", "Christophe", "Hilaire"
     };
 };
 #endif

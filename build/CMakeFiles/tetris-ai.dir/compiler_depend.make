@@ -788,6 +788,7 @@ CMakeFiles/tetris-ai.dir/AI/GenNN.cpp.o: /Users/christopheprat/Code/TIPE/Tetris-
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/ratio \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/sstream \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/stack \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/stdbool.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/stddef.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/stdexcept \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/stdint.h \
@@ -966,11 +967,13 @@ CMakeFiles/tetris-ai.dir/AI/GenNN.cpp.o: /Users/christopheprat/Code/TIPE/Tetris-
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/include/arm_fp16.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/include/limits.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/include/stdarg.h \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/include/stdbool.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/include/stddef.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/include/stdint.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/share/asan_ignorelist.txt \
   /Users/christopheprat/Code/TIPE/Tetris-Cpp/AI/GenNN.hpp \
   /Users/christopheprat/Code/TIPE/Tetris-Cpp/Gameplay/game.h \
+  /Users/christopheprat/Code/TIPE/Tetris-Cpp/Helpers/FileHelper.hpp \
   /Users/christopheprat/Code/TIPE/Tetris-Cpp/Helpers/loader.hpp \
   /Users/christopheprat/Code/TIPE/Tetris-Cpp/AI/GenNN.hpp \
   /Users/christopheprat/Code/TIPE/Tetris-Cpp/AI/NN.hpp \
@@ -4266,8 +4269,13 @@ CMakeFiles/tetris-ai.dir/Helpers/FileHelper.cpp.o: /Users/christopheprat/Code/TI
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/arm/endian.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/arm/signal.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/arm/types.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/__assert \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/__assertion_handler \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/__availability \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/__config \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/__config_site \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/__verbose_abort \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/cstdio \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/stdint.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/stdio.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/stdlib.h \
@@ -5568,6 +5576,7 @@ CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o: /Users/christopheprat/Code/TIPE/T
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/share/asan_ignorelist.txt \
   /Users/christopheprat/Code/TIPE/Tetris-Cpp/AI/GenNN.hpp \
   /Users/christopheprat/Code/TIPE/Tetris-Cpp/Gameplay/game.h \
+  /Users/christopheprat/Code/TIPE/Tetris-Cpp/Helpers/FileHelper.hpp \
   /Users/christopheprat/Code/TIPE/Tetris-Cpp/AI/GenNN.hpp \
   /Users/christopheprat/Code/TIPE/Tetris-Cpp/AI/NN.hpp \
   /Users/christopheprat/Code/TIPE/Tetris-Cpp/Helpers/loader.hpp \
@@ -5597,8 +5606,6 @@ CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o: /Users/christopheprat/Code/TIPE/T
   /usr/local/include/mlx/types/half_types.h \
   /usr/local/include/mlx/utils.h
 
-
-/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/include/stdbool.h:
 
 /Users/christopheprat/Code/TIPE/Tetris-Cpp/Gameplay/game.cpp:
 
@@ -5679,12 +5686,6 @@ CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o: /Users/christopheprat/Code/TIPE/T
 /Library/Frameworks/SDL2.framework/Headers/SDL_audio.h:
 
 /Library/Frameworks/SDL2.framework/Headers/SDL_atomic.h:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/stdbool.h:
-
-/Library/Frameworks/SDL2.framework/Headers/SDL_mouse.h:
-
-/Library/Frameworks/SDL2.framework/Headers/SDL.h:
 
 /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/include/float.h:
 
@@ -5805,6 +5806,8 @@ CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o: /Users/christopheprat/Code/TIPE/T
 /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/include/stdint.h:
 
 /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/include/stddef.h:
+
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/include/stdbool.h:
 
 /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/16/include/stdarg.h:
 
@@ -6024,6 +6027,8 @@ CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o: /Users/christopheprat/Code/TIPE/T
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/unordered_map:
 
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/thread:
+
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/string:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/__algorithm/ranges_find_end.h:
@@ -6031,6 +6036,12 @@ CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o: /Users/christopheprat/Code/TIPE/T
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/__type_traits/is_empty.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/stdint.h:
+
+/Library/Frameworks/SDL2.framework/Headers/SDL_mouse.h:
+
+/Library/Frameworks/SDL2.framework/Headers/SDL.h:
+
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/stdbool.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/ratio:
 
@@ -6111,8 +6122,6 @@ CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o: /Users/christopheprat/Code/TIPE/T
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/__type_traits/is_nothrow_constructible.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/clocale:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/thread:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.1.sdk/usr/include/c++/v1/cerrno:
 
