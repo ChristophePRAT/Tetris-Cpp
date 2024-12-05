@@ -78,9 +78,9 @@ void GeneticNN::breed(int parent1, int parent2, int child) {
         } else {
             // printf("choosing random params\n");
             float meanArr = mean(population[parent1].mlp->params[i]).item<float>();
-            // array newParam = population[parent1].mlp->params[i] + random::uniform(-meanArr, meanArr, population[parent1].mlp->params[i].shape());
+            array newParam = population[parent1].mlp->params[i] + random::uniform(-meanArr, meanArr, population[parent1].mlp->params[i].shape());
 
-            array newParam = random::uniform(-meanArr, meanArr, population[parent1].mlp->params[i].shape());
+            // array newParam = random::uniform(-meanArr, meanArr, population[parent1].mlp->params[i].shape());
             newParams.push_back(newParam);
         }
     }
@@ -287,7 +287,7 @@ bestc GeneticNN::actWithNextBlock(mat m, block s, block ns, evars *prev, int ind
             }
         }
     }
-    printf("Checked %d (additional) moves before playing\n", numChecked);
+    // printf("Checked %d (additional) moves before playing\n", numChecked);
     return best_action;
 }
 
@@ -398,7 +398,7 @@ bestc GeneticNN::act2(std::vector<std::tuple<array, bestc>> possibleBoards, int 
 }
 
 
-bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, bool userMode, block** BASIC_BLOCKS) {
+bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS, unsigned int* see) {
     int down = downShape(*m, s);
 
     // If the shape is at the bottom
@@ -411,10 +411,15 @@ bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned
 
         updateEvars(*m, e);
         changeBlock(s, nextBl);
-        changeBlock(nextBl, randomBlock(BASIC_BLOCKS));
+        if (see != NULL) {
+            changeBlock(nextBl, randomBlockWithSeed(BASIC_BLOCKS, see));
+        } else {
+            changeBlock(nextBl, randomBlock(BASIC_BLOCKS));
+        }
+
         bestc compo;
 
-        if (e->hMax > 13) {
+        if (e->hMax > 16) {
             compo = actWithNextBlock(*m, *s, *nextBl, e, index);
             //
             // compo = actWithNextBlock2(*m, *s, *nextBl, e, index);
@@ -447,7 +452,7 @@ bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned
 }
 
 void GeneticNN::supafastindiv(block** BASIC_BLOCKS, unsigned int index) {
-    srand(this->seed);
+    unsigned int indiSeed = this->seed;
 
     bool gameOver = false;
 
@@ -465,9 +470,11 @@ void GeneticNN::supafastindiv(block** BASIC_BLOCKS, unsigned int index) {
     copyBlock(nextBlock, sA);
     evars* envVars = initVars(*m);
 
+    int moveNumber = 0;
 
     while (!gameOver) {
-        gameOver = !tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, false, BASIC_BLOCKS);
+        gameOver = !tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, &indiSeed);
+        moveNumber++;
     }
     setResult(index, score, linesCleared);
     printf("%s (#%d) - lines cleared = %d\n", this->population[index].name.c_str(), this->population[index].id, linesCleared);

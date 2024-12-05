@@ -219,7 +219,7 @@ void DQN::train(std::vector<array> states, std::vector<array> yTruth) {
     epsilon = std::max(eps_min, epsilon * eps_decay);
 }
 
-bool DQN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, bool userMode, block** BASIC_BLOCKS) {
+bool DQN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS) {
     int down = downShape(*m, s);
 
     // *score += 1;

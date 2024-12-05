@@ -78,4 +78,6 @@ void printMat(mat* m, block s);
 void printMatrix(int** data, int rows, int cols);
 int generateRandomNumber(int min, int max);
 double generateRandomDouble(double min, double max);
+block* randomBlockWithSeed(block** BASIC_BLOCKS, unsigned int* seed);
+bool userTickCallBack(mat *m, block *s, block *nextBl, unsigned int *score, unsigned int* linesCleared, block **BASIC_BLOCKS);
 #endif /* game_h */

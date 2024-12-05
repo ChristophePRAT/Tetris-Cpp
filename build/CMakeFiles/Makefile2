@@ -85,12 +85,12 @@ clean: CMakeFiles/tetris-ai.dir/clean
 CMakeFiles/tetris-ai.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10 "Built target tetris-ai"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11 "Built target tetris-ai"
 .PHONY : CMakeFiles/tetris-ai.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/tetris-ai.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles 10
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles 11
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/tetris-ai.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles 0
 .PHONY : CMakeFiles/tetris-ai.dir/rule

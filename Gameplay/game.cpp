@@ -10,6 +10,9 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <random>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
 // using namespace std;
 
 int min(int a, int b) {
@@ -613,6 +616,11 @@ block* randomBlock(block** BASIC_BLOCKS) {
     assert(rdI <= 6);
     return BASIC_BLOCKS[rdI];
 }
+block* randomBlockWithSeed(block** BASIC_BLOCKS, unsigned int* seed) {
+    int rdI = rand_r(seed) % 7;
+    assert(rdI <= 6);
+    return BASIC_BLOCKS[rdI];
+}
 
 void reset(unsigned int* score, unsigned int* linesCleared, mat* m, block* s, block* nextBlock, block** BASIC_BLOCKS, evars* envVars) {
     *score = 0;
@@ -638,4 +646,26 @@ double generateRandomDouble(double min, double max) {
     std::uniform_real_distribution<> distrib(min, max);
 
     return distrib(gen);
+}
+
+bool userTickCallBack(mat *m, block *s, block *nextBl, unsigned int *score, unsigned int* linesCleared, block **BASIC_BLOCKS) {
+    int down = downShape(*m, s);
+
+    // If the shape is at the bottom
+    if (down == -1) {
+        computeDownPos(*m, s);
+
+        int numCleared = pushToMat(m, *s);
+        *score += 150 * numCleared + 50;
+        *linesCleared += numCleared;
+
+        changeBlock(s, nextBl);
+        changeBlock(nextBl, randomBlock(BASIC_BLOCKS));
+        computeDownPos(*m, s);
+
+        bool canInsert = canInsertShape(*m, *s);
+
+        return canInsert;
+    }
+    return true;
 }

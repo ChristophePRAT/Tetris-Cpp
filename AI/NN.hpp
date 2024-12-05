@@ -147,7 +147,7 @@ class DQN {
         train(mem, batchHeuristic(mem));
     }
 
-    bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, bool userMode, block** BASIC_BLOCKS);
+    bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS);
 
     private:
     std::vector<array> batchHeuristic(std::vector<array>);

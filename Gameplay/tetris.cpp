@@ -116,15 +116,11 @@ void loop() {
 
     mat* m = createMat(20, 10);
     block* s = emptyShape();
-//    block* sA = BASIC_BLOCKS[rand() % 7];
-
-//    block* sA = BASIC_BLOCKS[(int)floor(randomProba() * 8)];
     block* sA = randomBlock(BASIC_BLOCKS);
     copyBlock(s, sA);
     computeDownPos(*m, s);
 
     block* nextBlock = emptyShape();
-//    sA = BASIC_BLOCKS[(int)floor(randomProba() * 8)];
     sA = randomBlock(BASIC_BLOCKS);
     copyBlock(nextBlock, sA);
 
@@ -133,17 +129,12 @@ void loop() {
     Uint32 next_time = SDL_GetTicks() + TIMER_INTERVAL;
 
     bool gameOver = false;
-    // Event loop exit flag
     bool quit = false;
 
-    // AIs
     population* g;
-    DQN dqn = DQN(6, 0,0,0,0,0.01, 50);
+    DQN dqn = DQN(6, 0, 0, 0, 0, 0.01, 50);
     GeneticNN genNN = GeneticNN(23, 7, { 8, 1 }, loadName);
 
-    // -------------
-    // AIs
-    // Genetic mutation
     if (AI_MODE == 0) {
         g = initializePopulation(20);
         printpopulation(g);
@@ -158,7 +149,6 @@ void loop() {
     unsigned int index = 0;
     unsigned int linesCleared = 0;
     unsigned int score = 0;
-
     unsigned int previousBest = 0;
 
     int* scores;
@@ -166,11 +156,9 @@ void loop() {
         scores = (int*)malloc(g->numIndividuals * sizeof(int));
     }
 
-
     unsigned int fileNum = 0;
 
-    // Event loop
-    while(!quit) {
+    while (!quit) {
         SDL_Event e;
 
         if (SDL_PollEvent(&e)) {
@@ -187,18 +175,14 @@ void loop() {
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_LEFT) {
                         moveRLShape(m, s, -1);
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_DOWN) {
-                        //                        downShape(*m, s);
                         if (AI_MODE == 0) {
-                            tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
+                            tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, BASIC_BLOCKS);
                         }
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_UP) {
                         rotateShape(*m, s);
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_B) {
                         instantMode = !instantMode;
-                        // Initialize renderer color white for the background
                         SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-
-                        // Clear screen
                         SDL_RenderClear(renderer);
                         char s[] = "Boost Mode: ";
                         renderText(renderer, latexFont, 1, s, 0);
@@ -208,7 +192,6 @@ void loop() {
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_8) {
                         TIMER_INTERVAL = userMode ? 400 : 100;
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_F) {
-                        //                        TIMER_INTERVAL *= 0.9;
                         if (TIMER_INTERVAL > 1) {
                             TIMER_INTERVAL -= 1;
                         }
@@ -218,11 +201,11 @@ void loop() {
                         int i = fullDrop(*m, *s, false);
                         s->position[0] = i;
                         if (AI_MODE == 0) {
-                            tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
+                            tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, BASIC_BLOCKS);
                         } else if (AI_MODE == 1) {
-                            dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
+                            dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS);
                         } else if (AI_MODE == 2) {
-                            genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
+                            genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, NULL);
                         }
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_0) {
                         int i = fullDrop(*m, *s, false);
@@ -234,18 +217,18 @@ void loop() {
             }
         }
 
-        // Check if it's time to call the TimerCallback function
         Uint32 current_time = SDL_GetTicks();
         if (current_time >= next_time || instantMode) {
             if (AI_MODE == 0) {
-                gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
+                gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, BASIC_BLOCKS);
             } else if (AI_MODE == 1) {
-                gameOver = !dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
-            } else {
-                gameOver = !genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, userMode, BASIC_BLOCKS);
+                gameOver = !dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS);
+            } else if (AI_MODE == 2) {
+                gameOver = !genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, NULL);
+            } else if (AI_MODE == -1) {
+                gameOver = !userTickCallBack(m, s, nextBlock, &score, &linesCleared, BASIC_BLOCKS);
             }
             if (gameOver) {
-
                 printf("Lines cleared: %d \n", linesCleared);
                 printf("------------------\n");
                 if (userMode) {
@@ -256,9 +239,6 @@ void loop() {
                     addGMEntry(&fileNum, score, g->individuals[index].weights, g->id, index == 0 && g->id == 0);
                 } else if (AI_MODE == 1) {
                     addDQNEntry(&fileNum, score, linesCleared, index == 0 && dqn.step == 0, dqn.step);
-                } else if (AI_MODE == 2) {
-                    // addGenNNEntry(&fileNum, score, linesCleared, index == 0 && genNN.populationID == 0, index, genNN.populationID);
-                    addGenWithName(genNN.name.c_str(), score, linesCleared, index == 0 && genNN.populationID == 0, index, genNN.populationID);
                 }
 
                 if (AI_MODE == 0) {
@@ -271,7 +251,6 @@ void loop() {
                 } else if (AI_MODE == 1) {
                     dqn.trainNN();
                 } else if (AI_MODE == 2) {
-                    // scores[index] = score;
                     genNN.setResult(index, score, linesCleared);
                     srand(genNN.seed);
                     index++;
@@ -281,19 +260,13 @@ void loop() {
                     }
                 }
                 reset(&score, &linesCleared, m, s, nextBlock, BASIC_BLOCKS, envVars);
-
             }
 
             next_time = current_time + TIMER_INTERVAL;
         }
 
-
-
         if (!instantMode) {
-            // Initialize renderer color white for the background
             SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-
-            // Clear screen
             SDL_RenderClear(renderer);
             char s1[] = "Score: ";
             char s2[] = "Individual: #";
@@ -315,12 +288,8 @@ void loop() {
             renderText(renderer, latexFont, linesCleared, linesClearedText, 6);
             renderText(renderer, latexFont, TIMER_INTERVAL, s5, 11);
 
-            // Display next shape by the side of the screen
             drawBlock(*nextBlock, 12, 1, renderer);
-
             drawMat(*m, *s, renderer, TIMER_INTERVAL);
-            // }
-            //         Update screen
             SDL_RenderPresent(renderer);
         }
     }

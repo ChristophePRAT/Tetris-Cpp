@@ -185,7 +185,7 @@ bestc theFinestDecision(mat m, block s, double* preferences, evars* previousEvar
 }
 
 
-bool tickCallback(mat* m, block* s, block* nextBl, evars* e, population* g, unsigned int* score, unsigned int* linesCleared, unsigned int index, bool userMode, block** BASIC_BLOCKS) {
+bool tickCallback(mat* m, block* s, block* nextBl, evars* e, population* g, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS) {
     int down = downShape(*m, s);
 
     // *score += 1;
@@ -198,19 +198,13 @@ bool tickCallback(mat* m, block* s, block* nextBl, evars* e, population* g, unsi
         updateEvars(*m, e);
         changeBlock(s, nextBl);
         changeBlock(nextBl, randomBlock(BASIC_BLOCKS));
-        if (userMode) {
-            computeDownPos(*m, s);
-        }
-
-        if (!userMode) {
-            bestc compo = theFinestDecision(*m, *s, g->individuals[index].weights, e);
-            if (compo.shapeN == -1) { return false; }
-            int nextPosX = compo.col;
-            assert(nextPosX >= 0 && nextPosX < m->cols + 2);
-            s->position[1] = nextPosX;
-            s->currentShape = compo.shapeN;
-            computeDownPos(*m, s);
-        }
+        bestc compo = theFinestDecision(*m, *s, g->individuals[index].weights, e);
+        if (compo.shapeN == -1) { return false; }
+        int nextPosX = compo.col;
+        assert(nextPosX >= 0 && nextPosX < m->cols + 2);
+        s->position[1] = nextPosX;
+        s->currentShape = compo.shapeN;
+        computeDownPos(*m, s);
         return canInsertShape(*m, *s);
     }
     return true;

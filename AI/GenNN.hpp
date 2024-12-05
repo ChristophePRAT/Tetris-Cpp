@@ -40,7 +40,7 @@ class GeneticNN {
     std::vector<int> hidden_sizes;
     std::string name;
     unsigned int populationID = 0;
-    int seed;
+    unsigned int seed;
 
     GeneticNN(unsigned int count, int input_size, std::vector<int> hidden_sizes, std::string name = "") {
         this->seed = time(NULL);
@@ -67,7 +67,7 @@ class GeneticNN {
 
     void breed(int parent1, int parent2, int child);
 
-    bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, bool userMode, block** BASIC_BLOCKS);
+    bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS, unsigned int *see);
 
     std::vector<array> batchForward(std::vector<tetrisState> states, int index) {
         std::vector<array> inputs;

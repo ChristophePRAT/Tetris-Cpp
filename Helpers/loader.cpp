@@ -18,7 +18,7 @@ void saveGen(GeneticNN genNN) {
     mkdir(root);
 
     for (int i = 0; i < genNN.count; i++) {
-        std::string folderName = root + "/individual_" + std::to_string(i);
+        std::string folderName = root + "/individual_" + std::to_string(genNN.population[i].id);
         mkdir(folderName);
 
         for (int j = 0; j < genNN.population[i].mlp->params.size(); j++) {
