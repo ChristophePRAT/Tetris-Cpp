@@ -6,6 +6,7 @@
 //
 
 #include "game.h"
+#include "NN.hpp"
 #include <stdbool.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -42,7 +43,6 @@ int heightOfColumn(mat m, int col) {
   }
   return m.rows;
 }
-
 int firstIndexNotZInColInShape(block s, int col) {
     for (int i = 3; i >= 0; i--) {
         if (s.shape[s.currentShape][i][col] != 0) {
@@ -51,27 +51,55 @@ int firstIndexNotZInColInShape(block s, int col) {
     }
     return -1;
 }
+bool canMoveDownShape(mat m, block s);
+
+int fDropCol(mat m, block s, int col) {
+    int lastI = -1;
+    int firstI = m.rows; // Initialize to the number of rows in the matrix
+
+    // Determine the last non-0 index in the block's column
+    for (int i = 0; i < 4; i++) {
+        if (s.shape[s.currentShape][i][col] != 0) {
+            lastI = i;
+        }
+    }
+
+    // If the block has no non-zero elements in the column, it can drop to the bottom
+    if (lastI == -1) {
+        return m.rows - 1;
+    }
+
+    // Check how many free blocks there are underneath in the matrix
+    for (int i = s.position[0] + lastI + 1; i < m.rows; i++) {
+        if (col + s.position[1] < m.cols && m.data[i][col + s.position[1]] != 0) {
+            firstI = i;
+            break;
+        }
+    }
+
+    // Calculate the maximum row index to which the block can drop
+    int maxDropIndex = firstI - lastI - 1;
+
+    // Ensure the block does not drop below the bottom of the matrix
+    if (maxDropIndex >= m.rows) {
+        maxDropIndex = m.rows - 1;
+    }
+
+    return maxDropIndex;
+}
 
 /// Returns the row when a block does a full drop (i.e. space bar)
 int fullDrop(mat m, block s, bool preview) {
-    int posMin = 20;
+    int min = m.rows;
 
-    for (int col = s.position[1]; col < 4 + s.position[1]; col++) {
-        int index = firstIndexNotZInColInShape(s, col - s.position[1]);
-        if (index == -1) {
-            continue;
-        }
-        int h = heightOfColumn(m, col);
-        if (h == 0) {
-            return -1;
-        }
-
-        int pos = h - index;
-        if (pos < posMin && pos > 0) {
-            posMin = pos;
+    for (int i = 0; i < 4; i++) {
+        int d = fDropCol(m, s, i);
+        if (d < min) {
+            min = d;
         }
     }
-    return posMin - 1;
+    return min;
+    // return fDropBelow(m, s);
 }
 
 mat* createMat(int rows, int cols) {
@@ -602,12 +630,12 @@ double previewScore(mat m, block s, double* prefs, evars* previousEvars, int col
 
 /// - Returns: Random number between 0 and 1
 double randomProba() {
-    double r = (double)random() / RAND_MAX;
+    double r = (double)rand() / RAND_MAX;
     return r;
 }
 
 int randomIntBetween(int a, int b) {
-    int r = a + (random() % (b - a));
+    int r = a + (rand() % (b - a));
     return r;
 }
 
@@ -661,6 +689,53 @@ bool userTickCallBack(mat *m, block *s, block *nextBl, unsigned int *score, unsi
 
         changeBlock(s, nextBl);
         changeBlock(nextBl, randomBlock(BASIC_BLOCKS));
+        computeDownPos(*m, s);
+
+        bool canInsert = canInsertShape(*m, *s);
+
+        return canInsert;
+    }
+    return true;
+}
+double heuristic(int linesCleared, evars e) {
+    return meaned(e.colHeights, 10) * (-0.510066) + linesCleared * 0.760666 + e.numHoles * (-0.35663) + meaned(e.deltaColHeights, 20) * (-0.184483);
+}
+
+bestc bestFromHeuristic(mat *m, block s, evars* e) {
+    double max = -1000000;
+    std::vector<tetrisState> st = possibleStates(*m, s, e);
+
+    bestc best = {
+        .col = -1,
+        .shapeN = -1
+    };
+    for (int i = 0; i < st.size(); i++) {
+        evars *ef = std::get<0>(st[i]);
+        int linesCleared = std::get<2>(st[i]);
+        double score = heuristic(linesCleared, *ef);
+        if (score > max) {
+            max = score;
+            best = std::get<1>(st[i]);
+        }
+    }
+    return best;
+}
+bool heuristicTickCallBack(mat *m, block *s, block *nextBl, unsigned int *score, unsigned int* linesCleared, block **BASIC_BLOCKS, evars *e) {
+    int down = downShape(*m, s);
+
+    // If the shape is at the bottom
+    if (down == -1) {
+        computeDownPos(*m, s);
+
+        int numCleared = pushToMat(m, *s);
+        *score += 150 * numCleared + 50;
+        *linesCleared += numCleared;
+        updateEvars(*m, e);
+        changeBlock(s, nextBl);
+        changeBlock(nextBl, randomBlock(BASIC_BLOCKS));
+
+        bestc compo = bestFromHeuristic(m, *s,e);
+
         computeDownPos(*m, s);
 
         bool canInsert = canInsertShape(*m, *s);

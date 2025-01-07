@@ -406,7 +406,7 @@ bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned
         computeDownPos(*m, s);
 
         int numCleared = pushToMat(m, *s);
-        *score += 150 * numCleared + 50;
+        *score += 15 * numCleared + 2;
         *linesCleared += numCleared;
 
         updateEvars(*m, e);

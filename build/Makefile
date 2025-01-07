@@ -48,10 +48,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /opt/homebrew/bin/cmake
+CMAKE_COMMAND = /opt/local/bin/cmake
 
 # The command to remove a file.
-RM = /opt/homebrew/bin/cmake -E rm -f
+RM = /opt/local/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
@@ -68,7 +68,7 @@ CMAKE_BINARY_DIR = /Users/christopheprat/Code/TIPE/Tetris-Cpp/build
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running CMake cache editor..."
-	/opt/homebrew/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/opt/local/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -78,7 +78,7 @@ edit_cache/fast: edit_cache
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running CMake to regenerate build system..."
-	/opt/homebrew/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/opt/local/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -273,6 +273,30 @@ Gameplay/game.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.s
 .PHONY : Gameplay/game.cpp.s
 
+Gameplay/multirender.o: Gameplay/multirender.cpp.o
+.PHONY : Gameplay/multirender.o
+
+# target to build an object file
+Gameplay/multirender.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Gameplay/multirender.cpp.o
+.PHONY : Gameplay/multirender.cpp.o
+
+Gameplay/multirender.i: Gameplay/multirender.cpp.i
+.PHONY : Gameplay/multirender.i
+
+# target to preprocess a source file
+Gameplay/multirender.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Gameplay/multirender.cpp.i
+.PHONY : Gameplay/multirender.cpp.i
+
+Gameplay/multirender.s: Gameplay/multirender.cpp.s
+.PHONY : Gameplay/multirender.s
+
+# target to generate assembly for a file
+Gameplay/multirender.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Gameplay/multirender.cpp.s
+.PHONY : Gameplay/multirender.cpp.s
+
 Gameplay/tetris.o: Gameplay/tetris.cpp.o
 .PHONY : Gameplay/tetris.o
 
@@ -396,6 +420,9 @@ help:
 	@echo "... Gameplay/game.o"
 	@echo "... Gameplay/game.i"
 	@echo "... Gameplay/game.s"
+	@echo "... Gameplay/multirender.o"
+	@echo "... Gameplay/multirender.i"
+	@echo "... Gameplay/multirender.s"
 	@echo "... Gameplay/tetris.o"
 	@echo "... Gameplay/tetris.i"
 	@echo "... Gameplay/tetris.s"

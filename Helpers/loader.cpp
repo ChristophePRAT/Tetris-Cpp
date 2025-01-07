@@ -36,7 +36,7 @@ void loadGen(GeneticNN &genNN, int genID, std::string date) {
     for (int i = 0; i < genNN.count; i++) {
         std::string folderName = root + "/individual_" + std::to_string(i);
 
-        for (int j = 0; j < genNN.population[i].mlp->params.size(); j++) {
+        for (int j = 0; j < genNN.population[i].mlp->params.size() - 1; j++) {
             std::string fileName = folderName + "/layer_" + std::to_string(j) + ".npy";
 
             genNN.population[i].mlp->params[j] = load(fileName);

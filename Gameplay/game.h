@@ -8,7 +8,8 @@
 #ifndef game_h
 #define game_h
 
-#include <stdio.h>
+// #include <stdio.h>
+// #include <stdlib.h>
 //struct Matrix;
 
 struct Matrix {
@@ -80,4 +81,5 @@ int generateRandomNumber(int min, int max);
 double generateRandomDouble(double min, double max);
 block* randomBlockWithSeed(block** BASIC_BLOCKS, unsigned int* seed);
 bool userTickCallBack(mat *m, block *s, block *nextBl, unsigned int *score, unsigned int* linesCleared, block **BASIC_BLOCKS);
+bool heuristicTickCallBack(mat *m, block *s, block *nextBl, unsigned int *score, unsigned int* linesCleared, block **BASIC_BLOCKS, evars *e);
 #endif /* game_h */

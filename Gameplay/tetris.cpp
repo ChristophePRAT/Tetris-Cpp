@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
-// #include "SDL2/SDL_pixels.h"
+// #include "SDL2/SDL_rect.h"
 #include "SDL2/SDL_render.h"
 #include "SDL2/SDL_video.h"
 #include "game.h"
@@ -17,7 +17,7 @@
 #include "GenNN.hpp"
 #include "display.hpp"
 
-// AI_MODE  = -1: User mode | 0: Genetic | 1: DQN | 2: Genetic Neural Network
+// AI_MODE  = -1: User mode | 0: Genetic | 1: DQN | 2: Genetic Neural Network | 3: Pre-defined heuristic
 unsigned int AI_MODE = 2;
 
 int loadGen = -1;
@@ -52,7 +52,6 @@ TTF_Font* gFont = NULL;
 Uint32 timerID = 0;
 
 Uint64 start, end, time_taken;
-
 
 int main(int argc, char* args[] ) {
     for (int i = 0; i < argc; i++) {
@@ -93,15 +92,16 @@ int main(int argc, char* args[] ) {
         printf("Game loaded with DQN mode 🧠\n");
     } else if (AI_MODE == 2) {
         printf("Game loaded with neural network genetic mutation mode ⚛️\n");
+    } else if (AI_MODE == 3) {
+        printf("Game loaded with pre-defined heuristic mode 🤡\n");
     }
 
     if (supafast) {
-        GeneticNN genNN = GeneticNN(23, 7, { 8, 1 }, loadName);
+        GeneticNN genNN = GeneticNN(23, 4, { 1 }, loadName);
         if (loadName != "" && loadGen != -1) {
             genNN.loadPrevious(loadGen, loadName);
         }
         genNN.supafast(BASIC_BLOCKS);
-        printf("This should NEVER print\n");
     }
 
     if (!init()) {
@@ -133,7 +133,7 @@ void loop() {
 
     population* g;
     DQN dqn = DQN(6, 0, 0, 0, 0, 0.01, 50);
-    GeneticNN genNN = GeneticNN(23, 7, { 8, 1 }, loadName);
+    GeneticNN genNN = GeneticNN(23, 4, { 1 }, loadName);
 
     if (AI_MODE == 0) {
         g = initializePopulation(20);
@@ -227,6 +227,8 @@ void loop() {
                 gameOver = !genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, NULL);
             } else if (AI_MODE == -1) {
                 gameOver = !userTickCallBack(m, s, nextBlock, &score, &linesCleared, BASIC_BLOCKS);
+            } else if (AI_MODE == 3) {
+                gameOver = !heuristicTickCallBack(m, s, nextBlock, &score, &linesCleared, BASIC_BLOCKS, envVars);
             }
             if (gameOver) {
                 printf("Lines cleared: %d \n", linesCleared);
@@ -289,7 +291,7 @@ void loop() {
             renderText(renderer, latexFont, TIMER_INTERVAL, s5, 11);
 
             drawBlock(*nextBlock, 12, 1, renderer);
-            drawMat(*m, *s, renderer, TIMER_INTERVAL);
+            drawMat(*m, *s, renderer, TIMER_INTERVAL, 0, 0);
             SDL_RenderPresent(renderer);
         }
     }
@@ -330,8 +332,9 @@ void kill(void) {
     //Destroy window
     SDL_RemoveTimer(timerID);
     SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
 
     //Quit SDL subsystems
     TTF_Quit();
-//    SDL_Quit();
+    SDL_Quit();
 }

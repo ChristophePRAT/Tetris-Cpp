@@ -45,25 +45,25 @@ array stateToArray(tetrisState s) {
     bestc b = std::get<1>(s);
     int lines = std::get<2>(s);
 
-    int numberOfCaveats = 0;
+    // int numberOfCaveats = 0;
 
-    for (int i = 0; i < 9; i++) {
-        if (ev->colHeights[i] - ev->colHeights[i+1] >= 3) {
-            numberOfCaveats++;
-        }
-    }
-    if (-ev->colHeights[0] + ev->colHeights[1] >= 3) {
-        numberOfCaveats++;
-    }
+    // for (int i = 0; i < 9; i++) {
+    //     if (ev->colHeights[i] - ev->colHeights[i+1] >= 3) {
+    //         numberOfCaveats++;
+    //     }
+    // }
+    // if (-ev->colHeights[0] + ev->colHeights[1] >= 3) {
+    //     numberOfCaveats++;
+    // }
 
     std::vector<float> input = {
-        float(ev->hMax) / 20,
-        float(ev->numHoles) / 200,
-        float(ev->minMax) / 20,
+        // float(ev->hMax) / 20,
+        float(ev->numHoles) / (20 * 10),
+        // float(ev->minMax) / 20,
         float(meaned(ev->colHeights, 10)),
         float(meaned(ev->deltaColHeights, 9)),
         float(lines) / float(4.0),
-        float(numberOfCaveats) / 10,
+        // float(numberOfCaveats) / 10,
         // float(b.col)/10,
     };
 
@@ -76,13 +76,17 @@ array stateToArray(tetrisState s) {
 array relu(const array& input) {
   return maximum(input, {0.0}); // Applies element-wise maximum [1]
 }
+
+array leakyRelu(const array& input) {
+  return maximum(input, {0.01 * input});
+}
 array generalizedForward(const array& x, const std::vector<array> params) {
     std::vector<array> xs = {x};
 
     for (int i = 0; i < params.size(); i+=2) {
         array x1 = matmul(xs.back(), transpose(params[i])) + params[i+1];
         if (i < params.size() - 2) {
-            array x2 = relu(x1);
+            array x2 = leakyRelu(x1);
             xs.push_back(x2);
         }
         else {

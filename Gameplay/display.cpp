@@ -85,15 +85,15 @@ void drawBlock(block s, int x, int y, SDL_Renderer* renderer) {
     }
 }
 
-void drawMat(mat m, block s, SDL_Renderer* renderer, int TIMER_INTERVAL) {
+void drawMat(mat m, block s, SDL_Renderer* renderer, int TIMER_INTERVAL, int x, int y) {
     SDL_Rect squareRect;
     SDL_Color color;
     int i_offset, j_offset;
 
     // Draw the black grid
     color = blockColors[0];
-    squareRect.w = SQUARE_WIDTH * m.cols;
-    squareRect.h = SQUARE_WIDTH * m.rows;
+    squareRect.w = SQUARE_WIDTH * (m.cols + x);
+    squareRect.h = SQUARE_WIDTH * (m.rows + y);
     squareRect.x = SQUARE_WIDTH;
     squareRect.y = SQUARE_WIDTH;
     drawSquare(&squareRect, &color, renderer);

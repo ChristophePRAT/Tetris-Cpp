@@ -11,6 +11,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/tetris-ai.dir/Gameplay/display.cpp.o.d"
   "CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.o"
   "CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.o.d"
+  "CMakeFiles/tetris-ai.dir/Gameplay/multirender.cpp.o"
+  "CMakeFiles/tetris-ai.dir/Gameplay/multirender.cpp.o.d"
   "CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o"
   "CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o.d"
   "CMakeFiles/tetris-ai.dir/Helpers/FileHelper.cpp.o"
