@@ -6,7 +6,7 @@
 //
 
 #include "game.h"
-#include "NN.hpp"
+#include "NN.h"
 #include <stdbool.h>
 #include <assert.h>
 #include <stdlib.h>

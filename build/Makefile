@@ -201,30 +201,6 @@ AI/agent.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/agent.cpp.s
 .PHONY : AI/agent.cpp.s
 
-AI/mpm.o: AI/mpm.cpp.o
-.PHONY : AI/mpm.o
-
-# target to build an object file
-AI/mpm.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/mpm.cpp.o
-.PHONY : AI/mpm.cpp.o
-
-AI/mpm.i: AI/mpm.cpp.i
-.PHONY : AI/mpm.i
-
-# target to preprocess a source file
-AI/mpm.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/mpm.cpp.i
-.PHONY : AI/mpm.cpp.i
-
-AI/mpm.s: AI/mpm.cpp.s
-.PHONY : AI/mpm.s
-
-# target to generate assembly for a file
-AI/mpm.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/mpm.cpp.s
-.PHONY : AI/mpm.cpp.s
-
 Gameplay/display.o: Gameplay/display.cpp.o
 .PHONY : Gameplay/display.o
 
@@ -272,30 +248,6 @@ Gameplay/game.s: Gameplay/game.cpp.s
 Gameplay/game.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.s
 .PHONY : Gameplay/game.cpp.s
-
-Gameplay/multirender.o: Gameplay/multirender.cpp.o
-.PHONY : Gameplay/multirender.o
-
-# target to build an object file
-Gameplay/multirender.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Gameplay/multirender.cpp.o
-.PHONY : Gameplay/multirender.cpp.o
-
-Gameplay/multirender.i: Gameplay/multirender.cpp.i
-.PHONY : Gameplay/multirender.i
-
-# target to preprocess a source file
-Gameplay/multirender.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Gameplay/multirender.cpp.i
-.PHONY : Gameplay/multirender.cpp.i
-
-Gameplay/multirender.s: Gameplay/multirender.cpp.s
-.PHONY : Gameplay/multirender.s
-
-# target to generate assembly for a file
-Gameplay/multirender.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/Gameplay/multirender.cpp.s
-.PHONY : Gameplay/multirender.cpp.s
 
 Gameplay/tetris.o: Gameplay/tetris.cpp.o
 .PHONY : Gameplay/tetris.o
@@ -411,18 +363,12 @@ help:
 	@echo "... AI/agent.o"
 	@echo "... AI/agent.i"
 	@echo "... AI/agent.s"
-	@echo "... AI/mpm.o"
-	@echo "... AI/mpm.i"
-	@echo "... AI/mpm.s"
 	@echo "... Gameplay/display.o"
 	@echo "... Gameplay/display.i"
 	@echo "... Gameplay/display.s"
 	@echo "... Gameplay/game.o"
 	@echo "... Gameplay/game.i"
 	@echo "... Gameplay/game.s"
-	@echo "... Gameplay/multirender.o"
-	@echo "... Gameplay/multirender.i"
-	@echo "... Gameplay/multirender.s"
 	@echo "... Gameplay/tetris.o"
 	@echo "... Gameplay/tetris.i"
 	@echo "... Gameplay/tetris.s"

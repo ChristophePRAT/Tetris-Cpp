@@ -13,7 +13,7 @@
 #include <cstdlib>
 #include <time.h>
 #include "FileHelper.hpp"
-#include "NN.hpp"
+#include "NN.h"
 #include "GenNN.hpp"
 #include "display.hpp"
 

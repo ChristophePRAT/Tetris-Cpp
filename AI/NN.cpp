@@ -5,15 +5,15 @@
 //  Created by Christophe Prat on 10/09/2024.
 //
 
-#include "NN.hpp"
+#include "NN.h"
 #include "game.h"
 #include <_stdlib.h>
 #include <algorithm>
 #include <assert.h>
-#include "mlx/array.h"
-#include "mlx/dtype.h"
-#include "mlx/ops.h"
-#include "mlx/transforms.h"
+// #include "mlx/array.h"
+// #include "mlx/dtype.h"
+// #include "mlx/ops.h"
+// #include "mlx/transforms.h"
 #include <cstdio>
 #include <cstdlib>
 #include <utility>

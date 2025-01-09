@@ -1,10 +1,10 @@
-#include "NN.hpp"
+#include "NN.h"
 #include "agent.h"
 #include "game.h"
 #include <_stdlib.h>
 #include <assert.h>
-#include "mlx/array.h"
-#include "mlx/dtype.h"
+// #include "mlx/array.h"
+// #include "mlx/dtype.h"
 #include <cstdlib>
 #include <string>
 #include <thread>
@@ -12,14 +12,15 @@
 #include <vector>
 #include "GenNN.hpp"
 #include "loader.hpp"
-#include "mlx/ops.h"
-#include "mlx/random.h"
+// #include "mlx/ops.h"
+// #include "mlx/random.h"
 #include <ctime>
 #include <sstream>
 #include <iomanip>
 #include <stdbool.h>
 #include "thread"
 #include <chrono>
+#include "mlx/mlx.h"
 
 using std::chrono::high_resolution_clock;
 

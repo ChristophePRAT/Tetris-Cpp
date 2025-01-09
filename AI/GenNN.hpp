@@ -6,7 +6,7 @@
 #include <mlx/mlx.h>
 #include <vector>
 #include "assert.h"
-#include "NN.hpp"
+#include "NN.h"
 
 std::string getCurrentDateTime();
 
