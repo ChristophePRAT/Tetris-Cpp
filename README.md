@@ -1,7 +1,7 @@
 # Tetris C++ Game: Testing different AIs
 ## How to run
 1. Clone the repository
-2. Install [MLX](https://ml-explore.github.io/mlx/build/html/install.html#c-api) library
+2. Install [MLX](https://ml-explore.github.io/mlx/build/html/install.html#c-api) library. You can use `brew install mlx` on macOS.
 3. Run the following commands:
 ```bash
 cmake -B build
