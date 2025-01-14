@@ -133,7 +133,7 @@ class DQN {
         this->eps_decay = eps_decay;
         this->eps_min = eps_min;
         this->lr = lr;
-        this->ml = new MultiLayer(input_size, {64, 64, 32, 1});
+        this->ml = new MultiLayer(input_size, {16, 16, 1});
         this->memCapacity = memCapacity;
     }
     bestc act(std::vector<tetrisState>& possibleStates);
@@ -143,9 +143,9 @@ class DQN {
         std::vector<array> targets;
         return std::make_tuple(inputs, targets);
     }
-    void trainNN() {
+    void trainNN(unsigned int linesCleared) {
         step += 1;
-        train(mem, batchHeuristic(mem));
+        trainWithBatch(mem, batchHeuristic(mem), linesCleared);
     }
 
     bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS);
@@ -153,7 +153,8 @@ class DQN {
     private:
     std::vector<array> batchHeuristic(std::vector<array>);
 
-    void train(std::vector<array> states, std::vector<array> yTruth);
+    void train(std::vector<array> states, std::vector<array> yTruth, unsigned int linesCleared);
+    void trainWithBatch(std::vector<array> states, std::vector<array> yTruth, unsigned int linesCleared);
 
     std::vector<array> batchStateToArray(std::vector<tetrisState> states) {
         std::vector<array> inputs;

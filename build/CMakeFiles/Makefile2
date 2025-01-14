@@ -102,6 +102,7 @@ tetris-ai: CMakeFiles/tetris-ai.dir/rule
 # codegen rule for target.
 CMakeFiles/tetris-ai.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10 "Finished codegen for target tetris-ai"
 .PHONY : CMakeFiles/tetris-ai.dir/codegen
 
 # clean rule for target.

@@ -68,3 +68,15 @@ add_custom_command(
   ${CMAKE_SOURCE_DIR}/resources/lmroman17-regular.otf
   ${CMAKE_BINARY_DIR}/resources/lmroman17-regular.otf
 )
+
+if (MLX_BUILD_ACCELERATE)
+    message(STATUS "MLX is built with Accelerate framework")
+else()
+    message(STATUS "MLX is NOT built with Accelerate framework")
+endif()
+
+if (MLX_BUILD_METAL)
+    message(STATUS "MLX is built with Metal framework")
+else()
+    message(STATUS "MLX is NOT built with Metal framework")
+endif()

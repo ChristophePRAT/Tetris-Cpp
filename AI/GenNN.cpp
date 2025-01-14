@@ -7,7 +7,6 @@
 // #include "mlx/dtype.h"
 #include <cstdlib>
 #include <string>
-#include <thread>
 #include <tuple>
 #include <vector>
 #include "GenNN.hpp"

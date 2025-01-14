@@ -80,7 +80,6 @@ int main(int argc, char* args[] ) {
             supafast = true;
         }
     }
-
     BASIC_BLOCKS = createBlocks();
     assert(BASIC_BLOCKS != NULL);
 
@@ -132,7 +131,7 @@ void loop() {
     bool quit = false;
 
     population* g;
-    DQN dqn = DQN(6, 0, 0, 0, 0, 0.01, 50);
+    DQN dqn = DQN(4, 0, 0, 0, 0, 0.01, 50);
     GeneticNN genNN = GeneticNN(23, 4, { 1 }, loadName);
 
     if (AI_MODE == 0) {
@@ -251,7 +250,7 @@ void loop() {
                         index = 0;
                     }
                 } else if (AI_MODE == 1) {
-                    dqn.trainNN();
+                    dqn.trainNN(linesCleared);
                 } else if (AI_MODE == 2) {
                     genNN.setResult(index, score, linesCleared);
                     srand(genNN.seed);

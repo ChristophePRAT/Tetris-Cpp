@@ -8,9 +8,9 @@ set(CMAKE_DEPENDS_GENERATOR "Unix Makefiles")
 set(CMAKE_MAKEFILE_DEPENDS
   "CMakeCache.txt"
   "/Users/christopheprat/Code/TIPE/Tetris-Cpp/CMakeLists.txt"
-  "CMakeFiles/3.31.2/CMakeCCompiler.cmake"
-  "CMakeFiles/3.31.2/CMakeCXXCompiler.cmake"
-  "CMakeFiles/3.31.2/CMakeSystem.cmake"
+  "CMakeFiles/3.31.3/CMakeCCompiler.cmake"
+  "CMakeFiles/3.31.3/CMakeCXXCompiler.cmake"
+  "CMakeFiles/3.31.3/CMakeSystem.cmake"
   "/opt/homebrew/share/cmake/MLX/MLXConfig.cmake"
   "/opt/homebrew/share/cmake/MLX/MLXConfigVersion.cmake"
   "/opt/homebrew/share/cmake/MLX/MLXTargets-release.cmake"

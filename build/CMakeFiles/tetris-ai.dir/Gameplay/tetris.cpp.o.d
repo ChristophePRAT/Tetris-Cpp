@@ -988,9 +988,17 @@ CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o: \
   /opt/homebrew/include/mlx/compile.h \
   /opt/homebrew/include/mlx/distributed/distributed.h \
   /opt/homebrew/include/mlx/distributed/ops.h \
-  /opt/homebrew/include/mlx/utils.h /opt/homebrew/include/mlx/einsum.h \
-  /opt/homebrew/include/mlx/fast.h /opt/homebrew/include/mlx/fft.h \
-  /opt/homebrew/include/mlx/io.h /opt/homebrew/include/mlx/io/load.h \
+  /opt/homebrew/include/mlx/utils.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/exception \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/__exception/exception_ptr.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/__exception/nested_exception.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/__type_traits/is_polymorphic.h \
+  /opt/homebrew/include/mlx/einsum.h /opt/homebrew/include/mlx/export.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/map \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/__tree \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/set \
+  /opt/homebrew/include/mlx/export_impl.h \
+  /opt/homebrew/include/mlx/io/load.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/fcntl.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/sys/fcntl.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/sys/_types/_o_sync.h \
@@ -1026,7 +1034,6 @@ CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o: \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/__thread/id.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/__stop_token/stop_token.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/future \
-  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/__exception/exception_ptr.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/mutex \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/thread \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/__thread/formatter.h \
@@ -1034,8 +1041,9 @@ CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o: \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/__stop_token/stop_source.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/__thread/thread.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/__thread/this_thread.h \
-  /opt/homebrew/include/mlx/linalg.h /opt/homebrew/include/mlx/ops.h \
-  /opt/homebrew/include/mlx/random.h \
+  /opt/homebrew/include/mlx/fast.h /opt/homebrew/include/mlx/fft.h \
+  /opt/homebrew/include/mlx/io.h /opt/homebrew/include/mlx/linalg.h \
+  /opt/homebrew/include/mlx/ops.h /opt/homebrew/include/mlx/random.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/chrono \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/__chrono/calendar.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/usr/include/c++/v1/__chrono/convert_to_tm.h \

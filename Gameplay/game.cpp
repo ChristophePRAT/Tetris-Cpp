@@ -31,17 +31,17 @@ int max(int a, int b) {
 ///   - m: the given matrix
 ///   - col: the given column
 int heightOfColumn(mat m, int col) {
-  // Ensure the column index is within bounds
-  if (col < 0 || col >= m.cols) {
-    return m.rows;  // Return m.rows to indicate an invalid column
-  }
-
-  for (int i = 0; i < m.rows; i++) {
-    if (m.data != NULL && m.data[i] != NULL && m.data[i][col] != 0) {
-      return i;
+    // Ensure the column index is within bounds
+    if (col < 0 || col >= m.cols) {
+        return m.rows;  // Return m.rows to indicate an invalid column
     }
-  }
-  return m.rows;
+
+    for (int i = 0; i < m.rows; i++) {
+        if (m.data != NULL && m.data[i] != NULL && m.data[i][col] != 0) {
+            return i;
+        }
+    }
+    return m.rows;
 }
 int firstIndexNotZInColInShape(block s, int col) {
     for (int i = 3; i >= 0; i--) {
@@ -202,10 +202,10 @@ void printMat(mat* m, block s) {
             if (i >= s.position[0] && i < s.position[0] + 4 && j >= s.position[1] &&
                 j < s.position[1] + 4 &&
                 s.shape[s.currentShape][i - s.position[0]][j - s.position[1]] > 0) {
-                printf("%d ", s.shape[s.currentShape][i - s.position[0]][j - s.position[1]]);
-            } else {
-                printf("%d ", m->data[i][j]);
-            }
+                    printf("%d ", s.shape[s.currentShape][i - s.position[0]][j - s.position[1]]);
+                } else {
+                    printf("%d ", m->data[i][j]);
+                }
         }
         printf("\n");
     }
@@ -219,9 +219,9 @@ bool canMoveDownShape(mat m, block s) {
                 if (
                     s.position[0] + i + 1 >= m.rows ||
                     m.data[s.position[0] + i + 1][s.position[1] + j] > 0
-                    ) {
-                        return false;
-                    }
+                ) {
+                    return false;
+                }
             }
         }
     }
@@ -245,9 +245,9 @@ bool canMoveRLShape(mat* m, block* s, int direction) {  // Can the block move to
                     relativeRow < 0 ||
                     relativeRow >= m->rows ||
                     m->data[relativeRow][relativeCol] > 0
-                    ) {
-                        return false;
-                    }
+                ) {
+                    return false;
+                }
             }
         }
     }
@@ -298,7 +298,7 @@ int pushToMat(mat* m, block s) {
     int min = s.position[0] + 4 > m->rows ? m->rows : s.position[0] + 4;
 
     for (int row = s.position[0]; row < min; row++) {
-//        printf("Checking position %d, %d \n", row);
+        //        printf("Checking position %d, %d \n", row);
         bool shouldPushDown = true;
         for (int col = 0; col < m->cols; col++) {
             if (m->data[row][col] == 0) {
@@ -329,16 +329,16 @@ void freeBlock(block* b) {
     if (b->shape != NULL) {
         free(b->shape);
     }
-//    free(b);
+    //    free(b);
 }
 void copyBlock(block* dest, block* src) {
     if (src == NULL) {
         printf("ERROR SRC IS NULL \n");
         return;
     }
-//    if (dest != NULL) {
-//        freeBlock(dest);
-//    }
+    //    if (dest != NULL) {
+    //        freeBlock(dest);
+    //    }
     dest->currentShape = src->currentShape;
     dest->numberOfShapes = src->numberOfShapes;
     dest->position[0] = src->position[0];
@@ -350,11 +350,11 @@ void copyBlock(block* dest, block* src) {
     for (int i = 0; i < 4; i++) {
         dest->shape[i] = (int**)malloc(4 * sizeof(int*));
         assert(dest->shape[i] != NULL);
-//        assert(src->shape[i] != NULL);
+        //        assert(src->shape[i] != NULL);
         for (int j = 0; j < 4; j++) {
             dest->shape[i][j] = (int*)malloc(4 * sizeof(int));
             assert(dest->shape[i][j] != NULL);
-//            assert(src->shape[i][j] != NULL);
+            //            assert(src->shape[i][j] != NULL);
             if (i < src->numberOfShapes) {
                 for (int k = 0; k < 4; k++) {
                     dest->shape[i][j][k] = src->shape[i][j][k];
@@ -372,11 +372,11 @@ void changeBlock(block* dest, block* src) {
     assert(dest->shape != NULL);
     assert(src->shape != NULL);
     for (int i = 0; i < src->numberOfShapes; i++) {
-//        dest->shape[i] = (int**)malloc(4 * sizeof(int*));
+        //        dest->shape[i] = (int**)malloc(4 * sizeof(int*));
         assert(dest->shape[i] != NULL);
         assert(src->shape[i] != NULL);
         for (int j = 0; j < 4; j++) {
-//            dest->shape[i][j] = (int*)malloc(4 * sizeof(int));
+            //            dest->shape[i][j] = (int*)malloc(4 * sizeof(int));
             assert(dest->shape[i][j] != NULL);
             assert(src->shape[i][j] != NULL);
             for (int k = 0; k < 4; k++) {
@@ -402,9 +402,9 @@ bool canRotateBlock(mat m, block s) {
                     relativeRow < 0 ||
                     relativeRow >= m.rows ||
                     m.data[relativeRow][relativeCol] > 0
-                    ) {
-                        return false;
-                    }
+                ) {
+                    return false;
+                }
             }
         }
     }
@@ -478,58 +478,57 @@ void resetVars(mat m, evars* ev) {
 
 int computeHolesAtCol(int col, mat m, int colHeight) {
     int holes = 0;
-
     for (int j = m.rows - colHeight; j < m.rows; j++) {
-      holes += (m.data[j][col] == 0) ? 1 : 0;
+        holes += (m.data[j][col] == 0) ? 1 : 0;
     }
 
     return holes;
 }
 
 int computeHeightAtCol(int col, mat m) {
-  for (int i = 0; i < m.rows; i++) {
-    if (m.data[i][col] != 0) {
-      return m.rows - i;
+    for (int i = 0; i < m.rows; i++) {
+        if (m.data[i][col] != 0) {
+            return m.rows - i;
+        }
     }
-  }
-  return 0;
+    return 0;
 }
 
 void updateEvars(mat m, evars* previousEvars) {
-  int* colHeights = previousEvars->colHeights;
-  int* deltaColHeights = previousEvars->deltaColHeights;
-  int hMax = 0;
-  int numHoles = 0;
-  int minColHeight = 20;
+    int* colHeights = previousEvars->colHeights;
+    int* deltaColHeights = previousEvars->deltaColHeights;
+    int hMax = 0;
+    int numHoles = 0;
+    int minColHeight = 20;
 
-  // Ensure colHeights and deltaColHeights are properly allocated
-  if (colHeights == NULL || deltaColHeights == NULL) {
-    colHeights = (int*)malloc(m.cols * sizeof(int));
-    deltaColHeights = (int*)malloc(m.cols * sizeof(int));
-    previousEvars->colHeights = colHeights;
-    previousEvars->deltaColHeights = deltaColHeights;
-  } else {
-    colHeights = (int*)realloc(colHeights, m.cols * sizeof(int));
-    deltaColHeights = (int*)realloc(deltaColHeights, m.cols * sizeof(int));
-    previousEvars->colHeights = colHeights;
-    previousEvars->deltaColHeights = deltaColHeights;
-  }
+    // Ensure colHeights and deltaColHeights are properly allocated
+    if (colHeights == NULL || deltaColHeights == NULL) {
+        colHeights = (int*)malloc(m.cols * sizeof(int));
+        deltaColHeights = (int*)malloc(m.cols * sizeof(int));
+        previousEvars->colHeights = colHeights;
+        previousEvars->deltaColHeights = deltaColHeights;
+    } else {
+        colHeights = (int*)realloc(colHeights, m.cols * sizeof(int));
+        deltaColHeights = (int*)realloc(deltaColHeights, m.cols * sizeof(int));
+        previousEvars->colHeights = colHeights;
+        previousEvars->deltaColHeights = deltaColHeights;
+    }
 
-  for (int i = 0; i < m.cols; i++) {
-    colHeights[i] = computeHeightAtCol(i, m);
-    if (i > 0) {
-      deltaColHeights[i] = abs(colHeights[i - 1] - colHeights[i]);
+    for (int i = 0; i < m.cols; i++) {
+        colHeights[i] = computeHeightAtCol(i, m);
+        if (i > 0) {
+            deltaColHeights[i] = abs(colHeights[i - 1] - colHeights[i]);
+        }
+        if (colHeights[i] > hMax) {
+            hMax = colHeights[i];
+        } else if (colHeights[i] < minColHeight) {
+            minColHeight = colHeights[i];
+        }
+        numHoles += computeHolesAtCol(i, m, colHeights[i]);
     }
-    if (colHeights[i] > hMax) {
-      hMax = colHeights[i];
-    } else if (colHeights[i] < minColHeight) {
-      minColHeight = colHeights[i];
-    }
-    numHoles += computeHolesAtCol(i, m, colHeights[i]);
-  }
-  previousEvars->hMax = hMax;
-  previousEvars->numHoles = numHoles;
-  previousEvars->minMax = hMax - minColHeight;
+    previousEvars->hMax = hMax;
+    previousEvars->numHoles = numHoles;
+    previousEvars->minMax = hMax - minColHeight;
 }
 
 evars* retrieveEvars(mat m, evars* previousEvars) {
@@ -613,13 +612,13 @@ double previewScore(mat m, block s, double* prefs, evars* previousEvars, int col
     }
     evars* ev = retrieveEvars(*preview, previousEvars);
     double score =
-        prefs[0] * ev->hMax +
-        prefs[1] * ev->numHoles +
+    prefs[0] * ev->hMax +
+    prefs[1] * ev->numHoles +
     // les parametres suivants sont inutilisés par l'IA:
-        prefs[2] * mch +
-        prefs[3] * mdch +
-        prefs[4] * numCleared +
-        prefs[5] * ev->minMax;
+    prefs[2] * mch +
+    prefs[3] * mdch +
+    prefs[4] * numCleared +
+    prefs[5] * ev->minMax;
     freeMat(preview);
     free(ev->colHeights);
     free(ev->deltaColHeights);
@@ -697,8 +696,20 @@ bool userTickCallBack(mat *m, block *s, block *nextBl, unsigned int *score, unsi
     }
     return true;
 }
-double heuristic(int linesCleared, evars e) {
-    return meaned(e.colHeights, 10) * (-0.510066) + linesCleared * 0.760666 + e.numHoles * (-0.35663) + meaned(e.deltaColHeights, 20) * (-0.184483);
+double heuristic(int linesCleared, evars* e) {
+    double meanColHeights = 0;
+    double meanDeltaColHeights = 0;
+
+    for (int i = 0; i < 10; i++) {
+        meanColHeights += double(e->colHeights[i]);
+        if (i != 9) {
+            meanDeltaColHeights += double(e->deltaColHeights[i]);
+        }
+    }
+    // meanColHeights /= 10;
+    // meanDeltaColHeights /= 9;
+
+    return meanColHeights * (-0.510066) + double(linesCleared) * 0.760666 + double(e->numHoles) * (-0.35663) + meanDeltaColHeights * (-0.184483);
 }
 
 bestc bestFromHeuristic(mat *m, block s, evars* e) {
@@ -712,7 +723,10 @@ bestc bestFromHeuristic(mat *m, block s, evars* e) {
     for (int i = 0; i < st.size(); i++) {
         evars *ef = std::get<0>(st[i]);
         int linesCleared = std::get<2>(st[i]);
-        double score = heuristic(linesCleared, *ef);
+        double score = heuristic(linesCleared, ef);
+        free(ef->colHeights);
+        free(ef->deltaColHeights);
+        free(ef);
         if (score > max) {
             max = score;
             best = std::get<1>(st[i]);
@@ -735,6 +749,8 @@ bool heuristicTickCallBack(mat *m, block *s, block *nextBl, unsigned int *score,
         changeBlock(nextBl, randomBlock(BASIC_BLOCKS));
 
         bestc compo = bestFromHeuristic(m, *s,e);
+        s->position[1] = compo.col;
+        s->currentShape = compo.shapeN;
 
         computeDownPos(*m, s);
 
