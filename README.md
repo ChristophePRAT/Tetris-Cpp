@@ -4,11 +4,9 @@
 2. Install [MLX](https://ml-explore.github.io/mlx/build/html/install.html#c-api) library
 3. Run the following commands:
 ```bash
-mkdir build
-cd build
-cmake ..
-make
-./tetris-ai
+cmake -B build
+cmake --build build
+./build/tetris-ai
 ```
 ## Game
 Tetris is an arcade game created by Alexey Pajitnov in 1984. The game consists of a matrix of 10x20 cells, where the player has to place the falling pieces in a way that they form a line. When a line is formed, it disappears and the player scores points. The game ends when the pieces reach the top of the matrix.
