@@ -48,10 +48,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /opt/homebrew/bin/cmake
+CMAKE_COMMAND = /opt/local/bin/cmake
 
 # The command to remove a file.
-RM = /opt/homebrew/bin/cmake -E rm -f
+RM = /opt/local/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
@@ -68,7 +68,7 @@ CMAKE_BINARY_DIR = /Users/christopheprat/Code/TIPE/Tetris-Cpp/build
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running CMake cache editor..."
-	/opt/homebrew/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/opt/local/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -78,7 +78,7 @@ edit_cache/fast: edit_cache
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running CMake to regenerate build system..."
-	/opt/homebrew/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/opt/local/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -200,30 +200,6 @@ AI/agent.s: AI/agent.cpp.s
 AI/agent.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/agent.cpp.s
 .PHONY : AI/agent.cpp.s
-
-AI/mpm.o: AI/mpm.cpp.o
-.PHONY : AI/mpm.o
-
-# target to build an object file
-AI/mpm.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/mpm.cpp.o
-.PHONY : AI/mpm.cpp.o
-
-AI/mpm.i: AI/mpm.cpp.i
-.PHONY : AI/mpm.i
-
-# target to preprocess a source file
-AI/mpm.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/mpm.cpp.i
-.PHONY : AI/mpm.cpp.i
-
-AI/mpm.s: AI/mpm.cpp.s
-.PHONY : AI/mpm.s
-
-# target to generate assembly for a file
-AI/mpm.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tetris-ai.dir/build.make CMakeFiles/tetris-ai.dir/AI/mpm.cpp.s
-.PHONY : AI/mpm.cpp.s
 
 Gameplay/display.o: Gameplay/display.cpp.o
 .PHONY : Gameplay/display.o
@@ -387,9 +363,6 @@ help:
 	@echo "... AI/agent.o"
 	@echo "... AI/agent.i"
 	@echo "... AI/agent.s"
-	@echo "... AI/mpm.o"
-	@echo "... AI/mpm.i"
-	@echo "... AI/mpm.s"
 	@echo "... Gameplay/display.o"
 	@echo "... Gameplay/display.i"
 	@echo "... Gameplay/display.s"

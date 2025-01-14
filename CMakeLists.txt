@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.30)
 set(CMAKE_CXX_STANDARD 23)
-project(tetris-ai VERSION 1.0.0)
-set(CMAKE_C_COMPILER "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc")
-set(CMAKE_CXX_COMPILER "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++")
+project(tetris-ai VERSION 1.0.1)
+# set(CMAKE_C_COMPILER "/usr/bin/cc")
+# set(CMAKE_CXX_COMPILER "/usr/bin/c++")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Add all source files
@@ -13,7 +13,7 @@ add_executable(tetris-ai ${SOURCES})
 target_compile_options(tetris-ai PRIVATE -fsanitize=address -g)
 target_link_options(tetris-ai PRIVATE -fsanitize=address -g)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
 
 set(CMAKE_BUILD_TYPE Debug)
@@ -24,23 +24,29 @@ set(SDL2_image /Library/Frameworks/SDL2_image.framework)
 set(SDL2_ttf /Library/Frameworks/SDL2_ttf.framework)
 
 # Set MLX paths
-set(MLX_INCLUDE_DIR "/usr/local/include")
-set(MLX_LIBRARY_DIR "/usr/local/lib")
-set(MLX_METAL_PATH "${MLX_LIBRARY_DIR}/mlx.metallib")
+# set(MLX_INCLUDE_DIR "/opt/homebrew/Cellar/mlx/0.21.1/include")
+# set(MLX_LIBRARY_DIR "/opt/homebrew/Cellar/mlx/0.21.1/lib")
+# set(MLX_METAL_PATH "${MLX_LIBRARY_DIR}/mlx.metallib")
 
 # Find MLX library
-find_library(MLX_LIBRARY mlx PATHS ${MLX_LIBRARY_DIR} REQUIRED)
+# find_library(MLX_LIBRARY mlx PATHS ${MLX_LIBRARY_DIR} REQUIRED)
 
-if(NOT MLX_LIBRARY)
-    message(FATAL_ERROR "MLX library not found. Please make sure MLX is installed correctly.")
-endif()
+# if(NOT MLX_LIBRARY)
+#     message(FATAL_ERROR "MLX library not found. Please make sure MLX is installed correctly.")
+# endif()
+
+find_package(MLX CONFIG REQUIRED)
 
 target_link_libraries(
   tetris-ai PRIVATE
   ${SDL2}/Versions/A/SDL2
   ${SDL2_image}/Versions/A/SDL2_image
   ${SDL2_ttf}/Versions/A/SDL2_ttf
-  ${MLX_LIBRARY}
+  mlx
+  # ${MLX_LIBRARY}
+  # ./AI PRIVATE mlx
+  # ./Gameplay PRIVATE mlx
+  # ./Helpers PRIVATE mlx
 )
 
 target_include_directories(
@@ -48,13 +54,13 @@ target_include_directories(
   ${SDL2}/Versions/A/Headers
   ${SDL2_image}/Versions/A/Headers
   ${SDL2_ttf}/Versions/A/Headers
-  ${MLX_INCLUDE_DIR}
+  # ${MLX_INCLUDE_DIR}
   ./Gameplay
   ./AI
   ./Helpers
 )
 
-add_definitions(-DMETAL_PATH="${MLX_METAL_PATH}")
+# add_definitions(-DMETAL_PATH="${MLX_METAL_PATH}")
 
 add_custom_command(
   TARGET tetris-ai POST_BUILD
@@ -62,3 +68,15 @@ add_custom_command(
   ${CMAKE_SOURCE_DIR}/resources/lmroman17-regular.otf
   ${CMAKE_BINARY_DIR}/resources/lmroman17-regular.otf
 )
+
+if (MLX_BUILD_ACCELERATE)
+    message(STATUS "MLX is built with Accelerate framework")
+else()
+    message(STATUS "MLX is NOT built with Accelerate framework")
+endif()
+
+if (MLX_BUILD_METAL)
+    message(STATUS "MLX is built with Metal framework")
+else()
+    message(STATUS "MLX is NOT built with Metal framework")
+endif()

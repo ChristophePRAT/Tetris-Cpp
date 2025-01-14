@@ -5,15 +5,15 @@
 //  Created by Christophe Prat on 10/09/2024.
 //
 
-#include "NN.hpp"
+#include "NN.h"
 #include "game.h"
 #include <_stdlib.h>
 #include <algorithm>
 #include <assert.h>
-#include "mlx/array.h"
-#include "mlx/dtype.h"
-#include "mlx/ops.h"
-#include "mlx/transforms.h"
+// #include "mlx/array.h"
+// #include "mlx/dtype.h"
+// #include "mlx/ops.h"
+// #include "mlx/transforms.h"
 #include <cstdio>
 #include <cstdlib>
 #include <utility>
@@ -40,30 +40,39 @@ void printVect(array x) {
     }
     printf("\n");
 }
+float summed(int* arr, int size) {
+    float sum = 0;
+    for (int i = 0; i < size; i++) {
+        sum += arr[i];
+    }
+    return sum;
+}
 array stateToArray(tetrisState s) {
     evars* ev = std::get<0>(s);
     bestc b = std::get<1>(s);
     int lines = std::get<2>(s);
 
-    int numberOfCaveats = 0;
+    // int numberOfCaveats = 0;
 
-    for (int i = 0; i < 9; i++) {
-        if (ev->colHeights[i] - ev->colHeights[i+1] >= 3) {
-            numberOfCaveats++;
-        }
-    }
-    if (-ev->colHeights[0] + ev->colHeights[1] >= 3) {
-        numberOfCaveats++;
-    }
+    // for (int i = 0; i < 9; i++) {
+    //     if (ev->colHeights[i] - ev->colHeights[i+1] >= 3) {
+    //         numberOfCaveats++;
+    //     }
+    // }
+    // if (-ev->colHeights[0] + ev->colHeights[1] >= 3) {
+    //     numberOfCaveats++;
+    // }
 
     std::vector<float> input = {
-        float(ev->hMax) / 20,
-        float(ev->numHoles) / 200,
-        float(ev->minMax) / 20,
-        float(meaned(ev->colHeights, 10)),
-        float(meaned(ev->deltaColHeights, 9)),
-        float(lines) / float(4.0),
-        float(numberOfCaveats) / 10,
+        // float(ev->hMax) / 20,
+        float(ev->numHoles),
+        // float(ev->minMax) / 20,
+        // float(meaned(ev->colHeights, 10)),
+        // float(meaned(ev->deltaColHeights, 9)),
+        summed(ev->colHeights, 10),
+        summed(ev->deltaColHeights, 9),
+        float(lines),
+        // float(numberOfCaveats) / 10,
         // float(b.col)/10,
     };
 
@@ -74,7 +83,12 @@ array stateToArray(tetrisState s) {
 }
 
 array relu(const array& input) {
-  return maximum(input, {0.0}); // Applies element-wise maximum [1]
+    // return input;
+    return maximum(input, array(0)); // Applies element-wise maximum [1]
+}
+
+array leakyRelu(const array& input) {
+  return maximum(input, {0.01 * input});
 }
 array generalizedForward(const array& x, const std::vector<array> params) {
     std::vector<array> xs = {x};
@@ -82,7 +96,7 @@ array generalizedForward(const array& x, const std::vector<array> params) {
     for (int i = 0; i < params.size(); i+=2) {
         array x1 = matmul(xs.back(), transpose(params[i])) + params[i+1];
         if (i < params.size() - 2) {
-            array x2 = relu(x1);
+            array x2 = leakyRelu(x1);
             xs.push_back(x2);
         }
         else {
@@ -98,7 +112,7 @@ array DQN::generalizedForward(const array& x, const std::vector<array> params) {
     for (int i = 0; i < params.size(); i+=2) {
         array x1 = matmul(xs.back(), transpose(params[i])) + params[i+1];
         if (i < params.size() - 2) {
-            array x2 = relu(x1);
+            array x2 = leakyRelu(x1);
             xs.push_back(x2);
         }
         else {
@@ -147,33 +161,45 @@ array heuristic4(const array& input) {
 
     return -0.3 * colHeights + 8 * numCleared - 7.5 * numHoles - 5 * deltaColHeights - hMax*hMax;
 }
+array heuristic5(const array& input) {
+    array numHoles = (*input.begin());
+    array colHeights = (*(input.begin() + 1));
+    array deltaColHeights = (*(input.begin() + 2));
+    array numCleared = (*(input.begin() + 3));
+
+    return -0.510066 * colHeights + 0.760666 * numCleared - 0.35663 * numHoles - 0.184483 * deltaColHeights;
+}
 std::vector<array> DQN::batchHeuristic(std::vector<array> states) {
     std::vector<array> ys = {};
 
     for (array input : states) {
-        array y = heuristic4(input);
+        array y = heuristic5(input);
         ys.push_back(y);
     }
     return ys;
 }
 
 std::vector<tetrisState> possibleStates(mat m, block s, evars* previousEvars) {
-    std::vector<std::tuple<evars *, bestc, int>> states;
+    std::vector<tetrisState> states;
 
     for (int i = 0; i < m.cols; i++) {
         for (int r = 0; r < s.numberOfShapes; r++) {
             s.currentShape = r;
             int numCleared = 0;
             s.position[1] = i;
-
             mat *preview = previewMatIfPushDown(&m, s, &numCleared);
             if (preview && preview != NULL) {
                 evars* ev = retrieveEvars(*preview, previousEvars);
-                bestc config = {
-                    .col = i,
-                    .shapeN = r
+                // printMat(preview, s);
+                tetrisState state = {
+                    ev,
+                    {
+                        .col = i,
+                        .shapeN = r
+                    },
+                    numCleared
                 };
-                states.push_back(std::tuple<evars *, bestc, int>(ev, config, numCleared));
+                states.push_back(state);
                 freeMat(preview);
             }
         }
@@ -181,7 +207,7 @@ std::vector<tetrisState> possibleStates(mat m, block s, evars* previousEvars) {
     return states;
 }
 
-void DQN::train(std::vector<array> states, std::vector<array> yTruth) {
+void DQN::train(std::vector<array> states, std::vector<array> yTruth, unsigned int linesCleared) {
 
     std::vector<int> argnums(ml->params.size());
     std::iota(argnums.begin(), argnums.end(), 0);
@@ -200,25 +226,71 @@ void DQN::train(std::vector<array> states, std::vector<array> yTruth) {
         input.push_back(states[r]);
 
         auto loss_fn = [&yTruth, &r, this](const std::vector<array>& input) {
+
             array trueScore = yTruth[r];
             std::vector<array> params(input.begin(), input.end() - 1);
             array x = input.back();
 
             array predictions = generalizedForward(x, params);
-            return mean(square(predictions - trueScore));
+
+            return sqrt(mean(square(predictions - trueScore)));
         };
 
         auto [loss, grads] = value_and_grad(loss_fn, argnums)(input);
 
         eval(loss);
-        ml->update_parameters(grads, 0.001);
-        printf("Epoch %d, loss: %f\n", epoch, loss.item<float>());
+        float lr = float(1)/(linesCleared+1) * 0.01;
+        ml->update_parameters(grads, lr);
+        printf("Epoch %d, loss: %f, learning rate = %f\n", epoch, loss.item<float>(), lr);
     }
 
     // Update epsilon for exploration
     epsilon = std::max(eps_min, epsilon * eps_decay);
 }
+void DQN::trainWithBatch(std::vector<array> states, std::vector<array> yTruth, unsigned int linesCleared) {
 
+    std::vector<int> argnums(ml->params.size());
+    std::iota(argnums.begin(), argnums.end(), 0);
+
+    std::vector<array> input = ml->params;
+    int batchSize = 10;
+    for (int epoch = 0; epoch < batchSize; epoch++) {
+        std::random_device dev;
+        std::mt19937 rng(dev());
+        std::uniform_int_distribution<std::mt19937::result_type> randI(0, states.size() - 1);
+
+        int r = randI(rng);
+
+        assert(r < states.size());
+        printf("Random sample: %d\n", r);
+        input.push_back(array(r));
+    }
+    auto loss_fn = [&yTruth, &states, &batchSize, this](const std::vector<array>& input) {
+        std::vector<array> ints(input.begin() + ml->params.size(), input.end() - 1); // all of the ints
+        std::vector<array> params(input.begin(), input.begin() + ml->params.size() - 1); // all of the params
+
+        array me = array(0);
+
+        for (array i: ints) {
+            int r = i.item<int>();
+            array trueScore = yTruth[r];
+            array x = states[r];
+
+            array predictions = generalizedForward(x, params);
+            me = me + square(predictions - trueScore)/batchSize;
+        }
+
+        return sqrt(me);
+    };
+
+    auto [loss, grads] = value_and_grad(loss_fn, argnums)(input);
+
+    eval(loss);
+    float lr = float(1)/(linesCleared+1) * 0.01;
+
+    ml->update_parameters(grads, lr);
+    printf("loss: %f, learning rate = %f\n", loss.item<float>(), lr);
+}
 bool DQN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS) {
     int down = downShape(*m, s);
 

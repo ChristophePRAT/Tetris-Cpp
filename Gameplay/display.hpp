@@ -17,5 +17,5 @@ void renderText(SDL_Renderer *renderer, TTF_Font* Sans, int s, char* str, int y)
 void drawSquare(SDL_Rect* squareRect, SDL_Color* color, SDL_Renderer* renderer);
 void drawBlock(block s, int x, int y, SDL_Renderer* renderer);
 void renderString(SDL_Renderer *renderer, TTF_Font* Sans, char* str, const char* str2, int y);
-void drawMat(mat m, block s, SDL_Renderer* renderer, int TIMER_INTERVAL);
+void drawMat(mat m, block s, SDL_Renderer* renderer, int TIMER_INTERVAL, int x, int y);
 #endif

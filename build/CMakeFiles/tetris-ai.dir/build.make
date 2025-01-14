@@ -44,10 +44,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /opt/homebrew/bin/cmake
+CMAKE_COMMAND = /opt/local/bin/cmake
 
 # The command to remove a file.
-RM = /opt/homebrew/bin/cmake -E rm -f
+RM = /opt/local/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
@@ -114,24 +114,10 @@ CMakeFiles/tetris-ai.dir/AI/agent.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/tetris-ai.dir/AI/agent.cpp.s"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/christopheprat/Code/TIPE/Tetris-Cpp/AI/agent.cpp -o CMakeFiles/tetris-ai.dir/AI/agent.cpp.s
 
-CMakeFiles/tetris-ai.dir/AI/mpm.cpp.o: CMakeFiles/tetris-ai.dir/flags.make
-CMakeFiles/tetris-ai.dir/AI/mpm.cpp.o: /Users/christopheprat/Code/TIPE/Tetris-Cpp/AI/mpm.cpp
-CMakeFiles/tetris-ai.dir/AI/mpm.cpp.o: CMakeFiles/tetris-ai.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/tetris-ai.dir/AI/mpm.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tetris-ai.dir/AI/mpm.cpp.o -MF CMakeFiles/tetris-ai.dir/AI/mpm.cpp.o.d -o CMakeFiles/tetris-ai.dir/AI/mpm.cpp.o -c /Users/christopheprat/Code/TIPE/Tetris-Cpp/AI/mpm.cpp
-
-CMakeFiles/tetris-ai.dir/AI/mpm.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/tetris-ai.dir/AI/mpm.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/christopheprat/Code/TIPE/Tetris-Cpp/AI/mpm.cpp > CMakeFiles/tetris-ai.dir/AI/mpm.cpp.i
-
-CMakeFiles/tetris-ai.dir/AI/mpm.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/tetris-ai.dir/AI/mpm.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/christopheprat/Code/TIPE/Tetris-Cpp/AI/mpm.cpp -o CMakeFiles/tetris-ai.dir/AI/mpm.cpp.s
-
 CMakeFiles/tetris-ai.dir/Gameplay/display.cpp.o: CMakeFiles/tetris-ai.dir/flags.make
 CMakeFiles/tetris-ai.dir/Gameplay/display.cpp.o: /Users/christopheprat/Code/TIPE/Tetris-Cpp/Gameplay/display.cpp
 CMakeFiles/tetris-ai.dir/Gameplay/display.cpp.o: CMakeFiles/tetris-ai.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/tetris-ai.dir/Gameplay/display.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/tetris-ai.dir/Gameplay/display.cpp.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tetris-ai.dir/Gameplay/display.cpp.o -MF CMakeFiles/tetris-ai.dir/Gameplay/display.cpp.o.d -o CMakeFiles/tetris-ai.dir/Gameplay/display.cpp.o -c /Users/christopheprat/Code/TIPE/Tetris-Cpp/Gameplay/display.cpp
 
 CMakeFiles/tetris-ai.dir/Gameplay/display.cpp.i: cmake_force
@@ -145,7 +131,7 @@ CMakeFiles/tetris-ai.dir/Gameplay/display.cpp.s: cmake_force
 CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.o: CMakeFiles/tetris-ai.dir/flags.make
 CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.o: /Users/christopheprat/Code/TIPE/Tetris-Cpp/Gameplay/game.cpp
 CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.o: CMakeFiles/tetris-ai.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.o -MF CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.o.d -o CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.o -c /Users/christopheprat/Code/TIPE/Tetris-Cpp/Gameplay/game.cpp
 
 CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.i: cmake_force
@@ -159,7 +145,7 @@ CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.s: cmake_force
 CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o: CMakeFiles/tetris-ai.dir/flags.make
 CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o: /Users/christopheprat/Code/TIPE/Tetris-Cpp/Gameplay/tetris.cpp
 CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o: CMakeFiles/tetris-ai.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o -MF CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o.d -o CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o -c /Users/christopheprat/Code/TIPE/Tetris-Cpp/Gameplay/tetris.cpp
 
 CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.i: cmake_force
@@ -173,7 +159,7 @@ CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.s: cmake_force
 CMakeFiles/tetris-ai.dir/Helpers/FileHelper.cpp.o: CMakeFiles/tetris-ai.dir/flags.make
 CMakeFiles/tetris-ai.dir/Helpers/FileHelper.cpp.o: /Users/christopheprat/Code/TIPE/Tetris-Cpp/Helpers/FileHelper.cpp
 CMakeFiles/tetris-ai.dir/Helpers/FileHelper.cpp.o: CMakeFiles/tetris-ai.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/tetris-ai.dir/Helpers/FileHelper.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/tetris-ai.dir/Helpers/FileHelper.cpp.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tetris-ai.dir/Helpers/FileHelper.cpp.o -MF CMakeFiles/tetris-ai.dir/Helpers/FileHelper.cpp.o.d -o CMakeFiles/tetris-ai.dir/Helpers/FileHelper.cpp.o -c /Users/christopheprat/Code/TIPE/Tetris-Cpp/Helpers/FileHelper.cpp
 
 CMakeFiles/tetris-ai.dir/Helpers/FileHelper.cpp.i: cmake_force
@@ -187,7 +173,7 @@ CMakeFiles/tetris-ai.dir/Helpers/FileHelper.cpp.s: cmake_force
 CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.o: CMakeFiles/tetris-ai.dir/flags.make
 CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.o: /Users/christopheprat/Code/TIPE/Tetris-Cpp/Helpers/blocksNshapes.cpp
 CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.o: CMakeFiles/tetris-ai.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.o -MF CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.o.d -o CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.o -c /Users/christopheprat/Code/TIPE/Tetris-Cpp/Helpers/blocksNshapes.cpp
 
 CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.i: cmake_force
@@ -201,7 +187,7 @@ CMakeFiles/tetris-ai.dir/Helpers/blocksNshapes.cpp.s: cmake_force
 CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o: CMakeFiles/tetris-ai.dir/flags.make
 CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o: /Users/christopheprat/Code/TIPE/Tetris-Cpp/Helpers/loader.cpp
 CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o: CMakeFiles/tetris-ai.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o -MF CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o.d -o CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.o -c /Users/christopheprat/Code/TIPE/Tetris-Cpp/Helpers/loader.cpp
 
 CMakeFiles/tetris-ai.dir/Helpers/loader.cpp.i: cmake_force
@@ -217,7 +203,6 @@ tetris__ai_OBJECTS = \
 "CMakeFiles/tetris-ai.dir/AI/GenNN.cpp.o" \
 "CMakeFiles/tetris-ai.dir/AI/NN.cpp.o" \
 "CMakeFiles/tetris-ai.dir/AI/agent.cpp.o" \
-"CMakeFiles/tetris-ai.dir/AI/mpm.cpp.o" \
 "CMakeFiles/tetris-ai.dir/Gameplay/display.cpp.o" \
 "CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.o" \
 "CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o" \
@@ -231,7 +216,6 @@ tetris__ai_EXTERNAL_OBJECTS =
 tetris-ai: CMakeFiles/tetris-ai.dir/AI/GenNN.cpp.o
 tetris-ai: CMakeFiles/tetris-ai.dir/AI/NN.cpp.o
 tetris-ai: CMakeFiles/tetris-ai.dir/AI/agent.cpp.o
-tetris-ai: CMakeFiles/tetris-ai.dir/AI/mpm.cpp.o
 tetris-ai: CMakeFiles/tetris-ai.dir/Gameplay/display.cpp.o
 tetris-ai: CMakeFiles/tetris-ai.dir/Gameplay/game.cpp.o
 tetris-ai: CMakeFiles/tetris-ai.dir/Gameplay/tetris.cpp.o
@@ -242,11 +226,11 @@ tetris-ai: CMakeFiles/tetris-ai.dir/build.make
 tetris-ai: /Library/Frameworks/SDL2.framework/Versions/A/SDL2
 tetris-ai: /Library/Frameworks/SDL2_image.framework/Versions/A/SDL2_image
 tetris-ai: /Library/Frameworks/SDL2_ttf.framework/Versions/A/SDL2_ttf
-tetris-ai: /usr/local/lib/libmlx.dylib
+tetris-ai: /opt/homebrew/lib/libmlx.dylib
 tetris-ai: CMakeFiles/tetris-ai.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX executable tetris-ai"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/christopheprat/Code/TIPE/Tetris-Cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable tetris-ai"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/tetris-ai.dir/link.txt --verbose=$(VERBOSE)
-	/opt/homebrew/bin/cmake -E copy_if_different /Users/christopheprat/Code/TIPE/Tetris-Cpp/resources/lmroman17-regular.otf /Users/christopheprat/Code/TIPE/Tetris-Cpp/build/resources/lmroman17-regular.otf
+	/opt/local/bin/cmake -E copy_if_different /Users/christopheprat/Code/TIPE/Tetris-Cpp/resources/lmroman17-regular.otf /Users/christopheprat/Code/TIPE/Tetris-Cpp/build/resources/lmroman17-regular.otf
 
 # Rule to build all files generated by this target.
 CMakeFiles/tetris-ai.dir/build: tetris-ai

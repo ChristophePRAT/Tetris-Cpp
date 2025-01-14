@@ -1,19 +1,20 @@
 //
-//  NN.hpp
+//  NN.h
 //  tutorial
 //
 //  Created by Christophe Prat on 10/09/2024.
 //
 
-#ifndef NN_hpp
-#define NN_hpp
+#ifndef NN_h
+#define NN_h
+
+#include "mlx/mlx.h"
 // #include <stdio.h>
 #include "game.h"
-#include "mlx/array.h"
-#include "mlx/ops.h"
-#include "mlx/random.h"
+// #include "mlx/array.h"
+// #include "mlx/ops.h"
+// #include "mlx/random.h"
 #include <cstddef>
-#include <mlx/mlx.h>
 #include <vector>
 #include "assert.h"
 const int NUM_WEIGHTS = 6;
@@ -132,7 +133,7 @@ class DQN {
         this->eps_decay = eps_decay;
         this->eps_min = eps_min;
         this->lr = lr;
-        this->ml = new MultiLayer(input_size, {64, 64, 32, 1});
+        this->ml = new MultiLayer(input_size, {16, 16, 1});
         this->memCapacity = memCapacity;
     }
     bestc act(std::vector<tetrisState>& possibleStates);
@@ -142,9 +143,9 @@ class DQN {
         std::vector<array> targets;
         return std::make_tuple(inputs, targets);
     }
-    void trainNN() {
+    void trainNN(unsigned int linesCleared) {
         step += 1;
-        train(mem, batchHeuristic(mem));
+        trainWithBatch(mem, batchHeuristic(mem), linesCleared);
     }
 
     bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS);
@@ -152,7 +153,8 @@ class DQN {
     private:
     std::vector<array> batchHeuristic(std::vector<array>);
 
-    void train(std::vector<array> states, std::vector<array> yTruth);
+    void train(std::vector<array> states, std::vector<array> yTruth, unsigned int linesCleared);
+    void trainWithBatch(std::vector<array> states, std::vector<array> yTruth, unsigned int linesCleared);
 
     std::vector<array> batchStateToArray(std::vector<tetrisState> states) {
         std::vector<array> inputs;
@@ -187,4 +189,4 @@ void printArray(array a);
 std::vector<tetrisState> possibleStates(mat m, block s, evars* previousEvars);
 array generalizedForward(const array& x, const std::vector<array> params);
 
-#endif /* NN_hpp */
+#endif /* NN_h */
