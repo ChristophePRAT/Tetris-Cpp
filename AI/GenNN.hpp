@@ -55,13 +55,6 @@ public:
       this->name = name;
     }
 
-    if (mkdir(("./saved_gens/" + this->name).c_str(), 0777) == -1) {
-      printf("ERROR: coulnd't create directory \n");
-      printf("ERROR: %s\n", strerror(errno));
-      printf("ERROR: dir name: %s\n", this->name.c_str());
-      return;
-    }
-
     for (int i = 0; i < count; i++) {
       population.push_back(
           NNIndividual(input_size, hidden_sizes, i, NAMES[i]));
@@ -104,7 +97,14 @@ public:
 
   void loadPrevious(int genID, std::string date);
   void supafast(block **BASIC_BLOCKS);
-
+  void createDir() {
+      if (mkdir(("./saved_gens/" + this->name).c_str(), 0777) == -1) {
+        printf("ERROR: coulnd't create directory \n");
+        printf("ERROR: %s\n", strerror(errno));
+        printf("ERROR: dir name: %s\n", this->name.c_str());
+        return;
+      }
+  }
 private:
   void supafastindiv(block **BASIC_BLOCKS, unsigned int index);
   void batchSupafast(block **BASIC_BLOCKS, unsigned int first,

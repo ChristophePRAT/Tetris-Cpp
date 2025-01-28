@@ -99,6 +99,8 @@ int main(int argc, char* args[] ) {
         GeneticNN genNN = GeneticNN(4, { 3, 1 }, loadName);
         if (loadName != "" && loadGen != -1) {
             genNN.loadPrevious(loadGen, loadName);
+        } else {
+            genNN.createDir();
         }
         genNN.supafast(BASIC_BLOCKS);
     }
