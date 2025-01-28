@@ -48,7 +48,7 @@ void addGMEntry(unsigned int *fileNum, int score, double* weights, int populatio
     FILE *fptr;
     char fileName[40];
 
-    sprintf(fileName, "scores_%d.csv", *fileNum);
+    sprintf(fileName, "./scores/scores_%d.csv", *fileNum);
 
     // Open a file in read mode
     fptr = fopen(fileName, "a");
@@ -78,7 +78,7 @@ void addDQNEntry(unsigned int *fileNum, int score, int linesCleared, bool firstE
     FILE *fptr;
     char fileName[40];
 
-    sprintf(fileName, "scores_dqn_%d.csv", *fileNum);
+    sprintf(fileName, "./scores/scores_dqn_%d.csv", *fileNum);
 
     // Open a file in read mode
     fptr = fopen(fileName, "a");
@@ -106,7 +106,7 @@ void addGenNNEntry(unsigned int *fileNum, int score, int linesCleared, bool firs
     FILE *fptr;
     char fileName[40];
 
-    sprintf(fileName, "scores_gennn_%d.csv", *fileNum);
+    sprintf(fileName, "./scores/scores_gennn_%d.csv", *fileNum);
 
     // Open a file in read mode
     fptr = fopen(fileName, "a");
@@ -133,7 +133,7 @@ void addGenWithName(const char* name, int score, int linesCleared, bool firstEnt
     FILE *fptr;
     char fileName[40];
 
-    sprintf(fileName, "scores_gennn_%s.csv", name);
+    sprintf(fileName, "./scores/scores_gennn_%s.csv", name);
 
     // Open a file in read mode
     fptr = fopen(fileName, "a");

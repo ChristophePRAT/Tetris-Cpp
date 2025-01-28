@@ -4,7 +4,7 @@
 2. Install [MLX](https://ml-explore.github.io/mlx/build/html/install.html#c-api) library. You can use `brew install mlx` on macOS.
 3. Run the following commands:
 ```bash
-cmake -B build
+cmake -B build .
 cmake --build build
 ./build/tetris-ai
 ```

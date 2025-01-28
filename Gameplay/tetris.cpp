@@ -96,7 +96,7 @@ int main(int argc, char* args[] ) {
     }
 
     if (supafast) {
-        GeneticNN genNN = GeneticNN(23, 4, { 1 }, loadName);
+        GeneticNN genNN = GeneticNN(4, { 3, 1 }, loadName);
         if (loadName != "" && loadGen != -1) {
             genNN.loadPrevious(loadGen, loadName);
         }
@@ -131,8 +131,8 @@ void loop() {
     bool quit = false;
 
     population* g;
-    DQN dqn = DQN(4, 0, 0, 0, 0, 0.01, 50);
-    GeneticNN genNN = GeneticNN(23, 4, { 1 }, loadName);
+    DQN dqn = DQN(4, 100);
+    GeneticNN genNN = GeneticNN(4, {3, 1 }, loadName);
 
     if (AI_MODE == 0) {
         g = initializePopulation(20);
@@ -298,6 +298,7 @@ void loop() {
 
 int init() {
     srandom(time(NULL));
+    srand(time(NULL));
     if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER | TTF_Init() ) < 0 ) {
         printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
         return 1;

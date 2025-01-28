@@ -12,7 +12,7 @@ args = parser.parse_args()
 
 # Path to your CSV file
 # csv_file = "../build/scores_gennn_seeded.csv"
-csv_file = "../build/scores_gennn_" + args.file + ".csv"
+csv_file = args.file
 
 # Initialize Dash app
 app = dash.Dash(__name__)

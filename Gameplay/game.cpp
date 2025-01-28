@@ -14,7 +14,13 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-// using namespace std;
+
+std::random_device rd;
+// Create a Mersenne Twister generator
+std::mt19937 gen(rd());
+// Create a distribution (e.g., 1 to 100)
+std::uniform_int_distribution<int> dist(1, 100);
+
 
 int min(int a, int b) {
     return a < b ? a : b;
@@ -632,10 +638,9 @@ double randomProba() {
     double r = (double)rand() / RAND_MAX;
     return r;
 }
-
+/// - Returns: Random integer between a and b
 int randomIntBetween(int a, int b) {
-    int r = a + (rand() % (b - a));
-    return r;
+    return dist(gen) % (b-a) + a;
 }
 
 block* randomBlock(block** BASIC_BLOCKS) {

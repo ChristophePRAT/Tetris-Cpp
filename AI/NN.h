@@ -11,9 +11,6 @@
 #include "mlx/mlx.h"
 // #include <stdio.h>
 #include "game.h"
-// #include "mlx/array.h"
-// #include "mlx/ops.h"
-// #include "mlx/random.h"
 #include <cstddef>
 #include <vector>
 #include "assert.h"
@@ -103,7 +100,7 @@ public:
         assert(mean(*layers[0].weights).item<float>() == mean(params[0]).item<float>());
     }
 
-    void update_parameters(const std::vector<array>& grads, float lr) {
+    void update_parameters(const std::vector<array>& grads, double lr) {
         if (grads.size() != params.size()) {
             throw std::runtime_error("Mismatch in gradient count");
         }
@@ -118,22 +115,23 @@ public:
 class DQN {
     public:
         float discount;
-        float epsilon;
+        // float epsilon;
         float eps_decay;
         float eps_min;
-        float lr;
         MultiLayer* ml = nullptr;
         std::vector<array> mem = {};
         unsigned int memCapacity;
         int step = 0;
 
-    DQN(int input_size, float discount, float epsilon, float eps_decay, float eps_min, float lr, unsigned int memCapacity) {
-        this->discount = discount;
-        this->epsilon = epsilon;
-        this->eps_decay = eps_decay;
-        this->eps_min = eps_min;
-        this->lr = lr;
-        this->ml = new MultiLayer(input_size, {16, 16, 1});
+        float beta1 = 0.9;    // Exponential decay rate for first moment
+        float beta2 = 0.999;  // Exponential decay rate for second moment
+        float epsilon = 1e-8; // Small constant to prevent division by zero
+
+    DQN(int input_size, unsigned int memCapacity) {
+        // this->epsilon = 0.2;
+        this->eps_decay = 0.99;
+        this->eps_min = 0.001;
+        this->ml = new MultiLayer(input_size, {1});
         this->memCapacity = memCapacity;
     }
     bestc act(std::vector<tetrisState>& possibleStates);
@@ -145,12 +143,23 @@ class DQN {
     }
     void trainNN(unsigned int linesCleared) {
         step += 1;
-        trainWithBatch(mem, batchHeuristic(mem), linesCleared);
+        unsigned int epochs = 5;
+        for (int i = 0; i < epochs; i++) {
+            printf("Epoch %d: \n", i);
+            trainWithBatch(mem, batchHeuristic(mem), linesCleared);
+        }
     }
 
     bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS);
 
     private:
+    // Adam optimizer state
+    std::vector<array> m_t; // First moment estimate
+    std::vector<array> v_t; // Second moment estimate
+    int t = 0;
+    void initializeAdam();
+    void adamUpdate(const std::vector<array>& grads, double lr);
+
     std::vector<array> batchHeuristic(std::vector<array>);
 
     void train(std::vector<array> states, std::vector<array> yTruth, unsigned int linesCleared);

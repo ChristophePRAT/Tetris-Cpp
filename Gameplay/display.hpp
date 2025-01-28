@@ -5,7 +5,7 @@
 #include <SDL2_image/SDL_image.h>
 #include "SDL2/SDL_pixels.h"
 #include "SDL2/SDL_render.h"
-#include "SDL2/SDL_video.h"
+// #include "SDL2/SDL_video.h"
 #include "game.h"
 
 //Screen dimension constants
