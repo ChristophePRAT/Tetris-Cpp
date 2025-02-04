@@ -57,6 +57,7 @@ scores/
 ### CMake Patch ###
 # External projects
 *-prefix/
+*.trace
 
 .mypy_cache/
 .cache/
