@@ -12,12 +12,12 @@ fi
 PROGRAM="$(realpath "$1")"
 shift
 
-OUTPUT="./profiles/cpu_profile_$(whoami)_$(basename "$PROGRAM").trace"
+OUTPUT="./profiles/leaks_profile_$(whoami)_$(basename "$PROGRAM").trace"
 echo "Profiling $PROGRAM into $OUTPUT" 1>&2
 # Delete potential previous traces
 rm -rf "$OUTPUT"
 xcrun xctrace record \
-  --template 'CPU Profiler' \
+  --template 'Leaks' \
   --no-prompt \
   --output "$OUTPUT" \
   --target-stdout - \

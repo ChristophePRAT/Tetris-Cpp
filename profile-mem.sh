@@ -12,7 +12,7 @@ fi
 PROGRAM="$(realpath "$1")"
 shift
 
-OUTPUT="/tmp/mem_profile_$(whoami)_$(basename "$PROGRAM").trace"
+OUTPUT="./profiles/mem_profile_$(whoami)_$(basename "$PROGRAM").trace"
 echo "Profiling $PROGRAM into $OUTPUT" 1>&2
 # Delete potential previous traces
 rm -rf "$OUTPUT"
