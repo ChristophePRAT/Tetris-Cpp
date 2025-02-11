@@ -464,7 +464,7 @@ bestc DQN::act(std::vector<tetrisState>& possibleStates) {
         mem.push_back(stateToArray(possibleStates[best_index]));
         if (mem.size() >= memCapacity) {
             // mem.erase(mem.begin());
-            mem.erase(mem.begin() + rand() % mem.size());
+            mem.erase(mem.begin() + generateRandomNumber(0, mem.size() - 1));
         }
         evars* best = std::get<0>(possibleStates[best_index]);
         free(best->colHeights);
