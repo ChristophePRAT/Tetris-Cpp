@@ -65,7 +65,6 @@ void freeMat(mat* m);
 bestc theFinestDecision(mat m, block s, double* preferences, evars* previousEvars);
 double randomProba();
 void computeDownPos(mat m, block *s);
-int randomIntBetween(int a, int b);
 void clearMat(mat* m);
 void changeBlock(block* dest, block* src);
 void resetVars(mat m, evars* ev);
@@ -79,7 +78,6 @@ void printMat(mat* m, block s);
 void printMatrix(int** data, int rows, int cols);
 int generateRandomNumber(int min, int max);
 double generateRandomDouble(double min, double max);
-block* randomBlockWithSeed(block** BASIC_BLOCKS, unsigned int* seed);
 bool userTickCallBack(mat *m, block *s, block *nextBl, unsigned int *score, unsigned int* linesCleared, block **BASIC_BLOCKS);
 bool heuristicTickCallBack(mat *m, block *s, block *nextBl, unsigned int *score, unsigned int* linesCleared, block **BASIC_BLOCKS, evars *e);
 #endif /* game_h */

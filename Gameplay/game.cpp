@@ -287,7 +287,6 @@ void pushDown(mat* m, int toRow) {
     }
 }
 
-
 int pushToMat(mat* m, block s) {
     for (int i = 0; i < 4; i++) { // for each row
         for (int j = 0; j < 4; j++) { // for each column
@@ -568,25 +567,66 @@ mat *deepcopy(mat *m) {
     return newMat;
 }
 
-mat* previewMatIfPushDown(mat* m, block s, int* numCleared) {
-    assert(s.position[0] >= 0);
-    int row = fullDrop(*m, s, true);
+// mat* previewMatIfPushDown(mat* m, block s, int* numCleared) {
+//     assert(s.position[0] >= 0);
+//     int row = fullDrop(*m, s, true);
 
-    if (row == -1 || !canInsertShape(*m, s)) {
-        return NULL;
+//     if (row == -1 || !canInsertShape(*m, s)) {
+//         return NULL;
+//     }
+
+//     assert(row >= 0);
+//     s.position[0] = row;
+//     // mat* newMat = createMat(m->rows, m->cols);
+//     // *newMat = *m;
+//     mat* newMat = deepcopy(m);
+//     assert(newMat != m);
+//     int numRowsCleared = pushToMat(newMat, s);
+//     *numCleared = numRowsCleared;
+//     return newMat;
+// }
+mat* previewMatIfPushDown(mat* m, block s, int* numCleared) {
+    // Validate input parameters
+    if (m == nullptr || numCleared == nullptr) {
+        return nullptr;
     }
 
-    assert(row >= 0);
+    // Initialize numCleared to 0
+    *numCleared = 0;
+
+    // Check if starting position is valid
+    if (s.position[0] < 0) {
+        return nullptr;
+    }
+
+    // Calculate the final row position after full drop
+    int row = fullDrop(*m, s, true);
+
+    // Check if drop is possible and shape can be inserted
+    if (row == -1 || !canInsertShape(*m, s)) {
+        return nullptr;
+    }
+
+    // Update block position to final row
     s.position[0] = row;
-    // mat* newMat = createMat(m->rows, m->cols);
-    // *newMat = *m;
+
+    // Create deep copy of the matrix
     mat* newMat = deepcopy(m);
-    assert(newMat != m);
+    if (newMat == nullptr) {
+        return nullptr;
+    }
+
+    // Push the block to matrix and get number of cleared rows
     int numRowsCleared = pushToMat(newMat, s);
+    if (numRowsCleared < 0) {
+        // Handle error in pushToMat
+        delete newMat;
+        return nullptr;
+    }
+
     *numCleared = numRowsCleared;
     return newMat;
 }
-
 
 
 int blockWidth(block s) {
@@ -635,24 +675,21 @@ double previewScore(mat m, block s, double* prefs, evars* previousEvars, int col
 
 /// - Returns: Random number between 0 and 1
 double randomProba() {
-    double r = (double)rand() / RAND_MAX;
-    return r;
-}
-/// - Returns: Random integer between a and b
-int randomIntBetween(int a, int b) {
-    return dist(gen) % (b-a) + a;
+    return generateRandomDouble(0, 1);
 }
 
 block* randomBlock(block** BASIC_BLOCKS) {
-    int rdI = rand() % 7;
+    std::uniform_int_distribution<> distrib(0, 6);
+    int rdI = distrib(gen);
     assert(rdI <= 6);
     return BASIC_BLOCKS[rdI];
 }
-block* randomBlockWithSeed(block** BASIC_BLOCKS, unsigned int* seed) {
-    int rdI = rand_r(seed) % 7;
-    assert(rdI <= 6);
-    return BASIC_BLOCKS[rdI];
-}
+// block* randomBlockWithSeed(block** BASIC_BLOCKS, unsigned int* seed) {
+//     int rdI = rand_r(seed) % 7;
+//     assert(rdI <= 6);
+//     return BASIC_BLOCKS[rdI];
+// }
+
 
 void reset(unsigned int* score, unsigned int* linesCleared, mat* m, block* s, block* nextBlock, block** BASIC_BLOCKS, evars* envVars) {
     *score = 0;
@@ -665,16 +702,12 @@ void reset(unsigned int* score, unsigned int* linesCleared, mat* m, block* s, bl
 }
 
 int generateRandomNumber(int min, int max) {
-    std::random_device rd;
-    std::mt19937 gen(rd());
     std::uniform_int_distribution<> distrib(min, max);
-
     return distrib(gen);
 }
+
 double generateRandomDouble(double min, double max) {
     // Use random_device to seed the random number generator
-    std::random_device rd;  // Truly random seed source
-    std::mt19937 gen(rd()); // Mersenne Twister RNG, seeded with rd
     std::uniform_real_distribution<> distrib(min, max);
 
     return distrib(gen);
@@ -718,7 +751,7 @@ double heuristic(int linesCleared, evars* e) {
 }
 
 bestc bestFromHeuristic(mat *m, block s, evars* e) {
-    double max = -1000000;
+    double max = std::numeric_limits<double>::lowest();
     std::vector<tetrisState> st = possibleStates(*m, s, e);
 
     bestc best = {

@@ -90,7 +90,7 @@ void pregnancy(indi parentOne, indi parentTwo, double* childWeights, double alph
 }
 
 indi randomIndiIn(int a, int b, population* g) {
-    int i = randomIntBetween(a, b);
+    int i = generateRandomNumber(a, b);
     assert(i < g->numIndividuals);
     assert(i >= g->numIndividuals / 2);
     return g->individuals[i];

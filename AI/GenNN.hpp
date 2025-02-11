@@ -7,6 +7,7 @@
 #include "mlx/array.h"
 #include <mlx/mlx.h>
 #include <vector>
+#include <random>
 
 std::string getCurrentDateTime();
 
@@ -42,11 +43,14 @@ public:
   std::vector<int> hidden_sizes;
   std::string name;
   unsigned int populationID = 0;
-  unsigned int seed;
+  std::mt19937 seed_gen;
+  int seed;
 
-  GeneticNN(int input_size, std::vector<int> hidden_sizes,
-            std::string name = "") {
-    this->seed = time(NULL);
+  GeneticNN(int input_size, std::vector<int> hidden_sizes, std::string name = "") {
+    std::random_device rd;
+    seed_gen = std::mt19937(rd());
+    this->seed = seed_gen();
+
     this->hidden_sizes = hidden_sizes;
     // this->count = count;
     if (name == "") {
@@ -75,7 +79,7 @@ public:
   bool tickCallback(mat *m, block *s, block *nextBl, evars *e,
                     unsigned int *score, unsigned int *linesCleared,
                     unsigned int index, block **BASIC_BLOCKS,
-                    unsigned int *see);
+                    std::mt19937& gen);
 
   std::vector<array> batchForward(std::vector<tetrisState> states, int index) {
     std::vector<array> inputs;

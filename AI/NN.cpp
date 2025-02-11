@@ -179,30 +179,70 @@ std::vector<array> DQN::batchHeuristic(std::vector<array> states) {
 std::vector<tetrisState> possibleStates(mat m, block s, evars* previousEvars) {
     std::vector<tetrisState> states;
 
+    // Early validation
+    if (m.cols <= 0 || s.numberOfShapes <= 0) {
+        return states;
+    }
+
+    states.reserve(m.cols * s.numberOfShapes); // Preallocate for better performance
+
     for (int i = 0; i < m.cols; i++) {
         for (int r = 0; r < s.numberOfShapes; r++) {
             s.currentShape = r;
             int numCleared = 0;
             s.position[1] = i;
-            mat *preview = previewMatIfPushDown(&m, s, &numCleared);
-            if (preview && preview != NULL) {
+
+            mat* preview = previewMatIfPushDown(&m, s, &numCleared);
+
+            if (preview != nullptr) {
                 evars* ev = retrieveEvars(*preview, previousEvars);
-                // printMat(preview, s);
-                tetrisState state = {
-                    ev,
-                    {
-                        .col = i,
-                        .shapeN = r
-                    },
-                    numCleared
-                };
-                states.push_back(state);
+
+                if (ev != nullptr) {
+                    tetrisState state{
+                        ev,
+                        {
+                            .col = i,
+                            .shapeN = r
+                        },
+                        numCleared
+                    };
+                    states.push_back(std::move(state));
+                }
+
                 freeMat(preview);
             }
         }
     }
+
     return states;
 }
+// std::vector<tetrisState> possibleStates(mat m, block s, evars* previousEvars) {
+//     std::vector<tetrisState> states;
+
+//     for (int i = 0; i < m.cols; i++) {
+//         for (int r = 0; r < s.numberOfShapes; r++) {
+//             s.currentShape = r;
+//             int numCleared = 0;
+//             s.position[1] = i;
+//             mat *preview = previewMatIfPushDown(&m, s, &numCleared);
+//             if (preview && preview != NULL) {
+//                 evars* ev = retrieveEvars(*preview, previousEvars);
+//                 // printMat(preview, s);
+//                 tetrisState state = {
+//                     ev,
+//                     {
+//                         .col = i,
+//                         .shapeN = r
+//                     },
+//                     numCleared
+//                 };
+//                 states.push_back(state);
+//                 freeMat(preview);
+//             }
+//         }
+//     }
+//     return states;
+// }
 
 void DQN::train(std::vector<array> states, std::vector<array> yTruth, unsigned int linesCleared) {
 

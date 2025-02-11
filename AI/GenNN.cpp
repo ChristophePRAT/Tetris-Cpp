@@ -75,7 +75,7 @@ void GeneticNN::udpatePopulation() {
         std::vector<int> potentialParents;
 
         for (int j = 0; j < nSelection; j++) {
-            potentialParents.push_back(randomIntBetween(0, this->count));
+            potentialParents.push_back(generateRandomNumber(0, this->count));
             // printf("parent %d: %s", j, population[j].name.c_str());
         }
 
@@ -92,8 +92,8 @@ void GeneticNN::udpatePopulation() {
 
     populationID += 1;
     saveGen(*this);
-    this->seed = time(NULL);
-    srand(this->seed);
+
+    this->seed = seed_gen(); // update the seed for the next game
 }
 
 // void GeneticNN::breed(int parent1, int parent2, int child) {
@@ -451,7 +451,7 @@ bestc GeneticNN::act2(std::vector<std::tuple<array, bestc>> possibleBoards, int 
 }
 
 
-bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS, unsigned int* see) {
+bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS, std::mt19937& gen) {
     int down = downShape(*m, s);
 
     // If the shape is at the bottom
@@ -464,11 +464,11 @@ bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned
 
         updateEvars(*m, e);
         changeBlock(s, nextBl);
-        if (see != NULL) {
-            changeBlock(nextBl, randomBlockWithSeed(BASIC_BLOCKS, see));
-        } else {
-            changeBlock(nextBl, randomBlock(BASIC_BLOCKS));
-        }
+
+        std::uniform_int_distribution<> dis(0, 6);
+        int randomValue = dis(gen);
+
+        changeBlock(nextBl, BASIC_BLOCKS[randomValue]);
 
         bestc compo;
 
@@ -506,6 +506,7 @@ bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned
 
 void GeneticNN::supafastindiv(block** BASIC_BLOCKS, unsigned int index) {
     unsigned int indiSeed = this->seed;
+    std::mt19937 indiGen(indiSeed);
 
     bool gameOver = false;
 
@@ -526,7 +527,7 @@ void GeneticNN::supafastindiv(block** BASIC_BLOCKS, unsigned int index) {
     int moveNumber = 0;
 
     while (!gameOver) {
-        gameOver = !tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, &indiSeed);
+        gameOver = !tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, indiGen);
         moveNumber++;
     }
     setResult(index, score, linesCleared);

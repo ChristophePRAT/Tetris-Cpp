@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2_ttf/SDL_ttf.h>
 #include <SDL2_image/SDL_image.h>
+#include <random>
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -136,6 +137,9 @@ void loop() {
     DQN dqn = DQN(4, 100);
     GeneticNN genNN = GeneticNN(4, {3, 1 }, loadName);
 
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
     if (AI_MODE == 0) {
         g = initializePopulation(20);
         printpopulation(g);
@@ -206,7 +210,7 @@ void loop() {
                         } else if (AI_MODE == 1) {
                             dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS);
                         } else if (AI_MODE == 2) {
-                            genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, NULL);
+                            genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, gen);
                         }
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_0) {
                         int i = fullDrop(*m, *s, false);
@@ -225,7 +229,7 @@ void loop() {
             } else if (AI_MODE == 1) {
                 gameOver = !dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS);
             } else if (AI_MODE == 2) {
-                gameOver = !genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, NULL);
+                gameOver = !genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, gen);
             } else if (AI_MODE == -1) {
                 gameOver = !userTickCallBack(m, s, nextBlock, &score, &linesCleared, BASIC_BLOCKS);
             } else if (AI_MODE == 3) {
