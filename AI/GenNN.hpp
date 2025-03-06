@@ -5,9 +5,11 @@
 #include "assert.h"
 #include "game.h"
 #include "mlx/array.h"
+#include "tetrisrandom.hpp"
 #include <mlx/mlx.h>
 #include <vector>
 #include <random>
+#include "tetrisrandom.hpp"
 
 std::string getCurrentDateTime();
 
@@ -79,7 +81,7 @@ public:
   bool tickCallback(mat *m, block *s, block *nextBl, evars *e,
                     unsigned int *score, unsigned int *linesCleared,
                     unsigned int index, block **BASIC_BLOCKS,
-                    std::mt19937& gen);
+                    TetrisRandom& tetRand);
 
   std::vector<array> batchForward(std::vector<tetrisState> states, int index) {
     std::vector<array> inputs;

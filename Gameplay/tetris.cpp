@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
-// #include "SDL2/SDL_rect.h"
 #include "SDL2/SDL_render.h"
 #include "SDL2/SDL_video.h"
 #include "game.h"
@@ -17,6 +16,8 @@
 #include "NN.h"
 #include "GenNN.hpp"
 #include "display.hpp"
+#include "heuristic.hpp"
+#include "tetrisrandom.hpp"
 
 // AI_MODE  = -1: User mode | 0: Genetic | 1: DQN | 2: Genetic Neural Network | 3: Pre-defined heuristic
 unsigned int AI_MODE = 2;
@@ -116,14 +117,16 @@ int main(int argc, char* args[] ) {
 void loop() {
     TTF_Font* latexFont = TTF_OpenFont("resources/lmroman17-regular.otf", 24);
 
+    TetrisRandom tetrisRand = TetrisRandom(std::random_device{}(), BASIC_BLOCKS);
+
     mat* m = createMat(20, 10);
     block* s = emptyShape();
-    block* sA = randomBlock(BASIC_BLOCKS);
+    block* sA = tetrisRand.randomBlock();
     copyBlock(s, sA);
     computeDownPos(*m, s);
 
     block* nextBlock = emptyShape();
-    sA = randomBlock(BASIC_BLOCKS);
+    sA = tetrisRand.randomBlock();
     copyBlock(nextBlock, sA);
 
     evars* envVars = initVars(*m);
@@ -162,6 +165,7 @@ void loop() {
     }
 
     unsigned int fileNum = 0;
+
 
     while (!quit) {
         SDL_Event e;
@@ -210,7 +214,7 @@ void loop() {
                         } else if (AI_MODE == 1) {
                             dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS);
                         } else if (AI_MODE == 2) {
-                            genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, gen);
+                            genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, tetrisRand);
                         }
                     } else if (e.key.keysym.scancode == SDL_SCANCODE_0) {
                         int i = fullDrop(*m, *s, false);
@@ -229,11 +233,11 @@ void loop() {
             } else if (AI_MODE == 1) {
                 gameOver = !dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS);
             } else if (AI_MODE == 2) {
-                gameOver = !genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, gen);
+                gameOver = !genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, tetrisRand);
             } else if (AI_MODE == -1) {
                 gameOver = !userTickCallBack(m, s, nextBlock, &score, &linesCleared, BASIC_BLOCKS);
             } else if (AI_MODE == 3) {
-                gameOver = !heuristicTickCallBack(m, s, nextBlock, &score, &linesCleared, BASIC_BLOCKS, envVars);
+                gameOver = !heuristicTickCallBack(m, s, nextBlock, &score, &linesCleared, BASIC_BLOCKS, envVars, tetrisRand);
             }
             if (gameOver) {
                 printf("Lines cleared: %d \n", linesCleared);

@@ -21,6 +21,7 @@
 #include <thread>
 #include <chrono>
 #include <random>
+// #include "tetrisrandom.hpp"
 
 #define THREADS_COUNT 8
 
@@ -451,7 +452,7 @@ bestc GeneticNN::act2(std::vector<std::tuple<array, bestc>> possibleBoards, int 
 }
 
 
-bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS, std::mt19937& gen) {
+bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS, TetrisRandom& tetRand) {
     int down = downShape(*m, s);
 
     // If the shape is at the bottom
@@ -465,10 +466,8 @@ bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned
         updateEvars(*m, e);
         changeBlock(s, nextBl);
 
-        std::uniform_int_distribution<> dis(0, 6);
-        int randomValue = dis(gen);
-
-        changeBlock(nextBl, BASIC_BLOCKS[randomValue]);
+        block* sA = tetRand.randomBlock();
+        copyBlock(nextBl, sA);
 
         bestc compo;
 
@@ -506,7 +505,9 @@ bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned
 
 void GeneticNN::supafastindiv(block** BASIC_BLOCKS, unsigned int index) {
     unsigned int indiSeed = this->seed;
-    std::mt19937 indiGen(indiSeed);
+    // std::mt19937 indiGen(indiSeed);
+
+    TetrisRandom tetRand = TetrisRandom(indiSeed, BASIC_BLOCKS);
 
     bool gameOver = false;
 
@@ -515,19 +516,19 @@ void GeneticNN::supafastindiv(block** BASIC_BLOCKS, unsigned int index) {
 
     mat* m = createMat(20, 10);
     block* s = emptyShape();
-    block* sA = randomBlock(BASIC_BLOCKS);
+    block* sA = tetRand.randomBlock();
     copyBlock(s, sA);
     computeDownPos(*m, s);
 
     block* nextBlock = emptyShape();
-    sA = randomBlock(BASIC_BLOCKS);
+    sA = tetRand.randomBlock();
     copyBlock(nextBlock, sA);
     evars* envVars = initVars(*m);
 
     int moveNumber = 0;
 
     while (!gameOver) {
-        gameOver = !tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, indiGen);
+        gameOver = !tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, tetRand);
         moveNumber++;
     }
     setResult(index, score, linesCleared);
@@ -548,7 +549,6 @@ void GeneticNN::batchSupafast(block** BASIC_BLOCKS, unsigned int first, unsigned
 }
 
 void GeneticNN::supafast(block** BASIC_BLOCKS) {
-    // generate a random seed
     std::thread threads[THREADS_COUNT];
 
     int step = count / THREADS_COUNT;

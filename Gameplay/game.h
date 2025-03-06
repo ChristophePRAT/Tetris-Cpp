@@ -79,5 +79,5 @@ void printMatrix(int** data, int rows, int cols);
 int generateRandomNumber(int min, int max);
 double generateRandomDouble(double min, double max);
 bool userTickCallBack(mat *m, block *s, block *nextBl, unsigned int *score, unsigned int* linesCleared, block **BASIC_BLOCKS);
-bool heuristicTickCallBack(mat *m, block *s, block *nextBl, unsigned int *score, unsigned int* linesCleared, block **BASIC_BLOCKS, evars *e);
+// bool heuristicTickCallBack(mat *m, block *s, block *nextBl, unsigned int *score, unsigned int* linesCleared, block **BASIC_BLOCKS, evars *e, Random rd);
 #endif /* game_h */
