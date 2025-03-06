@@ -4,7 +4,7 @@
 #include <SDL2_image/SDL_image.h>
 #include "SDL2/SDL_pixels.h"
 #include "SDL2/SDL_render.h"
-#include "SDL2/SDL_video.h"
+// #include "SDL2/SDL_video.h"
 #include "../Helpers/blocksNshapes.hpp"
 
 void renderText(SDL_Renderer *renderer, TTF_Font* Sans, int s, char* str, int y) {

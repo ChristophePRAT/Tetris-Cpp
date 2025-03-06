@@ -112,7 +112,7 @@ void GeneticNN::loadPrevious(int genID, std::string date) {
     loadGen(*this, genID, date);
     for (int i = 0; i < count; i++) {
         population[i].score = 0;
-        population[i].name = NAMES[i % 23];
+        population[i].name = NAMES[i % count];
     }
 }
 

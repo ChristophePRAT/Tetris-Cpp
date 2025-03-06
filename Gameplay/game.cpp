@@ -7,6 +7,7 @@
 
 #include "game.h"
 #include "NN.h"
+#include <cstdio>
 #include <stdbool.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -586,37 +587,28 @@ mat *deepcopy(mat *m) {
 //     return newMat;
 // }
 mat* previewMatIfPushDown(mat* m, block s, int* numCleared) {
-    // Validate input parameters
     if (m == nullptr || numCleared == nullptr) {
         return nullptr;
     }
-
-    // Initialize numCleared to 0
     *numCleared = 0;
 
-    // Check if starting position is valid
     if (s.position[0] < 0) {
         return nullptr;
     }
 
-    // Calculate the final row position after full drop
     int row = fullDrop(*m, s, true);
 
-    // Check if drop is possible and shape can be inserted
     if (row == -1 || !canInsertShape(*m, s)) {
         return nullptr;
     }
 
-    // Update block position to final row
     s.position[0] = row;
 
-    // Create deep copy of the matrix
     mat* newMat = deepcopy(m);
     if (newMat == nullptr) {
         return nullptr;
     }
 
-    // Push the block to matrix and get number of cleared rows
     int numRowsCleared = pushToMat(newMat, s);
     if (numRowsCleared < 0) {
         // Handle error in pushToMat
@@ -654,7 +646,7 @@ double previewScore(mat m, block s, double* prefs, evars* previousEvars, int col
 
     mat* preview = previewMatIfPushDown(&m, s, &numCleared);;
     if (preview == NULL) {
-        return -10000000000;
+        return std::numeric_limits<double>::lowest();
     }
     evars* ev = retrieveEvars(*preview, previousEvars);
     double score =
@@ -682,6 +674,9 @@ block* randomBlock(block** BASIC_BLOCKS) {
     std::uniform_int_distribution<> distrib(0, 6);
     int rdI = distrib(gen);
     assert(rdI <= 6);
+    // if (rdI == 3) {
+    //     return randomBlock(BASIC_BLOCKS);
+    // }
     return BASIC_BLOCKS[rdI];
 }
 // block* randomBlockWithSeed(block** BASIC_BLOCKS, unsigned int* seed) {
@@ -758,17 +753,18 @@ bestc bestFromHeuristic(mat *m, block s, evars* e) {
         .col = -1,
         .shapeN = -1
     };
-    for (int i = 0; i < st.size(); i++) {
-        evars *ef = std::get<0>(st[i]);
-        int linesCleared = std::get<2>(st[i]);
+
+    for (const auto& state: st) {
+        evars *ef = std::get<0>(state);
+        int linesCleared = std::get<2>(state);
         double score = heuristic(linesCleared, ef);
+        if (score > max) {
+            max = score;
+            best = std::get<1>(state);
+        }
         free(ef->colHeights);
         free(ef->deltaColHeights);
         free(ef);
-        if (score > max) {
-            max = score;
-            best = std::get<1>(st[i]);
-        }
     }
     return best;
 }
