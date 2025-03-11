@@ -42,9 +42,9 @@ block** BASIC_BLOCKS = NULL;
 
 SDL_Window* window = NULL;
 
-//The surface contained by the window
+
 SDL_Surface* screenSurface = NULL;
-//The window renderer
+
 SDL_Renderer* renderer = NULL;
 
 //Globally used font
@@ -54,6 +54,9 @@ TTF_Font* gFont = NULL;
 Uint32 timerID = 0;
 
 Uint64 start, end, time_taken;
+
+TetrisRandom tetrisRand;
+
 
 int main(int argc, char* args[] ) {
     for (int i = 0; i < argc; i++) {
@@ -85,6 +88,8 @@ int main(int argc, char* args[] ) {
     BASIC_BLOCKS = createBlocks();
     assert(BASIC_BLOCKS != NULL);
 
+    tetrisRand = TetrisRandom(std::random_device{}(), BASIC_BLOCKS);
+
     if (AI_MODE == -1) {
         printf("Game loaded with user mode 🕹️\n");
     } else if (AI_MODE == 0) {
@@ -98,13 +103,19 @@ int main(int argc, char* args[] ) {
     }
 
     if (supafast) {
-        GeneticNN genNN = GeneticNN(4, { 8, 1 }, loadName);
-        if (loadName != "" && loadGen != -1) {
-            genNN.loadPrevious(loadGen, loadName);
-        } else {
-            genNN.createDir();
+        if (AI_MODE == 2) {
+            GeneticNN genNN = GeneticNN(4, { 8, 1 }, loadName);
+            if (loadName != "" && loadGen != -1) {
+                genNN.loadPrevious(loadGen, loadName);
+            } else {
+                genNN.createDir();
+            }
+            genNN.supafast(BASIC_BLOCKS);
+        } else if (AI_MODE == 3) {
+            while (true) {
+                supafastOneHeuristic(BASIC_BLOCKS, tetrisRand);
+            }
         }
-        genNN.supafast(BASIC_BLOCKS);
     }
 
     if (!init()) {
@@ -116,8 +127,6 @@ int main(int argc, char* args[] ) {
 
 void loop() {
     TTF_Font* latexFont = TTF_OpenFont("resources/lmroman17-regular.otf", 24);
-
-    TetrisRandom tetrisRand = TetrisRandom(std::random_device{}(), BASIC_BLOCKS);
 
     mat* m = createMat(20, 10);
     block* s = emptyShape();

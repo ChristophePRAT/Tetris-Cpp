@@ -8,12 +8,7 @@
 
 class TetrisRandom {
 public:
-    TetrisRandom(int seed = std::random_device{}(), block** basicBlocks = nullptr)
-        : gen(seed)
-        , BASIC_BLOCKS(basicBlocks)
-        , currentBag(7)
-        , nextBag(7)
-    {
+    TetrisRandom(int seed = std::random_device{}(), block** basicBlocks = nullptr) : gen(seed), BASIC_BLOCKS(basicBlocks), currentBag(7), nextBag(7) {
         // Initialize both bags
         for (int i = 0; i < 7; ++i) {
             currentBag[i] = i;

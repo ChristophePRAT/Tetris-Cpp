@@ -1,5 +1,7 @@
 #include "heuristic.hpp"
 #include "NN.h"
+#include "game.h"
+#include "tetrisrandom.hpp"
 
 double heuristic(int linesCleared, evars* e) {
     double meanColHeights = 0;
@@ -55,6 +57,9 @@ bool heuristicTickCallBack(mat *m, block *s, block *nextBl, unsigned int *score,
         changeBlock(nextBl, tetrisRand.randomBlock());
 
         bestc compo = bestFromHeuristic(m, *s,e);
+        if (compo.shapeN == -1) {
+            return false;
+        }
         s->position[1] = compo.col;
         s->currentShape = compo.shapeN;
 
@@ -65,4 +70,28 @@ bool heuristicTickCallBack(mat *m, block *s, block *nextBl, unsigned int *score,
         return canInsert;
     }
     return true;
+}
+
+void supafastOneHeuristic(block** BASIC_BLOCKS, TetrisRandom& tetrisRand) {
+    mat* m = createMat(20, 10);
+    block* s = emptyShape();
+    block* sA = tetrisRand.randomBlock();
+    copyBlock(s, sA);
+    computeDownPos(*m, s);
+
+    block* nextBlock = emptyShape();
+    sA = tetrisRand.randomBlock();
+    copyBlock(nextBlock, sA);
+
+    evars* envVars = initVars(*m);
+
+    bool gameOn = true;
+
+    unsigned int score = 0;
+    unsigned int linesCleared = 0;
+
+    while (gameOn) {
+        gameOn = heuristicTickCallBack(m, s, nextBlock, &score, &linesCleared, BASIC_BLOCKS, envVars, tetrisRand);
+    }
+    printf("Lines Cleared: %u\n", linesCleared);
 }

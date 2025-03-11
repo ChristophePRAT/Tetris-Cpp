@@ -5,5 +5,5 @@
 #include "game.h"
 
 bool heuristicTickCallBack(mat *m, block *s, block *nextBl, unsigned int *score, unsigned int* linesCleared, block **BASIC_BLOCKS, evars *e, TetrisRandom& tetrisRand);
-
+void supafastOneHeuristic(block** BASIC_BLOCKS, TetrisRandom& tetrisRand);
 #endif
