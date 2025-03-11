@@ -76,7 +76,7 @@ void GeneticNN::udpatePopulation() {
         std::vector<int> potentialParents;
 
         for (int j = 0; j < nSelection; j++) {
-            potentialParents.push_back(generateRandomNumber(0, this->count));
+            potentialParents.push_back(generateRandomNumber(0, this->count - 1));
             // printf("parent %d: %s", j, population[j].name.c_str());
         }
 

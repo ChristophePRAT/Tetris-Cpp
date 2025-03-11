@@ -98,7 +98,7 @@ int main(int argc, char* args[] ) {
     }
 
     if (supafast) {
-        GeneticNN genNN = GeneticNN(4, { 3, 1 }, loadName);
+        GeneticNN genNN = GeneticNN(4, { 8, 1 }, loadName);
         if (loadName != "" && loadGen != -1) {
             genNN.loadPrevious(loadGen, loadName);
         } else {
