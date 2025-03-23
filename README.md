@@ -17,9 +17,10 @@ cmake --build build
 ```
 
 Quick note about the parameters:
-- `-m 1` is for training a simple genetic mutation without neural networks
-- `-m 2` is for training a DQN
-- `-m 3` is for training a Genetic Neural Network
+- `-m 0` is for training a simple genetic mutation without neural networks
+- `-m 1` is for training a DQN
+- `-m 2` is for training a Genetic Neural Network
+- `-m 3` is for using a custom heuristic to play the game
 
 ## Game
 Tetris is an arcade game created by Alexey Pajitnov in 1984. The game consists of a matrix of 10x20 cells, where the player has to place the falling pieces in a way that they form a line. When a line is formed, it disappears and the player scores points. The game ends when the pieces reach the top of the matrix.
