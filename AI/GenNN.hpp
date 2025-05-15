@@ -54,7 +54,7 @@ public:
     this->seed = seed_gen();
 
     this->hidden_sizes = hidden_sizes;
-    // this->count = count;
+
     if (name == "") {
       this->name = getCurrentDateTime();
     } else {
@@ -81,23 +81,28 @@ public:
   bool tickCallback(mat *m, block *s, block *nextBl, evars *e,
                     unsigned int *score, unsigned int *linesCleared,
                     unsigned int index, block **BASIC_BLOCKS,
-                    TetrisRandom& tetRand);
+                    TetrisRandom& tetRand, bool instant);
 
   std::vector<array> batchForward(std::vector<tetrisState> states, int index) {
     std::vector<array> inputs;
+    inputs.reserve(states.size());
     for (const auto &state : states) {
-      inputs.push_back(stateToArray(state));
+        array input = stateToArray(state);
+        mlx::core::eval(input);
+        inputs.push_back(input);
     }
+
     return batchForward(inputs, index);
   }
   std::vector<array> batchForward(std::vector<array> batchInput, int index) {
     std::vector<array> batchOutput;
+    batchOutput.reserve(batchInput.size());
     for (const array &input : batchInput) {
-      // batchOutput.push_back(this->ml->forward(input));
       batchOutput.push_back(
-          // generalizedForward(input, this->ml->params)
-          generalizedForward(input, this->population[index].mlp->params));
+          generalizedForward(input, this->population[index].mlp->params)
+      );
     }
+    mlx::core::eval(batchOutput);
     return batchOutput;
   }
 

@@ -14,6 +14,7 @@
 #include <cstddef>
 #include <vector>
 #include "assert.h"
+#include "mlx/transforms.h"
 const int NUM_WEIGHTS = 6;
 const int NUM_LAYERS = 2;
 
@@ -37,12 +38,16 @@ class Linear {
             this->output_dims = output_dims;
 
             float k = sqrt(1.0 / input_dims);
-            this->weights = new array({output_dims, input_dims});
-            *this->weights = random::uniform(-k, k, {output_dims, input_dims});
+            // this->weights = new array({output_dims, input_dims});
+            // *this->weights = random::uniform(-k, k, {output_dims, input_dims});
+            this->weights = new array(random::uniform(-k, k, {output_dims, input_dims}));
 
-            this->bias = new array({output_dims});
-            *this->bias = random::uniform(-k, k, {output_dims});
+            // this->bias = new array({output_dims});
+            // *this->bias = random::uniform(-k, k, {output_dims});
             // *this->bias = zeros({output_dims});
+
+            this->bias = new array(random::uniform(-k, k, {output_dims}));
+
             this->layer_id = layer_id;
             eval(*this->weights);
             eval(*this->bias);
@@ -175,13 +180,16 @@ class DQN {
 
     std::vector<array> batchForward(std::vector<tetrisState> states) {
         std::vector<array> inputs;
+        inputs.reserve(states.size());
         for (const auto& state : states) {
             inputs.push_back(stateToArray(state));
         }
+        mlx::core::eval(inputs);
         return batchForward(inputs);
     }
     std::vector<array> batchForward(std::vector<array> batchInput) {
         std::vector<array> batchOutput;
+        batchOutput.reserve(batchInput.size());
         for (const array& input : batchInput) {
             // batchOutput.push_back(this->ml->forward(input));
             batchOutput.push_back(
@@ -189,6 +197,7 @@ class DQN {
                 generalizedForward(input, this->ml->params)
             );
         }
+        mlx::core::eval(batchOutput);
         return batchOutput;
     }
     array generalizedForward(const array& x, const std::vector<array> params);

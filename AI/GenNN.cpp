@@ -1,10 +1,11 @@
 #include "NN.h"
-#include "agent.h"
+// #include "agent.h"
 #include "game.h"
 #include <_stdlib.h>
 #include <algorithm>
 #include <assert.h>
 #include "mlx/array.h"
+#include "mlx/device.h"
 #include "mlx/dtype.h"
 #include <cstdlib>
 #include <string>
@@ -13,12 +14,13 @@
 #include "GenNN.hpp"
 #include "loader.hpp"
 #include "mlx/ops.h"
+#include "mlx/stream.h"
 // #include "mlx/random.h"
 #include <ctime>
 #include <sstream>
 #include <iomanip>
 #include <stdbool.h>
-#include <thread>
+// #include <thread>
 #include <chrono>
 #include <random>
 // #include "tetrisrandom.hpp"
@@ -72,6 +74,7 @@ void GeneticNN::udpatePopulation() {
         return a.score < b.score;
     });
 
+    printf("------------------------------------------------------------------------\n");
     for (int i = 0; i < nWorst; i++) {
         std::vector<int> potentialParents;
 
@@ -84,9 +87,11 @@ void GeneticNN::udpatePopulation() {
             return population[a].score > population[b].score;
         });
 
-        // printf("%s + %s = love => %s\n", population[potentialParents[0]].name.c_str(), population[potentialParents[1]].name.c_str(), population[i].name.c_str());
         breed(potentialParents[0], potentialParents[1], i);
+        printf("| %s ❤️ %s => %s |\n", population[potentialParents[0]].name.c_str(), population[potentialParents[1]].name.c_str(), population[i].name.c_str());
     }
+
+    printf("------------------------------------------------------------------------\n");
     for (int s = 0; s < this->count; s++) {
         population[s].score = 0;
     }
@@ -123,18 +128,20 @@ void GeneticNN::breed(int parent1, int parent2, int child) {
         double r1 = randomProba();
         if (randomProba() > 0.05) {
             array np = population[parent1].mlp->params[i]* r1 + population[parent2].mlp->params[i] * (1-r1);
+            mlx::core::eval(np);
+            array mutation = mlx::core::random::normal(
+                np.shape(),
+                0,
+                mean(np).item<float>()/3
+            );
+            mlx::core::eval(mutation);  // Sync point
 
-            newParams.push_back(mlx::core::random::normal(np.shape(), 0, mean(np).item<float>()/3) + np);
+            newParams.push_back(mutation + np);
         } else {
-            // printf("choosing random params\n");
-            // float meanArr = mean(population[parent1].mlp->params[i]).item<float>();
-            // array newParam = population[parent1].mlp->params[i] + random::uniform(-meanArr, meanArr, population[parent1].mlp->params[i].shape());
-
-            // array newParam = random::uniform(-meanArr, meanArr, population[parent1].mlp->params[i].shape());
-
             array newParam1 = mlx::core::random::normal(population[parent1].mlp->params[i].shape(), 0, mean(population[parent1].mlp->params[i]).item<float>()/2);
             array newParam2 = mlx::core::random::normal(population[parent2].mlp->params[i].shape(), 0, mean(population[parent2].mlp->params[i]).item<float>()/2);
 
+            mlx::core::eval({newParam1, newParam2});
             newParams.push_back(newParam1 + newParam2);
         }
     }
@@ -160,7 +167,11 @@ bestc GeneticNN::act(std::vector<tetrisState>& possibleStates, int index) {
             best_action = std::get<1>(possibleStates[i]);
             best_index = i;
 
-            evars* e = std::get<0>(possibleStates[i]);
+        }
+    }
+    for (auto& state : possibleStates) {
+        evars* e = std::get<0>(state);
+        if (e) {
             free(e->colHeights);
             free(e->deltaColHeights);
             free(e);
@@ -168,7 +179,6 @@ bestc GeneticNN::act(std::vector<tetrisState>& possibleStates, int index) {
     }
     return best_action;
 }
-
 
 std::vector<std::tuple<array, bestc>> possibleBoardsEachCol(mat m, block s, evars* previousEvars) {
 
@@ -452,8 +462,14 @@ bestc GeneticNN::act2(std::vector<std::tuple<array, bestc>> possibleBoards, int 
 }
 
 
-bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS, TetrisRandom& tetRand) {
-    int down = downShape(*m, s);
+bool GeneticNN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS, TetrisRandom& tetRand, bool instant) {
+    int down = 0;
+    if (!instant) {
+        down = downShape(*m, s);
+    } else {
+        s->position[0] = s->downPos;
+        down = -1;
+    }
 
     // If the shape is at the bottom
     if (down == -1) {
@@ -525,31 +541,33 @@ void GeneticNN::supafastindiv(block** BASIC_BLOCKS, unsigned int index) {
     copyBlock(nextBlock, sA);
     evars* envVars = initVars(*m);
 
-    int moveNumber = 0;
-
     while (!gameOver) {
-        gameOver = !tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, tetRand);
-        moveNumber++;
+        gameOver = !tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, tetRand, true);
     }
     setResult(index, score, linesCleared);
     printf("%s (#%02d) - lines cleared = %d\n", this->population[index].name.c_str(), this->population[index].id, linesCleared);
 
+    if (envVars) {
+        free(envVars->colHeights);
+        free(envVars->deltaColHeights);
+        free(envVars);
+    }
+
     freeMat(m);
     freeBlock(s);
     freeBlock(nextBlock);
-    free(envVars->colHeights);
-    free(envVars->deltaColHeights);
-    free(envVars);
 }
 
 void GeneticNN::batchSupafast(block** BASIC_BLOCKS, unsigned int first, unsigned int last) {
+
     for (int i = first; i < last; i++) {
         supafastindiv(BASIC_BLOCKS, i);
     }
 }
 
 void GeneticNN::supafast(block** BASIC_BLOCKS) {
-    std::thread threads[THREADS_COUNT];
+    mlx::core::set_default_device(Device::DeviceType::gpu);
+    // std::thread threads[THREADS_COUNT];
 
     int step = count / THREADS_COUNT;
 
@@ -557,14 +575,15 @@ void GeneticNN::supafast(block** BASIC_BLOCKS) {
     std::shuffle(population.begin(), population.end(), std::default_random_engine(this->seed));
 
     for (int i = 0; i < THREADS_COUNT; i++) {
-        threads[i] = std::thread(&GeneticNN::batchSupafast, this, BASIC_BLOCKS, i * step, (i + 1) * step);
+        // threads[i] = std::thread(&GeneticNN::batchSupafast, this, BASIC_BLOCKS, i * step, (i + 1) * step);
+        batchSupafast(BASIC_BLOCKS, i*step, (i+1)*step);
     }
 
-    for (int i = 0; i < THREADS_COUNT; i++) {
-        if (threads[i].joinable()) {
-            threads[i].join();
-        }
-    }
+    // for (int i = 0; i < THREADS_COUNT; i++) {
+    //     if (threads[i].joinable()) {
+    //         threads[i].join();
+    //     }
+    // }
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     printf("Population #%d\n", this->populationID + 1);
     printf("Updating weights & biases\n");

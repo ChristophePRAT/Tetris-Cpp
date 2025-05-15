@@ -5,8 +5,11 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
+#include "SDL2/SDL_events.h"
 #include "SDL2/SDL_render.h"
+#include "SDL2/SDL_timer.h"
 #include "SDL2/SDL_video.h"
+#include "SDL2/begin_code.h"
 #include "game.h"
 #include "blocksNshapes.hpp"
 #include "agent.h"
@@ -17,6 +20,8 @@
 #include "GenNN.hpp"
 #include "display.hpp"
 #include "heuristic.hpp"
+#include "mlx/device.h"
+#include "mlx/stream.h"
 #include "tetrisrandom.hpp"
 
 // AI_MODE  = -1: User mode | 0: Genetic | 1: DQN | 2: Genetic Neural Network | 3: Pre-defined heuristic
@@ -104,7 +109,7 @@ int main(int argc, char* args[] ) {
 
     if (supafast) {
         if (AI_MODE == 2) {
-            GeneticNN genNN = GeneticNN(4, { 8, 1 }, loadName);
+            GeneticNN genNN = GeneticNN(4, { 3, 1 }, loadName);
             if (loadName != "" && loadGen != -1) {
                 genNN.loadPrevious(loadGen, loadName);
             } else {
@@ -123,6 +128,40 @@ int main(int argc, char* args[] ) {
     } else { kill(); return 0; }
     kill();
     return 0;
+}
+
+void receiveEvent(SDL_Event e, SDL_Renderer* renderer, TTF_Font *latexFont, bool *quit) {
+    // Track keyboard input
+    // if (SDL_PollEvent(&e)) {
+        switch (e.type) {
+            case SDL_QUIT:
+                *quit = true;
+                break;
+            case SDL_KEYDOWN:
+                if (e.key.keysym.scancode == SDL_SCANCODE_B) {
+                    instantMode = !instantMode;
+                    SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                    SDL_RenderClear(renderer);
+                    char s[] = "Boost Mode: ";
+                    renderText(renderer, latexFont, 1, s, 0);
+                    SDL_RenderPresent(renderer);
+                } else if (e.key.keysym.scancode == SDL_SCANCODE_9) {
+                    TIMER_INTERVAL = 20;
+                } else if (e.key.keysym.scancode == SDL_SCANCODE_8) {
+                    TIMER_INTERVAL = userMode ? 400 : 100;
+                } else if (e.key.keysym.scancode == SDL_SCANCODE_F) {
+                    if (TIMER_INTERVAL > 0) {
+                        TIMER_INTERVAL -= 1;
+                    }
+                } else if (e.key.keysym.scancode == SDL_SCANCODE_S) {
+                    TIMER_INTERVAL += 1;
+                }
+                break;
+            default:
+                break;
+        }
+    // }
+
 }
 
 void loop() {
@@ -175,64 +214,11 @@ void loop() {
 
     unsigned int fileNum = 0;
 
-
     while (!quit) {
         SDL_Event e;
 
-        if (SDL_PollEvent(&e)) {
-            switch (e.type) {
-                case SDL_QUIT:
-                    quit = true;
-                    break;
-                case SDL_USEREVENT:
-                    printf("User event \n");
-                    break;
-                case SDL_KEYDOWN:
-                    if (e.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
-                        moveRLShape(m, s, 1);
-                    } else if (e.key.keysym.scancode == SDL_SCANCODE_LEFT) {
-                        moveRLShape(m, s, -1);
-                    } else if (e.key.keysym.scancode == SDL_SCANCODE_DOWN) {
-                        if (AI_MODE == 0) {
-                            tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, BASIC_BLOCKS);
-                        }
-                    } else if (e.key.keysym.scancode == SDL_SCANCODE_UP) {
-                        rotateShape(*m, s);
-                    } else if (e.key.keysym.scancode == SDL_SCANCODE_B) {
-                        instantMode = !instantMode;
-                        SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-                        SDL_RenderClear(renderer);
-                        char s[] = "Boost Mode: ";
-                        renderText(renderer, latexFont, 1, s, 0);
-                        SDL_RenderPresent(renderer);
-                    } else if (e.key.keysym.scancode == SDL_SCANCODE_9) {
-                        TIMER_INTERVAL = 20;
-                    } else if (e.key.keysym.scancode == SDL_SCANCODE_8) {
-                        TIMER_INTERVAL = userMode ? 400 : 100;
-                    } else if (e.key.keysym.scancode == SDL_SCANCODE_F) {
-                        if (TIMER_INTERVAL > 1) {
-                            TIMER_INTERVAL -= 1;
-                        }
-                    } else if (e.key.keysym.scancode == SDL_SCANCODE_S) {
-                        TIMER_INTERVAL += 1;
-                    } else if (e.key.keysym.scancode == SDL_SCANCODE_SPACE) {
-                        int i = fullDrop(*m, *s, false);
-                        s->position[0] = i;
-                        if (AI_MODE == 0) {
-                            tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, BASIC_BLOCKS);
-                        } else if (AI_MODE == 1) {
-                            dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS);
-                        } else if (AI_MODE == 2) {
-                            genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, tetrisRand);
-                        }
-                    } else if (e.key.keysym.scancode == SDL_SCANCODE_0) {
-                        int i = fullDrop(*m, *s, false);
-                        s->position[0] = i;
-                    }
-                    break;
-                default:
-                    break;
-            }
+        while(SDL_PollEvent(&e)) {
+            receiveEvent(e, renderer, latexFont, &quit);
         }
 
         Uint32 current_time = SDL_GetTicks();
@@ -242,12 +228,13 @@ void loop() {
             } else if (AI_MODE == 1) {
                 gameOver = !dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS);
             } else if (AI_MODE == 2) {
-                gameOver = !genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, tetrisRand);
+                gameOver = !genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, tetrisRand, TIMER_INTERVAL == 0 || instantMode);
             } else if (AI_MODE == -1) {
                 gameOver = !userTickCallBack(m, s, nextBlock, &score, &linesCleared, BASIC_BLOCKS);
             } else if (AI_MODE == 3) {
                 gameOver = !heuristicTickCallBack(m, s, nextBlock, &score, &linesCleared, BASIC_BLOCKS, envVars, tetrisRand);
             }
+
             if (gameOver) {
                 printf("Lines cleared: %d \n", linesCleared);
                 printf("------------------\n");

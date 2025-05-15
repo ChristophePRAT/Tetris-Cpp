@@ -8,6 +8,7 @@
 #include "NN.h"
 #include "game.h"
 #include "mlx/ops.h"
+#include "mlx/utils.h"
 #include <_stdlib.h>
 #include <algorithm>
 #include <assert.h>
@@ -193,24 +194,31 @@ std::vector<tetrisState> possibleStates(mat m, block s, evars* previousEvars) {
             s.position[1] = i;
 
             mat* preview = previewMatIfPushDown(&m, s, &numCleared);
-
-            if (preview != nullptr) {
+            if (preview && preview != NULL) {
                 evars* ev = retrieveEvars(*preview, previousEvars);
-
-                if (ev != nullptr) {
-                    tetrisState state{
-                        ev,
-                        {
-                            .col = i,
-                            .shapeN = r
-                        },
-                        numCleared
-                    };
-                    states.push_back(std::move(state));
+                if (ev) {
+                    bestc config = {.col = i, .shapeN = r};
+                    states.push_back(std::make_tuple(ev, config, numCleared));
                 }
-
                 freeMat(preview);
             }
+            // if (preview != nullptr) {
+            //     evars* ev = retrieveEvars(*preview, previousEvars);
+
+            //     if (ev != nullptr) {
+            //         tetrisState state{
+            //             ev,
+            //             {
+            //                 .col = i,
+            //                 .shapeN = r
+            //             },
+            //             numCleared
+            //         };
+            //         states.push_back(std::move(state));
+            //     }
+
+            //     freeMat(preview);
+            // }
         }
     }
 
@@ -455,9 +463,11 @@ bestc DQN::act(std::vector<tetrisState>& possibleStates) {
             best_index = i;
         } else {
             evars* e = std::get<0>(possibleStates[i]);
-            free(e->colHeights);
-            free(e->deltaColHeights);
-            free(e);
+            if (e) {
+                free(e->colHeights);
+                free(e->deltaColHeights);
+                free(e);
+            }
         }
     }
     if (best_action.shapeN != -1 && (generateRandomDouble(0, 1) < 0.03 || mem.size() < memCapacity)) {
