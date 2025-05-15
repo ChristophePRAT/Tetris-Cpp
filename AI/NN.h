@@ -20,10 +20,15 @@ const int NUM_LAYERS = 2;
 
 
 using namespace mlx::core;
-// a tuple representing the env variables, the combination it came from and the lines cleared
-typedef std::tuple<evars *, bestc, int> tetrisState;
-array stateToArray(tetrisState s);
 
+// a struct representing the env variables, the combination it came from and the lines cleared
+typedef struct tetrisState {
+    evars* ev;
+    bestc pos;
+    int linesCleared;
+} tetrisState;
+
+array stateToArray(tetrisState s);
 
 class Linear {
     public:
@@ -38,13 +43,7 @@ class Linear {
             this->output_dims = output_dims;
 
             float k = sqrt(1.0 / input_dims);
-            // this->weights = new array({output_dims, input_dims});
-            // *this->weights = random::uniform(-k, k, {output_dims, input_dims});
             this->weights = new array(random::uniform(-k, k, {output_dims, input_dims}));
-
-            // this->bias = new array({output_dims});
-            // *this->bias = random::uniform(-k, k, {output_dims});
-            // *this->bias = zeros({output_dims});
 
             this->bias = new array(random::uniform(-k, k, {output_dims}));
 
@@ -140,6 +139,7 @@ class DQN {
         this->memCapacity = memCapacity;
     }
     bestc act(std::vector<tetrisState>& possibleStates);
+    bestc actWithMat(std::vector<tetrisState>& possibleStates);
 
     std::tuple<std::vector<array>, std::vector<array>> gatherTrainingData(std::vector<tetrisState> memory) {
         std::vector<array> inputs = batchStateToArray(memory);

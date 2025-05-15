@@ -16,7 +16,6 @@ std::string getCurrentDateTime();
 using namespace mlx::core;
 // a tuple representing the env variables, the combination it came from and the
 // lines cleared
-typedef std::tuple<evars *, bestc, int> tetrisState;
 
 class NNIndividual {
 public:

@@ -47,9 +47,9 @@ double summed(int* arr, int size) {
     return sum;
 }
 array stateToArray(tetrisState s) {
-    evars* ev = std::get<0>(s);
-    bestc b = std::get<1>(s);
-    int lines = std::get<2>(s);
+    evars* ev = s.ev;
+    bestc b = s.pos;
+    int lines = s.linesCleared;
 
     // int numberOfCaveats = 0;
 
@@ -198,7 +198,11 @@ std::vector<tetrisState> possibleStates(mat m, block s, evars* previousEvars) {
                 evars* ev = retrieveEvars(*preview, previousEvars);
                 if (ev) {
                     bestc config = {.col = i, .shapeN = r};
-                    states.push_back(std::make_tuple(ev, config, numCleared));
+                    states.push_back({
+                        .ev = ev,
+                        .pos = config,
+                        .linesCleared = numCleared
+                    });
                 }
                 freeMat(preview);
             }
@@ -253,7 +257,6 @@ std::vector<tetrisState> possibleStates(mat m, block s, evars* previousEvars) {
 // }
 
 void DQN::train(std::vector<array> states, std::vector<array> yTruth, unsigned int linesCleared) {
-
     std::vector<int> argnums(ml->params.size());
     std::iota(argnums.begin(), argnums.end(), 0);
 
@@ -262,34 +265,36 @@ void DQN::train(std::vector<array> states, std::vector<array> yTruth, unsigned i
         std::mt19937 rng(dev());
         std::uniform_int_distribution<std::mt19937::result_type> randI(0, states.size() - 1);
 
-        int r = randI(rng);
+        int randomFromDistribution = randI(rng); // "vrai" nombre aléatoire entre 0 et le nombre d'états possibles
 
-        assert(r < states.size());
-        printf("Random sample: %d\n", r);
+        assert(randomFromDistribution < states.size());
+        printf("Random sample: %d\n", randomFromDistribution); // affiche l'échantillon aléatoire
 
         std::vector<array> input = ml->params;
-        input.push_back(states[r]);
+        input.push_back(states[randomFromDistribution]);
 
-        auto loss_fn = [&yTruth, &r, this](const std::vector<array>& input) {
+        // MLX calcule le gradient du premier paramètre donc l'entrée de la fonction est de la forme:
+        // { paramètres du modèles } U { l'entrée à tester par le modèle }
+        auto loss_fn = [&yTruth, &randomFromDistribution, this](const std::vector<array>& input) {
 
-            array trueScore = yTruth[r];
+            array trueScore = yTruth[randomFromDistribution];
             std::vector<array> params(input.begin(), input.end() - 1);
             array x = input.back();
 
             array predictions = generalizedForward(x, params);
 
-            return sqrt(mean(square(predictions - trueScore)));
+            return sqrt(mean(square(predictions - trueScore))); // Fonction de perte "RMS"
         };
 
         auto [loss, grads] = value_and_grad(loss_fn, argnums)(input);
 
         eval(loss);
-        float lr = float(1)/(linesCleared+1) * 0.01;
-        ml->update_parameters(grads, lr);
-        printf("Epoch %d, loss: %f, learning rate = %f\n", epoch, loss.item<float>(), lr);
+        float learningRate = float(1)/(linesCleared+1) * 0.01;
+        ml->update_parameters(grads, learningRate);
+        printf("Epoch %d, loss: %f, learning rate = %f\n", epoch, loss.item<float>(), learningRate); // affiche l'état de l'entrainement
     }
 
-    // Update epsilon for exploration
+    // On décrémente un petit peu epsilon, correspondant au taux d'exploration
     epsilon = std::max(eps_min, epsilon * eps_decay);
 }
 
@@ -312,23 +317,14 @@ void DQN::adamUpdate(const std::vector<array>& grads, double lr) {
     t += 1;
 
     for (size_t i = 0; i < ml->params.size(); i++) {
-        // Update biased first moment estimate
         m_t[i] = beta1 * m_t[i] + (1 - beta1) * grads[i];
-
-        // Update biased second raw moment estimate
         v_t[i] = beta2 * v_t[i] + (1 - beta2) * (grads[i] * grads[i]);
 
-        // Compute bias-corrected first moment estimate
         array m_hat = m_t[i] / (1 - std::pow(beta1, t));
-
-        // Compute bias-corrected second raw moment estimate
         array v_hat = v_t[i] / (1 - std::pow(beta2, t));
 
-        // Update parameters
         ml->params[i] = ml->params[i] - lr * m_hat / (sqrt(v_hat) + epsilon);
     }
-
-    // Update the model parameters
     ml->update(ml->params);
 }
 
@@ -378,9 +374,9 @@ void DQN::trainWithBatch(std::vector<array> states, std::vector<array> yTruth, u
 
     // ml->update_parameters(grads, lr);
     adamUpdate(grads, lr);
-    printf("loss: %f, learning rate = %f, epsilon = %f\n", loss.item<float>(), lr, epsilon);
+    printf("loss: %f, learning rate = %f, epsilon: %f\n", loss.item<float>(), lr, epsilon);
     // Update epsilon for exploration
-    // epsilon = std::max(eps_min, epsilon * eps_decay);
+    epsilon = std::max(eps_min, epsilon * eps_decay);
 }
 bool DQN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS) {
     int down = downShape(*m, s);
@@ -435,7 +431,7 @@ bool DQN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* 
 bestc DQN::act(std::vector<tetrisState>& possibleStates) {
     if (generateRandomDouble(0, 1) < epsilon && possibleStates.size() > 0) {
         tetrisState randomState = possibleStates[generateRandomNumber(0, possibleStates.size() - 1)];
-        return std::get<1>(randomState);
+        return randomState.pos;
     }
     float max_rating = -std::numeric_limits<float>::infinity();
 
@@ -450,7 +446,7 @@ bestc DQN::act(std::vector<tetrisState>& possibleStates) {
         float rating = ratings[i].item<float>();
         if (rating > max_rating) {
             if (best_index != -1) {
-                evars* previousBest = std::get<0>(possibleStates[best_index]);
+                evars* previousBest = possibleStates[best_index].ev;
                 if (previousBest != nullptr) {
                     free(previousBest->colHeights);
                     free(previousBest->deltaColHeights);
@@ -459,10 +455,10 @@ bestc DQN::act(std::vector<tetrisState>& possibleStates) {
             }
 
             max_rating = rating;
-            best_action = std::get<1>(possibleStates[i]);
+            best_action = possibleStates[i].pos;
             best_index = i;
         } else {
-            evars* e = std::get<0>(possibleStates[i]);
+            evars* e = possibleStates[i].ev;
             if (e) {
                 free(e->colHeights);
                 free(e->deltaColHeights);
@@ -476,7 +472,61 @@ bestc DQN::act(std::vector<tetrisState>& possibleStates) {
             // mem.erase(mem.begin());
             mem.erase(mem.begin() + generateRandomNumber(0, mem.size() - 1));
         }
-        evars* best = std::get<0>(possibleStates[best_index]);
+        evars* best = possibleStates[best_index].ev;
+        free(best->colHeights);
+        free(best->deltaColHeights);
+        free(best);
+    }
+    return best_action;
+}
+
+
+
+bestc DQN::actWithMat(std::vector<tetrisState>& possibleStates) {
+    if (generateRandomDouble(0, 1) < epsilon && possibleStates.size() > 0) {
+        tetrisState randomState = possibleStates[generateRandomNumber(0, possibleStates.size() - 1)];
+        return randomState.pos;
+    }
+    float max_rating = -std::numeric_limits<float>::infinity();
+
+    bestc best_action = {
+        .col = -1,
+        .shapeN = -1
+    };
+    int best_index = -1;
+    std::vector<array> ratings = batchForward(possibleStates);
+
+    for (int i = 0; i < ratings.size(); i++) {
+        float rating = ratings[i].item<float>();
+        if (rating > max_rating) {
+            if (best_index != -1) {
+                evars* previousBest = possibleStates[best_index].ev;
+                if (previousBest != nullptr) {
+                    free(previousBest->colHeights);
+                    free(previousBest->deltaColHeights);
+                    free(previousBest);
+                }
+            }
+
+            max_rating = rating;
+            best_action = possibleStates[i].pos;
+            best_index = i;
+        } else {
+            evars* e = possibleStates[i].ev;
+            if (e) {
+                free(e->colHeights);
+                free(e->deltaColHeights);
+                free(e);
+            }
+        }
+    }
+    if (best_action.shapeN != -1 && (generateRandomDouble(0, 1) < 0.03 || mem.size() < memCapacity)) {
+        mem.push_back(stateToArray(possibleStates[best_index]));
+        if (mem.size() >= memCapacity) {
+            // mem.erase(mem.begin());
+            mem.erase(mem.begin() + generateRandomNumber(0, mem.size() - 1));
+        }
+        evars* best = possibleStates[best_index].ev;
         free(best->colHeights);
         free(best->deltaColHeights);
         free(best);

@@ -10,6 +10,7 @@
 #include "SDL2/SDL_timer.h"
 #include "SDL2/SDL_video.h"
 #include "SDL2/begin_code.h"
+#include "SDL_scancode.h"
 #include "game.h"
 #include "blocksNshapes.hpp"
 #include "agent.h"
@@ -25,7 +26,7 @@
 #include "tetrisrandom.hpp"
 
 // AI_MODE  = -1: User mode | 0: Genetic | 1: DQN | 2: Genetic Neural Network | 3: Pre-defined heuristic
-unsigned int AI_MODE = 2;
+int AI_MODE = 2;
 
 int loadGen = -1;
 std::string loadName = "";
@@ -35,12 +36,12 @@ int init(void);
 void kill(void);
 
 // USER MODE
-const bool userMode = AI_MODE == -1;
+bool userMode;
 
 bool instantMode = false;
 bool supafast = false;
 
-int TIMER_INTERVAL = userMode ? 400 : 100;
+int TIMER_INTERVAL;
 
 //The window we'll be rendering to
 block** BASIC_BLOCKS = NULL;
@@ -60,8 +61,8 @@ Uint32 timerID = 0;
 
 Uint64 start, end, time_taken;
 
+// Random piece generator following the original Tetris (i.e. bags of pieces)
 TetrisRandom tetrisRand;
-
 
 int main(int argc, char* args[] ) {
     for (int i = 0; i < argc; i++) {
@@ -90,6 +91,11 @@ int main(int argc, char* args[] ) {
             supafast = true;
         }
     }
+
+    userMode = AI_MODE == -1;
+
+    TIMER_INTERVAL = userMode ? 400 : 100;
+
     BASIC_BLOCKS = createBlocks();
     assert(BASIC_BLOCKS != NULL);
 
@@ -130,7 +136,7 @@ int main(int argc, char* args[] ) {
     return 0;
 }
 
-void receiveEvent(SDL_Event e, SDL_Renderer* renderer, TTF_Font *latexFont, bool *quit) {
+void receiveEvent(SDL_Event e, SDL_Renderer* renderer, TTF_Font *latexFont, bool *quit, mat* m, block* s) {
     // Track keyboard input
     // if (SDL_PollEvent(&e)) {
         switch (e.type) {
@@ -154,7 +160,17 @@ void receiveEvent(SDL_Event e, SDL_Renderer* renderer, TTF_Font *latexFont, bool
                         TIMER_INTERVAL -= 1;
                     }
                 } else if (e.key.keysym.scancode == SDL_SCANCODE_S) {
-                    TIMER_INTERVAL += 1;
+                    TIMER_INTERVAL += 10;
+                } else if (userMode) {
+                    if (e.key.keysym.scancode == SDL_SCANCODE_H) {
+                        moveRLShape(m, s, -1);
+                    } else if (e.key.keysym.scancode == SDL_SCANCODE_L) {
+                        moveRLShape(m, s, 1);
+                    } else if (e.key.keysym.scancode == SDL_SCANCODE_R) {
+                        rotateShape(*m, s);
+                    } else if (e.key.keysym.scancode == SDL_SCANCODE_SPACE) {
+                        s->position[0] = s->downPos;
+                    }
                 }
                 break;
             default:
@@ -218,7 +234,7 @@ void loop() {
         SDL_Event e;
 
         while(SDL_PollEvent(&e)) {
-            receiveEvent(e, renderer, latexFont, &quit);
+            receiveEvent(e, renderer, latexFont, &quit, m, s);
         }
 
         Uint32 current_time = SDL_GetTicks();
