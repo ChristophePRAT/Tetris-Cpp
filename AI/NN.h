@@ -15,9 +15,7 @@
 #include <vector>
 #include "assert.h"
 #include "mlx/transforms.h"
-const int NUM_WEIGHTS = 6;
-const int NUM_LAYERS = 2;
-
+#include "tetrisrandom.hpp"
 
 using namespace mlx::core;
 
@@ -119,9 +117,9 @@ public:
 class DQN {
     public:
         float discount;
-        // float epsilon;
-        float eps_decay;
-        float eps_min;
+        float explorationRate = 0.3;
+        float expDecay;
+        float expMin;
         MultiLayer* ml = nullptr;
         std::vector<array> mem = {};
         unsigned int memCapacity;
@@ -132,9 +130,8 @@ class DQN {
         float epsilon = 1e-8; // Small constant to prevent division by zero
 
     DQN(int input_size, unsigned int memCapacity) {
-        // this->epsilon = 0.2;
-        this->eps_decay = 0.99;
-        this->eps_min = 0.001;
+        this->expDecay = 0.99;
+        this->expMin = 0.001;
         this->ml = new MultiLayer(input_size, {1});
         this->memCapacity = memCapacity;
     }
@@ -155,7 +152,7 @@ class DQN {
         }
     }
 
-    bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS);
+    bool tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS, TetrisRandom& tetrisRand, bool instant);
 
     private:
     // Adam optimizer state

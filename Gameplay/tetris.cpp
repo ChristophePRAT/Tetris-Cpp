@@ -242,7 +242,7 @@ void loop() {
             if (AI_MODE == 0) {
                 gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, BASIC_BLOCKS);
             } else if (AI_MODE == 1) {
-                gameOver = !dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS);
+                gameOver = !dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, tetrisRand, TIMER_INTERVAL == 0 || instantMode);
             } else if (AI_MODE == 2) {
                 gameOver = !genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, tetrisRand, TIMER_INTERVAL == 0 || instantMode);
             } else if (AI_MODE == -1) {

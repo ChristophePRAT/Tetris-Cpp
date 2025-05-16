@@ -77,4 +77,4 @@ def update_graph(n):
         return {'data': [], 'layout': {'title': f"Error: {e}"}}
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run(debug=True)

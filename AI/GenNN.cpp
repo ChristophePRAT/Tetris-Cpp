@@ -80,7 +80,6 @@ void GeneticNN::udpatePopulation() {
 
         for (int j = 0; j < nSelection; j++) {
             potentialParents.push_back(generateRandomNumber(0, this->count - 1));
-            // printf("parent %d: %s", j, population[j].name.c_str());
         }
 
         std::sort(potentialParents.begin(), potentialParents.end(), [this](int a, int b) {
@@ -124,20 +123,21 @@ void GeneticNN::loadPrevious(int genID, std::string date) {
 
 void GeneticNN::breed(int parent1, int parent2, int child) {
     std::vector<array> newParams;
+
+    // On effectue une mutation sur l'ensemble des paramètres
     for (int i = 0; i < population[child].mlp->params.size(); i++) {
         double r1 = randomProba();
         if (randomProba() > 0.05) {
-            array np = population[parent1].mlp->params[i]* r1 + population[parent2].mlp->params[i] * (1-r1);
-            mlx::core::eval(np);
-            array mutation = mlx::core::random::normal(
-                np.shape(),
-                0,
-                mean(np).item<float>()/3
-            );
-            mlx::core::eval(mutation);  // Sync point
+            // On prend une moyenne pondérée aléatoirement des deux parents
+            array weightedMean = population[parent1].mlp->params[i] * r1 + population[parent2].mlp->params[i] * (1-r1);
+            mlx::core::eval(weightedMean);
 
-            newParams.push_back(mutation + np);
+            array mutation = mlx::core::random::normal(weightedMean.shape(), 0, mean(weightedMean).item<float>()/3);
+            mlx::core::eval(mutation);
+
+            newParams.push_back(mutation + weightedMean);
         } else {
+            // 5% de chance de créer un individu complètement aléatoire
             array newParam1 = mlx::core::random::normal(population[parent1].mlp->params[i].shape(), 0, mean(population[parent1].mlp->params[i]).item<float>()/2);
             array newParam2 = mlx::core::random::normal(population[parent2].mlp->params[i].shape(), 0, mean(population[parent2].mlp->params[i]).item<float>()/2);
 
@@ -146,7 +146,6 @@ void GeneticNN::breed(int parent1, int parent2, int child) {
         }
     }
     population[child].mlp->update(newParams);
-
 }
 
 bestc GeneticNN::act(std::vector<tetrisState>& possibleStates, int index) {
@@ -164,13 +163,13 @@ bestc GeneticNN::act(std::vector<tetrisState>& possibleStates, int index) {
         if (rating > max_rating) {
 
             max_rating = rating;
-            best_action = std::get<1>(possibleStates[i]);
+            best_action = possibleStates[i].pos;
             best_index = i;
 
         }
     }
     for (auto& state : possibleStates) {
-        evars* e = std::get<0>(state);
+        evars* e = state.ev;
         if (e) {
             free(e->colHeights);
             free(e->deltaColHeights);
@@ -292,7 +291,7 @@ bestc GeneticNN::actWithNextBlock(mat m, block s, block ns, evars *prev, int ind
                     .shapeN = r
                 };
 
-                tetrisState midState = std::make_tuple(ev, config, numCleared);
+                tetrisState midState = {.ev = ev, .pos = config, .linesCleared = numCleared};
 
 
                 array midOutput = generalizedForward(stateToArray(midState), this->population[index].mlp->params);
@@ -322,7 +321,7 @@ bestc GeneticNN::actWithNextBlock(mat m, block s, block ns, evars *prev, int ind
                                 .shapeN = rp
                             };
 
-                            tetrisState input = std::make_tuple(ev2, config, numCleared + numCleared2);
+                            tetrisState input = { .ev = ev2, .pos = config, .linesCleared = numCleared + numCleared2 };
 
                             array output = generalizedForward(stateToArray(input), this->population[index].mlp->params);
 
@@ -383,9 +382,9 @@ bestc GeneticNN::actWithNextBlock2(mat m, block s, block ns, evars *prev, int in
     for (int i = 0; i < numberToCheck; i++) {
         tetrisState state = std::get<1>(possibleBoards[i]);
 
-        evars* ev = std::get<0>(state);
-        bestc config = std::get<1>(state);
-        int numCleared = std::get<2>(state);
+        evars* ev = state.ev;
+        bestc config = state.pos;
+        int numCleared = state.linesCleared;
 
         for (int ip = 0; ip < m.cols; ip++) {
             for (int rp = 0; rp < ns.numberOfShapes; rp++) {
@@ -402,7 +401,11 @@ bestc GeneticNN::actWithNextBlock2(mat m, block s, block ns, evars *prev, int in
                         .shapeN = rp
                     };
 
-                    tetrisState input = std::make_tuple(ev2, config, numCleared + numCleared2);
+                    tetrisState input = {
+                        .ev = ev2,
+                        .pos = config,
+                        .linesCleared = numCleared + numCleared2
+                    };
 
                     array output = generalizedForward(stateToArray(input), this->population[index].mlp->params);
 
@@ -423,7 +426,7 @@ bestc GeneticNN::actWithNextBlock2(mat m, block s, block ns, evars *prev, int in
         }
     }
     for (int i = 0; i < ps.size(); i++) {
-        evars* e = std::get<0>(ps[i]);
+        evars* e = ps[i].ev;
         free(e->colHeights);
         free(e->deltaColHeights);
         free(e);

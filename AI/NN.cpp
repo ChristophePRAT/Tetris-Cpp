@@ -9,6 +9,7 @@
 #include "game.h"
 #include "mlx/ops.h"
 #include "mlx/utils.h"
+#include "tetrisrandom.hpp"
 #include <_stdlib.h>
 #include <algorithm>
 #include <assert.h>
@@ -159,7 +160,7 @@ array heuristic4(const array& input) {
 
     return -0.3 * colHeights + 8 * numCleared - 7.5 * numHoles - 5 * deltaColHeights - hMax*hMax;
 }
-array heuristic5(const array& input, bool shouldPrint = false) {
+array heuristic5(const array& input) {
     array numHoles = (*input.begin());
     array colHeights = (*(input.begin() + 1));
     array deltaColHeights = (*(input.begin() + 2));
@@ -294,8 +295,7 @@ void DQN::train(std::vector<array> states, std::vector<array> yTruth, unsigned i
         printf("Epoch %d, loss: %f, learning rate = %f\n", epoch, loss.item<float>(), learningRate); // affiche l'état de l'entrainement
     }
 
-    // On décrémente un petit peu epsilon, correspondant au taux d'exploration
-    epsilon = std::max(eps_min, epsilon * eps_decay);
+    explorationRate = std::max(expMin, explorationRate * expDecay);
 }
 
 void DQN::initializeAdam() {
@@ -374,14 +374,18 @@ void DQN::trainWithBatch(std::vector<array> states, std::vector<array> yTruth, u
 
     // ml->update_parameters(grads, lr);
     adamUpdate(grads, lr);
-    printf("loss: %f, learning rate = %f, epsilon: %f\n", loss.item<float>(), lr, epsilon);
+    printf("loss: %f, learning rate = %f, exploration rate: %f\n", loss.item<float>(), lr, explorationRate);
     // Update epsilon for exploration
-    epsilon = std::max(eps_min, epsilon * eps_decay);
+    explorationRate = std::max(expMin, explorationRate * expDecay);
 }
-bool DQN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS) {
-    int down = downShape(*m, s);
-
-    // *score += 1;
+bool DQN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* score, unsigned int* linesCleared, unsigned int index, block** BASIC_BLOCKS, TetrisRandom& tetrisRand, bool instant) {
+    int down;
+    if (!instant) {
+        down = downShape(*m, s);
+    } else {
+        s->position[0] = s->downPos;
+        down = -1;
+    }
 
     if (down == -1) {
         computeDownPos(*m, s);
@@ -392,19 +396,19 @@ bool DQN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* 
 
         updateEvars(*m, e);
         changeBlock(s, nextBl);
-        changeBlock(nextBl, randomBlock(BASIC_BLOCKS));
+        changeBlock(nextBl, tetrisRand.randomBlock());
+
+        // updateEvars(*m, e);
+        // changeBlock(s, nextBl);
+        // changeBlock(nextBl, randomBlock(BASIC_BLOCKS));
 
         std::vector<tetrisState> maybeStates = possibleStates(*m, *s, e);
 
         bestc compo = this->act(maybeStates);
 
-        // 50% chance to add a random state
 
         if (compo.shapeN == -1) { return false; }
 
-        // if (generateRandomDouble(0, 1) < 0.5) {
-        //     mem.push_back(maybeStates[randomIntBetween(0, maybeStates.size() - 1)]);
-        // }
         int nextPosX = compo.col;
 
         assert(nextPosX >= 0 && nextPosX < m->cols + 2);
@@ -429,7 +433,7 @@ bool DQN::tickCallback(mat* m, block* s, block* nextBl, evars* e, unsigned int* 
 }
 
 bestc DQN::act(std::vector<tetrisState>& possibleStates) {
-    if (generateRandomDouble(0, 1) < epsilon && possibleStates.size() > 0) {
+    if (generateRandomDouble(0, 1) < explorationRate && possibleStates.size() > 0) {
         tetrisState randomState = possibleStates[generateRandomNumber(0, possibleStates.size() - 1)];
         return randomState.pos;
     }
@@ -483,7 +487,7 @@ bestc DQN::act(std::vector<tetrisState>& possibleStates) {
 
 
 bestc DQN::actWithMat(std::vector<tetrisState>& possibleStates) {
-    if (generateRandomDouble(0, 1) < epsilon && possibleStates.size() > 0) {
+    if (generateRandomDouble(0, 1) < explorationRate && possibleStates.size() > 0) {
         tetrisState randomState = possibleStates[generateRandomNumber(0, possibleStates.size() - 1)];
         return randomState.pos;
     }

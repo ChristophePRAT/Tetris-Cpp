@@ -29,12 +29,12 @@ bestc bestFromHeuristic(mat *m, block s, evars* e) {
     };
 
     for (const auto& state: st) {
-        evars *ef = std::get<0>(state);
-        int linesCleared = std::get<2>(state);
+        evars *ef = state.ev;
+        int linesCleared = state.linesCleared;
         double score = heuristic(linesCleared, ef);
         if (score > max) {
             max = score;
-            best = std::get<1>(state);
+            best = state.pos;
         }
         free(ef->colHeights);
         free(ef->deltaColHeights);
