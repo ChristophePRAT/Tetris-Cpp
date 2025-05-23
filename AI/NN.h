@@ -145,7 +145,7 @@ class DQN {
     }
     void trainNN(unsigned int linesCleared) {
         step += 1;
-        unsigned int epochs = 5;
+        unsigned int epochs = 1;
         for (int i = 0; i < epochs; i++) {
             printf("Epoch %d: \n", i);
             trainWithBatch(mem, batchHeuristic(mem), linesCleared);

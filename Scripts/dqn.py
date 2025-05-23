@@ -1,9 +1,15 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.signal import savgol_filter, butter, filtfilt
+import argparse
 
+# file_name is the first argument parsed
 
-file_name = "./scores/scores_dqn_6.csv"
+parser = argparse.ArgumentParser(description="Plot scores from a CSV file of a DQN.")
+parser.add_argument("file_name", type=str, help="Path to the CSV file containing scores.")
+
+file_name = parser.parse_args().file_name
+
 
 df = pd.read_csv(file_name)
 
@@ -23,7 +29,7 @@ df['y_smooth_filter'] = butter_lowpass_filter(df['linesCleared'], cutoff, fs)
 df['y_smooth'] = savgol_filter(df['linesCleared'], window_length=51, polyorder=5)
 
 df["smooth"] = df['linesCleared'].ewm(span=50).mean()
-df["smooth_simple"] = df['linesCleared'].rolling(window=50, center=True).mean()
+df["smooth_simple"] = df['linesCleared'].rolling(window=30, center=True).mean()
 
 # Smooth the curve using an exponential moving average
 # plt.plot(df["step"], df["score"], label="Scores", alpha=1)
@@ -33,12 +39,14 @@ df["smooth_simple"] = df['linesCleared'].rolling(window=50, center=True).mean()
 # f.add_subplot(1, 1, 1)
 # plt.plot(df["step"], df["score"], label="Scores", alpha=1)
 # f.add_subplot(1, 2, 2)
-plt.plot(df["step"], df["linesCleared"], label="Lines cleared", c="b", alpha=0.3)
+plt.plot(df["step"], df["linesCleared"], c="b", alpha=0.3)
 # plt.plot(df["step"], df["smooth_simple"], label="Simple Moving Average", c="r", alpha=1.0)
 # plt.plot(df["step"], df["smooth"], label="Exponential Moving Average", alpha=1.0)
-plt.plot(df["step"], df["y_smooth"], label="Savitzky-Golay Filter", alpha=1.0)
+plt.plot(df["step"], df["smooth_simple"], label="Évolution moyenne", alpha=1.0)
 # plt.plot(df["step"], df["y_smooth_filter"], label="Butterworth Lowpass Filter", alpha=1.0)
 
+plt.xlabel("Itération")
+plt.ylabel("Lignes effacées")
 plt.legend()
 plt.show()
 

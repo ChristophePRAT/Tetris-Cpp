@@ -158,8 +158,9 @@ array heuristic4(const array& input) {
     array deltaColHeights = (*(input.begin() + 4));
     array numCleared = (*(input.begin() + 5));
 
-    return -0.3 * colHeights + 8 * numCleared - 7.5 * numHoles - 5 * deltaColHeights - hMax*hMax;
+    return -0.3 * colHeights + 0.8 * numCleared - 0.75 * numHoles - 0.5 * deltaColHeights - 0.4*hMax;
 }
+// best
 array heuristic5(const array& input) {
     array numHoles = (*input.begin());
     array colHeights = (*(input.begin() + 1));
@@ -168,11 +169,20 @@ array heuristic5(const array& input) {
 
     return -0.510066 * colHeights + 0.760666 * numCleared - 0.35663 * numHoles - 0.184483 * deltaColHeights;
 }
+array heuristic6(const array& input) {
+    array numHoles = (*input.begin());
+    array colHeights = (*(input.begin() + 1));
+    array deltaColHeights = (*(input.begin() + 2));
+    array numCleared = (*(input.begin() + 3));
+
+    return -0.3 * colHeights + 1 * numCleared - 0.6 * numHoles - 0.1 * deltaColHeights;
+}
+
 std::vector<array> DQN::batchHeuristic(std::vector<array> states) {
     std::vector<array> ys = {};
 
     for (array input : states) {
-        array y = heuristic5(input);
+        array y = heuristic6(input);
         ys.push_back(y);
     }
     return ys;
@@ -334,7 +344,7 @@ void DQN::trainWithBatch(std::vector<array> states, std::vector<array> yTruth, u
     std::iota(argnums.begin(), argnums.end(), 0);
 
     std::vector<array> input = ml->params;
-    int batchSize = 32;
+    int batchSize = 8;
 
     for (int epoch = 0; epoch < batchSize; epoch++) {
         std::random_device dev;
