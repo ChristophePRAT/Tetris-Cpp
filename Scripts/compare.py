@@ -3,6 +3,8 @@ import pandas as pd
 import argparse
 import time
 from scipy.signal import savgol_filter, butter, filtfilt
+import numpy as np
+
 
 parser = argparse.ArgumentParser(
     description="Compare the 2."
@@ -28,10 +30,10 @@ fig, ax = plt.subplots()
 line_genNN, = ax.plot([], [], label='Mutation génétique')
 line_dqn, = ax.plot([], [], label='Apprentissage par renforcement')
 # line_best, = ax.plot([], [], label='Meilleur par génération')
-ax.set_title('Comparaison entre Mutation génétique et Apprentissage par renforcement')
-ax.set_xlabel('Individu')
-ax.set_ylabel('Lignes effacées')
-ax.legend()
+# ax.set_title('Comparaison entre Mutation génétique et Apprentissage par renforcement', fontsize=20)
+ax.set_xlabel('Nombre de parties jouées', fontsize=20)
+ax.set_ylabel('Lignes effacées', fontsize=20)
+ax.legend(fontsize=20)
 
 df = pd.read_csv(file1)
 # df = df.head(800)
@@ -63,6 +65,36 @@ new_df["best_quartile"] = pd.to_numeric(new_df["best_quartile"], errors='coerce'
 new_df["worst_quartile"] = pd.to_numeric(new_df["worst_quartile"], errors='coerce')
 max_pop = new_df["population"].max()
 
+
+
+x = df2["step"][500:]
+y = df2["y_smooth"][500:]
+coeffs = np.polyfit(x, y, 1)
+line_reg = np.poly1d(coeffs)
+
+plt.plot(x, line_reg(x), label="Régression linéaire (RL)", linestyle="--", color="red")
+
+x1 = pd.to_numeric(new_df["population"].iloc[7:], errors='coerce')  # Convert to numeric, coercing errors to NaN
+y1 = pd.to_numeric(new_df["mean"].iloc[7:], errors='coerce')        # Convert to numeric, coercing errors to NaN
+
+# Drop NaN values and ensure x1 and y1 are the same size
+valid_indices = ~x1.isna() & ~y1.isna()  # Keep only valid (non-NaN) indices
+x1 = x1[valid_indices]
+y1 = y1[valid_indices]
+
+# Ensure x1 and y1 are the same size
+min_length = min(len(x1), len(y1))
+x1 = x1[:min_length]
+y1 = y1[:min_length]
+
+# Perform linear regression
+coeffs1 = np.polyfit(x1, y1, 1)  # Linear regression (degree=1)
+line_reg1 = np.poly1d(coeffs1)
+
+plt.plot(x1 * len(df) / max_pop, line_reg1(x1), label="Régression linéaire (GM)", linestyle="--", color="blue")
+
+
+
 # line_data.set_data(df['index'], df['linesCleared'])
 line_genNN.set_data(new_df['population']  * len(df) / max_pop, new_df['mean'])
 ax.fill_between(new_df['population']  * len(df) / max_pop,
@@ -70,8 +102,8 @@ ax.fill_between(new_df['population']  * len(df) / max_pop,
                 new_df['best_quartile'],
                 color='b',
                 alpha=0.1,
-                label='Zone entre le 1er et le 3ème quartile')
-ax.legend()
+                label='50% des invididus se trouvent dans cette aire')
+ax.legend(fontsize=20)
 line_dqn.set_data(df2['step'], df2['y_smooth'])
 # line_best.set_data(new_df['population'] * len(df) / max_pop, new_df['best_score'])
 

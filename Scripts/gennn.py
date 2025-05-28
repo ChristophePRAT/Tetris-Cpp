@@ -11,15 +11,6 @@ args = parser.parse_args()
 # Path to your CSV file
 csv_file = args.file
 
-fig, ax = plt.subplots()
-line_data, = ax.plot([], [], label='Données brutes', c="b", alpha=0.2)
-line_mean, = ax.plot([], [], label='Moyenne par génération')
-line_best, = ax.plot([], [], label='Meilleur par génération')
-ax.set_title('Mutation génétique')
-ax.set_xlabel('Individu')
-ax.set_ylabel('Lignes effacées')
-ax.legend()
-
 df = pd.read_csv(csv_file)
 df["index"] = range(1, len(df) + 1)
 new_df = pd.DataFrame(columns=["population", "best_score", "mean", "median", "worst_score"])
@@ -44,11 +35,35 @@ new_df["best_quartile"] = pd.to_numeric(new_df["best_quartile"], errors='coerce'
 new_df["worst_quartile"] = pd.to_numeric(new_df["worst_quartile"], errors='coerce')
 max_pop = new_df["population"].max()
 
-line_data.set_data(df['index'], df['linesCleared'])
-line_mean.set_data(new_df['population'] * len(df) / max_pop, new_df['mean'])
-line_best.set_data(new_df['population'] * len(df) / max_pop, new_df['best_score'])
 
-ax.relim()
-ax.autoscale_view()
 
+fig, ax = plt.subplots(figsize=(12, 6))
+
+# Plot the line chart with individual data points
+line_data, = ax.plot(df['index'], df['linesCleared'], label='Données brutes', c="black", alpha=0.5, linewidth=0.5)
+
+# Calculate bar positions to align with line chart
+# Each bar should cover exactly 64 individuals
+bar_positions = []
+for pop in new_df["population"]:
+    # Center of each generation (64 individuals per generation)
+    start_idx = pop * 64 + 1  # +1 because index starts at 1
+    end_idx = (pop + 1) * 64
+    center = (start_idx + end_idx) / 2
+    bar_positions.append(center)
+
+# Create bar charts with proper positioning
+bar_width = 64  # Full width to remove padding between bars
+bar_mean = ax.bar(bar_positions, new_df["mean"], width=bar_width, label='Moyenne par génération', color='blue', alpha=0.2, align='center')
+bar_best = ax.bar(bar_positions, new_df["best_score"], width=bar_width, label='Meilleur par génération', color='g', alpha=0.1, align='center')
+
+# ax.set_title('Mutation génétique', fontsize=20)
+ax.set_xlabel('Individu', fontsize=20)
+ax.set_ylabel('Lignes effacées', fontsize=20)
+ax.legend(fontsize=20)
+
+# Set x-axis limits to show all data
+# ax.set_xlim(0, len(df) + 1)
+
+plt.tight_layout()
 plt.show()

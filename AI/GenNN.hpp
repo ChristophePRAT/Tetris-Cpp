@@ -124,8 +124,8 @@ private:
   bestc actWithNextBlock(mat m, block s, block ns, evars *prev, int index);
   bestc actWithNextBlock2(mat m, block s, block ns, evars *prev, int index);
   const std::string NAMES[64] = {
-      "M. Castel           ",
-      "Mme Hémery          ",
+      "Kauli Vaast         ", // surf, homme
+      "Althéa Laurin       ", // taekwondo, +67kg, femmes
       "Alban               ",
       "Thibault            ",
       "Dai-Khanh           ",
@@ -138,7 +138,7 @@ private:
       "Zacharie            ",
       "Maxime              ",
       "Auxence             ",
-      "M. Boisseleau       ",
+      "Shrek               ",
       "Timothée            ",
       "Adrien              ",
       "Karl                ",
@@ -155,19 +155,19 @@ private:
       "Hélène              ",
       "Émilie              ",
       "Armand              ",
-      "M. Delamaire        ",
-      "M. André            ",
-      "Mme D'Halluin       ",
-      "M. Guillemaud       ",
+      "Lauriane Nolot      ", // voile
+      "Yannick Borel       ", // escrime, épée hommes
+      "Victor Koretzky     ", // VTT, cross-country hommes
+      "M. Dijkstra         ",
       "M. Lamport          ",
       "Henri Ford          ",
       "Didier              ",
       "M. Deschamps        ",
       "Sid                 ",
-      "M. Corbineau        ",
-      "Mme Chalmain        ",
-      "M. Legaie           ",
-      "M. Obadia           ",
+      "Sara Balzer         ", // escrime, sabre individuel femmes
+      "Sylvain André       ", // BMX racing, hommes
+      "Angele Hug          ", // canoë slalom, kayak cross femmes
+      "Sofiane Oumiha      ", // boxe, -63,5kg, hommes
       "George Washington   ",
       "Jean de la Fontaine ",
       "Victor Hugo         ",
@@ -178,7 +178,7 @@ private:
       "Matis               ",
       "Henri               ",
       "Léon Marchand       ",
-      "Teddy Riner         ",
+      "Teddy Riner         ", // Médaillé de judo
       "Joan-Benjamin Gaba  ", // médaillé de Judo
       "Luka Mkheidze       ", // médaillé de Judo
       "Clarisse Agbegnenou ", // médaillée de Judo

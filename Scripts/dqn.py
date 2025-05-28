@@ -45,9 +45,10 @@ plt.plot(df["step"], df["linesCleared"], c="b", alpha=0.3)
 plt.plot(df["step"], df["smooth_simple"], label="Évolution moyenne", alpha=1.0)
 # plt.plot(df["step"], df["y_smooth_filter"], label="Butterworth Lowpass Filter", alpha=1.0)
 
-plt.xlabel("Itération")
-plt.ylabel("Lignes effacées")
-plt.legend()
+
+plt.xlabel("Itération", fontsize=20)
+plt.ylabel("Lignes effacées", fontsize=20)
+plt.legend(fontsize=20)
 plt.show()
 
 # df["index"] = range(1, len(df) + 1)
