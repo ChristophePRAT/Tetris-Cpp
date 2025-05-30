@@ -74,11 +74,11 @@ void addGMEntry(unsigned int *fileNum, int score, double* weights, int populatio
     fclose(fptr);
 }
 
-void addDQNEntry(unsigned int *fileNum, int score, int linesCleared, bool firstEntry, int step) {
+void addRLEntry(unsigned int *fileNum, int score, int linesCleared, bool firstEntry, int step) {
     FILE *fptr;
     char fileName[40];
 
-    sprintf(fileName, "./scores/scores_dqn_%d.csv", *fileNum);
+    sprintf(fileName, "./scores/scores_rl_%d.csv", *fileNum);
 
     // Open a file in read mode
     fptr = fopen(fileName, "a");
@@ -92,7 +92,7 @@ void addDQNEntry(unsigned int *fileNum, int score, int linesCleared, bool firstE
         } else {
             if (firstEntry) {
                 *fileNum += 1;
-                addDQNEntry(fileNum, score, linesCleared, firstEntry, step);
+                addRLEntry(fileNum, score, linesCleared, firstEntry, step);
             }
         }
     }

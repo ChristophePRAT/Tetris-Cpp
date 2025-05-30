@@ -5,7 +5,7 @@
 //  Created by Christophe Prat on 26/04/2024.
 //
 
-#include "agent.h"
+#include "simple-gm.h"
 #include "game.h"
 #include <cstdio>
 #import <stdlib.h>

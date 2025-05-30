@@ -13,11 +13,11 @@
 #include "SDL_scancode.h"
 #include "game.h"
 #include "blocksNshapes.hpp"
-#include "agent.h"
+#include "simple-gm.h"
 #include <cstdlib>
 #include <time.h>
 #include "FileHelper.hpp"
-#include "NN.h"
+#include "rl.h"
 #include "GenNN.hpp"
 #include "display.hpp"
 #include "heuristic.hpp"
@@ -25,7 +25,7 @@
 #include "mlx/stream.h"
 #include "tetrisrandom.hpp"
 
-// AI_MODE  = -1: User mode | 0: Genetic | 1: DQN | 2: Genetic Neural Network | 3: Pre-defined heuristic
+// AI_MODE  = -1: User mode | 0: Genetic | 1: RL | 2: Genetic Neural Network | 3: Pre-defined heuristic
 int AI_MODE = 2;
 
 int loadGen = -1;
@@ -106,7 +106,7 @@ int main(int argc, char* args[] ) {
     } else if (AI_MODE == 0) {
         printf("Game loaded with genetic mutation mode 🦁\n");
     } else if (AI_MODE == 1) {
-        printf("Game loaded with DQN mode 🧠\n");
+        printf("Game loaded with RL mode 🧠\n");
     } else if (AI_MODE == 2) {
         printf("Game loaded with neural network genetic mutation mode ⚛️\n");
     } else if (AI_MODE == 3) {
@@ -201,7 +201,7 @@ void loop() {
     bool quit = false;
 
     population* g;
-    DQN dqn = DQN(4, 100);
+    RL rl = RL(4, 100);
     GeneticNN genNN = GeneticNN(4, {3, 1 }, loadName);
 
     std::random_device rd;
@@ -242,7 +242,7 @@ void loop() {
             if (AI_MODE == 0) {
                 gameOver = !tickCallback(m, s, nextBlock, envVars, g, &score, &linesCleared, index, BASIC_BLOCKS);
             } else if (AI_MODE == 1) {
-                gameOver = !dqn.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, tetrisRand, TIMER_INTERVAL == 0 || instantMode);
+                gameOver = !rl.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, tetrisRand, TIMER_INTERVAL == 0 || instantMode);
             } else if (AI_MODE == 2) {
                 gameOver = !genNN.tickCallback(m, s, nextBlock, envVars, &score, &linesCleared, index, BASIC_BLOCKS, tetrisRand, TIMER_INTERVAL == 0 || instantMode);
             } else if (AI_MODE == -1) {
@@ -261,7 +261,7 @@ void loop() {
                 } else if (AI_MODE == 0) {
                     addGMEntry(&fileNum, score, g->individuals[index].weights, g->id, index == 0 && g->id == 0);
                 } else if (AI_MODE == 1) {
-                    addDQNEntry(&fileNum, score, linesCleared, index == 0 && dqn.step == 0, dqn.step);
+                    addRLEntry(&fileNum, score, linesCleared, index == 0 && rl.step == 0, rl.step);
                 }
 
                 if (AI_MODE == 0) {
@@ -272,7 +272,7 @@ void loop() {
                         index = 0;
                     }
                 } else if (AI_MODE == 1) {
-                    dqn.trainNN(linesCleared);
+                    rl.trainNN(linesCleared);
                 } else if (AI_MODE == 2) {
                     genNN.setResult(index, score, linesCleared);
                     srand(genNN.seed);

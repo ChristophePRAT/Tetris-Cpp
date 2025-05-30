@@ -2,7 +2,7 @@
 
 <img width="812" alt="tetris-ai" src="https://github.com/user-attachments/assets/6afceb35-c506-462d-a4ad-f059674fbb27" />
 
-## Motivation 
+## Motivation
 
 For our TIPE (personal project in CPGE), I built a tetris game in C++ and different AIs to learn to play the game. In the end, the goal is to compare the results of the different AIs.
 
@@ -18,7 +18,7 @@ cmake --build build
 
 Quick note about the parameters:
 - `-m 0` is for training a simple genetic mutation without neural networks
-- `-m 1` is for training a DQN
+- `-m 1` is for training a RL algorithm
 - `-m 2` is for training a Genetic Neural Network
 - `-m 3` is for using a custom heuristic to play the game
 
@@ -37,8 +37,8 @@ Our genetic algorithm is based on the following steps:
 4. Eliminate the worst individuals (1/2 of the population)
 5. Create new individuals by crossing over the best individuals (choosing random weights from the best individuals to create the new ones)
 6. Repeat step 2 to 6
-### DQN
-Our DQN algorithm is based on the following steps:
+### RL algorithm
+Our RL algorithm is based on the following steps:
 1. Create a NN
 2. Define a heuristic function that evaluates the state of the game
 3. Play the game and randomly store states in a replay buffer
@@ -46,6 +46,6 @@ Our DQN algorithm is based on the following steps:
 
 ### Genetic Neural Network
 Same as the basic genetic algorithm but the individuals are neural networks.
-Currently this is the best we have. Managed to get a score of 289 lines cleared within 7 minutes of training in boost mode. For reference, I scored 180 and gamers can score around 220.
+Currently this is the best we have. Managed to get a score of 1084 lines cleared within 7 minutes of training in boost mode. For reference, I scored 180 and gamers can score around 220.
 
 Our max score was around 2500 (in roughly 10 minute of training).
